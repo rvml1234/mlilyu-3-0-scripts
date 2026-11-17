@@ -254,7 +254,9 @@ html.lenis, html.lenis body { height: auto; }
 /* The middle stop hangs below the route (still to the right of its line) so three stops fit along one short row. */
 .floor-label--below .floor-label__inner { bottom: auto; top: 0; height: clamp(90px, 13vh, 140px); }
 .floor-label--below .floor-label__body { align-self: flex-end; }
-/* WEBFLOW (2026-11-17): the label titles' and subtitles' type and colour live in the Webflow classes floor-label__title / floor-label__sub. */
+.floor-label__text .floor-label__sub { color: rgba(255, 255, 255, 0.85); }
+.floor-label__title { font-size: clamp(18px, 1.75vw, 30px); font-weight: 500; letter-spacing: -0.01em; }
+.floor-label__sub { font-size: clamp(13px, 1.15vw, 19px); font-weight: 500; color: rgba(255, 255, 255, 0.7); }
 
 /* Scene 2's bright 3D showroom (data-tone="light", set by the script once the room is up; the flat fallback keeps the
    dark look). A warm white wash replaces the dark shades (it reads as the window side of the room), and the labels
@@ -300,15 +302,22 @@ html.lenis, html.lenis body { height: auto; }
 }
 .scenes__text { display: flex; align-items: stretch; gap: 36px; min-height: 176px; max-width: 760px; }
 .scenes__rail { flex: none; display: flex; flex-direction: column; gap: 4px; width: 2px; }
-.scenes__seg { position: relative; flex: 1; overflow: hidden; border-radius: 2px; } /* WEBFLOW: its colour is in the Webflow class */
-.scenes__fill { position: absolute; inset: 0; transform-origin: top; transform: scaleY(var(--p, 0)); } /* WEBFLOW: its colour is in the Webflow class */
+.scenes__seg { position: relative; flex: 1; overflow: hidden; border-radius: 2px; background: rgba(255, 255, 255, 0.2); }
+.scenes__fill { position: absolute; inset: 0; background: #fff; transform-origin: top; transform: scaleY(var(--p, 0)); }
 .scenes__copy { display: grid; flex: 1; min-width: 0; align-content: start; }
 .scene-copy { grid-area: 1 / 1; visibility: hidden; }
 .scene-copy.is-active { visibility: visible; }
 .scenes__copy { font-kerning: normal; font-feature-settings: "kern" 1, "liga" 1; text-rendering: optimizeLegibility; }
-/* WEBFLOW (2026-11-17): the scene titles' and paragraphs' type, spacing and colour live in the Webflow classes scene-copy__title /
-   scene-copy__text (Style panel, bound to the site's variables). Only what the animation needs stays here. */
-.scene-copy h2 { text-wrap: balance; }
+.scene-copy h2 {
+  margin: 0;
+  font-size: clamp(30px, 2.5vw, 42px); line-height: 1.1; font-weight: 500; letter-spacing: -0.024em;
+  text-wrap: balance;
+}
+.scene-copy p {
+  margin: clamp(14px, 1.2vw, 20px) 0 0; max-width: 27em;
+  font-size: clamp(15px, 1.05vw, 17px); line-height: 1.55; font-weight: var(--fw-text, 450); letter-spacing: 0.002em;
+  color: rgba(255, 255, 255, 0.86);
+}
 /* v181 (Ramir 2026-11-11: "Yes, scenes too"): the titles reveal like the headline, after serious.business's titles.
    The script splits each title into its lines as laid out (.reveal-line, --li = line number); each line hangs from its
    top edge in 3D and swings from tilted back (rotateX -35deg, rotateY -5deg, 1rem away) to flat on a gentle ease-out
@@ -361,7 +370,11 @@ html.lenis, html.lenis body { height: auto; }
   /* 2026-11-09, Ramir: "images and text are a lot smaller on tablet and mobile". A size up for the copy and labels;
      then the typography pass: titles sized to hold one line where they can and balance otherwise, a tighter gap. */
   .scenes__text { max-width: 620px; gap: 28px; }
+  .scene-copy h2 { font-size: clamp(30px, 4.3vw, 40px); }
+  .scene-copy p { margin-top: 16px; max-width: 28em; font-size: 17px; }
   .floor-label__photo { --photo-d: clamp(52px, 7vw, 64px); }
+  .floor-label__title { font-size: clamp(20px, 2.8vw, 26px); }
+  .floor-label__sub { font-size: clamp(14px, 1.9vw, 17px); }
 }
 
 /* Phone. (The scene copy was one step smaller here; 2026-11-09 it went back up, Ramir found it too small.) */
@@ -376,6 +389,8 @@ html.lenis, html.lenis body { height: auto; }
   .statement__text { font-size: 26px; }
   .scenes__ui { padding-bottom: 48px; padding-inline: 20px; } /* a bit wider column so short titles hold one line */
   .scenes__text { gap: 20px; min-height: 140px; }
+  .scene-copy h2 { font-size: clamp(26px, 7.4vw, 32px); line-height: 1.12; }
+  .scene-copy p { margin-top: 12px; font-size: 15px; line-height: 1.5; }
   .floor { width: 230vw; left: 36%; top: 40%; }
   .floor-label__inner { height: max(96px, var(--lift, 0px)); gap: 10px; }
   .floor-label--below .floor-label__inner { height: 72px; }
@@ -383,6 +398,8 @@ html.lenis, html.lenis body { height: auto; }
   .floor-label__body { gap: 6px; }
   .floor-label__photo { --photo-d: 36px; }
   .floor-label__text { gap: 3px; }
+  .floor-label__title { font-size: 17px; }
+  .floor-label__sub { font-size: 13px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -608,7 +625,8 @@ html.lenis, html.lenis body { height: auto; }
 }
 .intro-title {
   margin: 0; font-kerning: normal; font-feature-settings: "kern" 1, "liga" 1; text-rendering: optimizeLegibility;
-  color: var(--intro-ink); /* WEBFLOW (2026-11-17): size, weight, line height and letter spacing live in the Webflow class intro-title */
+  font-size: clamp(30px, 4.2vw, 72px); font-weight: 500; line-height: 1.08; letter-spacing: -0.028em;
+  color: var(--intro-ink);
   perspective: 1000px; /* v180: the lines' reveal swings them in 3D */
   opacity: clamp(0, 1 - var(--intro-g, 0) * 1.8, 1);
   transform: translateY(calc((var(--thumb-h) + var(--slot-gap)) / 2 * (1 - var(--intro-u, 0)) - var(--intro-g, 0) * 6vh));
@@ -659,6 +677,7 @@ html.lenis, html.lenis body { height: auto; }
   .medley__item--4 { --x: -6%; --y: 66%; --w: 42vw; --wh: 32vh; --o: 0.7; }
   .medley__item--6 { --x: 24%; --y: 88%; --w: 34vw; --wh: 26vh; --o: 0.6; }
   .medley__item--7 { --x: 60%; --y: 74%; --w: 44vw; --wh: 33vh; --o: 0.7; }
+  .intro-title { font-size: clamp(40px, 6.6vw, 64px); }
   /* Here the top row reaches over the headline's column, so both keep clear of its first line. */
   .medley__item--3 {
     top: min(var(--y), calc(var(--type-top, 100vh) - var(--type-gap) - min(var(--w), var(--wh, 100vh)) * var(--hr)));
@@ -679,6 +698,7 @@ html.lenis, html.lenis body { height: auto; }
   .medley__item--6 { --x: -67%; --y: 39%; --w: 50vw; --wh: 100vh; --o: 0.6; }
   /* each line still holds within 16 px side margins: v184's longest line, "We keep you current.", is about 9.7× the
      font size wide, so the size is capped at (screen − 32 px) / 9.85 (trims under 1 px at 320–390 px) */
+  .intro-title { font-size: min(clamp(30px, 9.4vw, 44px), calc((100vw - 32px) / 9.85)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -707,6 +727,9 @@ html.lenis, html.lenis body { height: auto; }
 :root { --fw-text: 400; }
 html.type-before { --fw-text: 450; --font: "Montserrat File", system-ui, -apple-system, sans-serif; }
 html:not(.type-before) { --ink: #101820; --muted: #4f5a66; }
+html:not(.type-before) .scene-copy p { line-height: 1.6; letter-spacing: 0; }
+html:not(.type-before) .floor-label__title { font-weight: 600; letter-spacing: 0; }
+html:not(.type-before) .floor-label__sub { font-weight: 400; }
 html:not(.type-before) .intro-line__to { -webkit-font-smoothing: auto; -moz-osx-font-smoothing: auto; }
 
 /* Webflow build (2026-11-17): Webflow can't keep the inline style="--i:0 / 1" on the headline lines, so each line takes its stagger
