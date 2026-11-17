@@ -5,6 +5,7 @@ Page scripts for the MLILY U 3.0 Webflow site, served to Webflow through jsDeliv
 - `section-1/`: Section sample 1, the Learn / Sell / Market cards.
 - `section-2/`: Section sample 2, the Midnight scroll section.
 - `pdp/`: the product page template (Mattresses).
+- `shell/`: the 3.0 shell (top bar, menus, Mattress index).
 
 Each Webflow page loads a fixed version, so a change only goes live when the page is pointed at it:
 
@@ -45,6 +46,30 @@ Hooks it relies on (Webflow class names): `pdp-page`, `page-action` + `data-acti
 `overview-checks` / `__list` / `__item` / `__text` + `data-checks-more`, `photo-strip` / `__track` / `__item` / `__nav--prev|next`,
 `layers__feel`, `layers__lists`, `layers__alt`, `faq__lists`, `faq__extra`, `data-faq-more`, `pairs__card` / `__name` / `__ext`.
 Test locally: save the published page as `pdp/_test.html` with these four files added, and serve the folder (not committed).
+
+## Shell (top bar + Mattress index, 2026-11-17)
+
+`shell/shell.js` and `shell/shell.css`: the behaviour of the Webflow shell (`header.sh-top`, `aside.side-index`), the same as the
+prototype (mlilyu-3-0-shell: js/shell.js, js/side-index.js, data/nav.js). Webflow draws the bar and the index; the script adds:
+
+- Links: library routes from the 3.0 sitemap (Draft E: /library, /library/products ...); each mattress link from the index item's `data-slug`
+- Search: a real field in place of the placeholder, "/" to focus, local results (mattresses, then pages), arrows + Enter, Esc.
+  Under 992 px the search icon opens it as a panel under the bar.
+- Menu drawer (☰), account menu, tooltips on the icon buttons
+- Theme button: pressed state and saved choice only (the light theme isn't built in Webflow yet)
+- Mattress index (992 px and up): the sections move under the current mattress, jump under the bar, follow the scroll; its search
+  filters mattresses and sections; ⌘K / Ctrl K focuses it
+- Tablet and phone: a bar under the top bar once the title has scrolled past, with two dropdowns (switch mattress, jump to a section)
+
+Load order on the template page: `shell/shell.css` in the head after `pdp/pdp.css`; `shell/shell.js` in the footer after `pdp/pdp.js`
+(same commit hash). `pdp.js` asks the shell for its jump offset (`window.MLILY_SHELL.jumpOffset()`), 16 px without it.
+
+Hooks: `sh-top`, `data-sh-menu`, `sh-home`, `sh-crumbs__link`, `page-crumbs__link`, `data-sh-search-box` + `sh-search__placeholder`,
+`data-sh-search` (the icon), `sh-util` + `data-sh-link`, `data-sh-theme`, `data-sh-account`, `side-index`, `data-sh-index-search` +
+`side-index__placeholder` + `side-index__kbd`, `side-index__product` + `data-slug` / `data-sub`, `side-index__sections` /
+`side-index__section` (href `#<section id>`), `product-hero__title`, and `data-wf-item-slug` on `<html>` (Webflow's own).
+Test locally: save the published page as `_shelltest.html` at the repo root with the jsDelivr links pointed at the local files,
+plus the two shell files, and serve the folder (not committed).
 
 ## Class names (BEM, 2026-11-17)
 

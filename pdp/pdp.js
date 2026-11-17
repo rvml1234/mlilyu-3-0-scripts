@@ -75,7 +75,9 @@
   function jump(sel) {
     var node = $(sel);
     if (!shown(node)) return;
-    var top = node.getBoundingClientRect().top + window.scrollY - 16;
+    // under the shell's fixed bars when shell/shell.js is on the page
+    var off = window.MLILY_SHELL && window.MLILY_SHELL.jumpOffset ? window.MLILY_SHELL.jumpOffset() : 16;
+    var top = node.getBoundingClientRect().top + window.scrollY - off;
     window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion.matches ? "auto" : "smooth" });
   }
   function act(action) { if (TARGET[action]) jump(TARGET[action]); }
