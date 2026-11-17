@@ -1,0 +1,51 @@
+/* MLILY U 3.0, product page template (Mattresses): states pdp.js switches, and the few rules Webflow's API can't express as classes
+   (children of a Rich Text element, link-based states). Loaded in the template's head after Webflow's CSS and Swiper's, so equal-specificity
+   rules here win. Class names are the Webflow ones (README "Product page"). */
+
+/* ® at 60 %, raised to cap height (pdp.js wraps every ® in .reg-mark). ™ is left alone: both fonts draw it small already. */
+.reg-mark { font-size: .6em; line-height: 0; vertical-align: .45em; }
+
+/* Common questions: paragraphs and links inside the Rich Text answers */
+.faq__a p { margin: 0; }
+.faq__a p + p { margin-top: 12px; }
+.faq__a a { color: #a2c2fa; font-weight: 600; text-decoration: underline; text-decoration-color: rgba(162, 194, 250, .4); }
+.faq__a a:hover { text-decoration-color: currentColor; }
+
+/* Pairs with: the arrow only on cards that leave MLILY U */
+.pairs__card:not([href^="http"]) .pairs__ext { display: none; }
+
+/* Training checklist, collapsed: two rows, the second fading out (pdp.js measures --fade-h) */
+.overview-checks.is-collapsed .overview-checks__list {
+  -webkit-mask-image: linear-gradient(#000 0, #000 calc(100% - var(--fade-h, 54px)), transparent 100%);
+  mask-image: linear-gradient(#000 0, #000 calc(100% - var(--fade-h, 54px)), transparent 100%);
+}
+.overview-checks__item[hidden] { display: none; }
+.overview-video { cursor: pointer; }
+
+/* Layers: the feel toggle (Webflow styles the first one as chosen; once pdp.js runs, these follow the click) */
+.layers__feel.is-active { color: #fff; border-color: #fff; }
+.layers__feel.is-inactive { color: #c4c4c5; border-color: transparent; }
+.layers__feel.is-inactive:hover { color: #fff; }
+.layers__feel:focus-visible { outline: 2px solid #a2c2fa; outline-offset: 2px; }
+
+/* Photos: Swiper on the Webflow list (pdp.js adds swiper / swiper-wrapper / swiper-slide to the list's own elements) */
+.photo-strip .swiper { overflow: hidden; border-radius: 4px; cursor: grab; }
+.photo-strip .photo-strip__track.swiper-wrapper { overflow: visible; column-gap: 0; }
+.photo-strip .swiper-slide { width: 340px; height: auto; }
+.photo-strip.is-pressed .swiper { cursor: grabbing; }
+.photo-strip.is-pressed .photo-strip__img,
+.photo-strip.is-pressed .photo-strip__img:hover { transform: scale(.975); }
+.photo-strip__nav.is-disabled { opacity: .4; pointer-events: none; }
+.photo-strip__nav.is-locked { display: none; }
+@media screen and (max-width: 479px) { .photo-strip .swiper-slide { width: 200px; } }
+
+/* Copy page: a short "Copied" state */
+.page-copy__main.is-copied { border-color: rgba(255, 255, 255, .4); }
+
+/* Screen-reader-only status line pdp.js adds */
+.pdp-status { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-strip__img, .photo-strip__nav { transition: none; }
+  .photo-strip__img:hover, .photo-strip.is-pressed .photo-strip__img { transform: none; }
+}

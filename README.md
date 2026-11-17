@@ -4,6 +4,7 @@ Page scripts for the MLILY U 3.0 Webflow site, served to Webflow through jsDeliv
 
 - `section-1/`: Section sample 1, the Learn / Sell / Market cards.
 - `section-2/`: Section sample 2, the Midnight scroll section.
+- `pdp/`: the product page template (Mattresses).
 
 Each Webflow page loads a fixed version, so a change only goes live when the page is pointed at it:
 
@@ -17,6 +18,33 @@ No keys, passwords or private data go in this repository: it is public.
 - Section sample 2: `section-2/scenes.css` (head); GSAP 3.12.7 + ScrollTrigger (cdnjs), `section-2/vendor/lenis-1.1.5.min.js`, three.js r147 (jsDelivr npm) and `section-2/scenes.js` (footer). The scroll frames' address is the canvas's `data-src` in the page markup.
 
 Pages always point at a full commit hash. Don't request a commit's files on jsDelivr before it is pushed: jsDelivr caches the "not found" for that address.
+
+## Product page (Mattresses template, 2026-11-17)
+
+`pdp/pdp.js` and `pdp/pdp.css`: the behaviour of the Webflow template page `/mattresses/[slug]`, the same as the prototype
+(mlilyu-3-0-shell). The page reads correctly without them; they add:
+
+- ® marks at 60 %, raised (`.reg-mark`)
+- Actions row: Photos and Layers scroll to their section, keys P and L. Find Specs, Compare and the Copy page menu wait for their dialogs.
+- Copy page: copies the page as Markdown, built from what the page shows
+- Training: checklist collapses to two rows with a fade and "Show more"; the card fires a `video-open` event (no player yet)
+- Photos: Swiper 11 (endless, free drag with momentum, arrows, keyboard) on the Webflow list itself
+- Layers: the feel toggle swaps the first feel's rows (list filtered "First feel" on) for the other feel's (`.layers__alt`)
+- Common questions: "Show all N questions" swaps the first five (list limit 5) for the full list (`.faq__extra`, `data-faq-all`)
+- Pairs with: mlilyusa.com links open in a new tab; the arrow shows only on those (CSS on the link)
+
+`pdp.css` also carries the rules Webflow's API can't express as classes: children of the FAQ Rich Text answers and the
+link-based arrow. Load order on the template page (Page settings, custom code):
+
+    head:   https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.1.14/swiper-bundle.min.css
+            https://cdn.jsdelivr.net/gh/rvml1234/mlilyu-3-0-scripts@<commit>/pdp/pdp.css
+    footer: https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.1.14/swiper-bundle.min.js
+            https://cdn.jsdelivr.net/gh/rvml1234/mlilyu-3-0-scripts@<commit>/pdp/pdp.js
+
+Hooks it relies on (Webflow class names): `pdp-page`, `page-action` + `data-action`, `page-copy__main`, `overview-video`,
+`overview-checks` / `__list` / `__item` / `__text` + `data-checks-more`, `photo-strip` / `__track` / `__item` / `__nav--prev|next`,
+`layers__feel`, `layers__lists`, `layers__alt`, `faq__lists`, `faq__extra`, `data-faq-more`, `pairs__card` / `__name` / `__ext`.
+Test locally: save the published page as `pdp/_test.html` with these four files added, and serve the folder (not committed).
 
 ## Class names (BEM, 2026-11-17)
 
