@@ -1,0 +1,554 @@
+/* Webflow build of Section sample 1 (2026-11-17): the styles of everything the script draws inside each card's picture, and the
+   card states the script toggles (is-active), from rv3-air-card-hover r3-99. The frame (page, row, card, text, title, body copy) is
+   styled in Webflow with classes bound to the site's variables, so its rules are removed here. Fonts come from the site
+   (Montserrat); --font-mont and --fw-text keep the prototype's names. Images load from ./img/ next to this file. */
+:root { --font-mont: "Montserrat", sans-serif; --fw-text: 400; }
+/* rv3: air.inc's three agent cards rebuilt in HTML + CSS 3D. The script places every board in Air's units, scaled to the
+   picture square (--s px per unit), and moves it every frame. No drop shadows anywhere (Ramir); edges are 1 px borders. */
+
+:root {
+  --ease: cubic-bezier(0.4, 0, 0.2, 1); /* Air's card border / opacity transition (200 ms) */
+  --approved: #0563e9;                  /* Air's "dark" tag */
+  --best-blue: #003b95;
+}
+
+
+
+/* The row: three cards; one plays at a time, in turn, or the one hovered (kept from Air). Stacked on narrow screens.
+   r3-94 (Ramir's reference: a cell of a line grid): the cards touch, cells of one frame of 1 px lines at 14% white, and
+   the tickers line up into one line across it. The lines hold still; only a card's picture and words dim while another
+   plays. Cells are a third of the row, up to 1320 px (440 a cell). r3-94d (Ramir: "remove the surrounding grid. (not the
+   cards)"): the lines no longer run on past the row to the page's edges; only the cards' frame is left. */
+
+/* r3-72c (Ramir, on r3-72's white panels: "Not a fan of this... BUT, we can make a few tweaks, keep the transparent bg like
+   how air does but keep the animation ticker. remove the numbers."): the card is transparent again, white text on the Best
+   Blue page, a 1 px edge, the cards at 40% while another plays (as before); kept from r3-72: 20 px corners, the picture to
+   the card's edges, no cursor tilt (hover answers with the light trail and the scale-in), and the ticker, a 3 px line
+   between the picture and the text that fills through the card's turn. The white panels are in _archive/r3-72b-white-panels/. */
+/* r3-91 (Ramir, on r3-90's borderless cards: "Feels a bit too barren, add the strokes back but have them as boxy, no edge
+   curve."): the 1 px stroke is back (14% white, 30% on the card that plays), with square corners (was 20 px, Air's), and
+   the text is back inside it. r3-90's borderless cards (text flush with the ticker) are in _archive/before-boxy-r3-90c/. */
+/* r3-94: the r3-91 stroke became the frame's lines: each card draws its left side. */
+.card :is(.card__stage, .card__text) { transition: opacity 0.2s var(--ease); }
+.card:not(.is-active) :is(.card__stage, .card__text) { opacity: 0.4; }
+.card:focus-visible { outline: 2px solid #ffffff; outline-offset: -2px; }
+
+/* The picture square, full bleed (r3-72; Air clipped it to a rounded square 16 units in). */
+.card__stage {
+  --s: 1;
+  position: relative; width: 100%; aspect-ratio: 1;
+  perspective: 1600px;
+  overflow: hidden;
+  /* r3-75 (Ramir: "fix the mask"): the clip is back where it was relative to the scenes, at 161.5 units (0.5 − 161.5 × 0.93
+     / 355 = 7.691% in, since the scenes are drawn at 0.93), so Learn's layers are cut off on their INDICATE beat again and
+     its grown frame's corners stay outside it. r3-72 had dropped it (full bleed), so the stack ran out past the frame. The
+     clip itself shows nowhere else (the picture is transparent). */
+  clip-path: inset(7.691% round 8px);
+}
+/* The ticker: a faint white track and its white fill, scaled by --p (0 to 1, set by the row through the card's turn). */
+.card__progress { position: relative; flex: none; height: 1px; background: rgba(255, 255, 255, 0.14); } /* r3-74: 1 px (r3-73: 2, r3-72: 3) */
+.card__progress i { position: absolute; inset: 0; background: #ffffff; transform-origin: 0 50%; transform: scaleX(var(--p, 0)); }
+.card__tilt { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+
+.board {
+  position: absolute; left: 50%; top: 50%;
+  border: 1px solid transparent;
+  border-radius: calc(var(--r, 8) * var(--s) * 1px);
+  will-change: transform, opacity;
+}
+.board__img, .board__fill, .board__grid, .board__glass, .board__sweep, .board__player {
+  position: absolute; inset: -1px; border-radius: inherit;
+}
+.board__img { background-position: center; background-size: cover; background-repeat: no-repeat; }
+.board--layer .board__img { background-size: 100% 100%; }
+
+/* Understand: the off-white frame behind the Midnight 1.0 layers, and Air's "agent at work" light sweep over them.
+   r3-11 (Ramir, 2026-11-10: "a slightly darker off-white background so we can see the white layers better"; kept when
+   the search intro of r3-09/10 was dropped): was the light blue-white #f4f8fb -> #dce8f2. */
+.board--layer .board__fill { background: linear-gradient(180deg, #d5e5f1 0%, #c2d8ea 100%); }
+/* r3-25: light blue (Ramir, 2026-11-10: "use a light blue for the background instead of off-white"), kept when the r3-21 to
+   r3-24 sheet layout was undone; still a shade below the white layers so they read (the off-white was #e9e8e4 -> #dcdbd6). */
+
+/* Understand's mini dashboard (r3-12; dark since r3-14, Ramir: "I prefer it be in dark mode"): a black panel over that
+   frame with a search field, a "Browse" label and four category photos, the Midnight 1.0 result card and a pointer.
+   White type (".ui.ui--…" so nothing later in this file overrides it: the r3-09 try lost its typed text that way). No blue
+   highlight anywhere (Ramir): the caret is white, focus has no ring, the press is only a small shrink. No shadows: the
+   scrim is a flat black overlay and the photo labels sit on a dark gradient (a shade, for legibility). */
+.board--dash .board__fill { background: #0b1017; }
+.board--field .board__fill { background: #1a222d; }
+.board--scrim .board__fill { background: #000000; }
+.ui.ui--search, .ui.ui--browse, .ui.ui--tile, .ui.ui--result { color: #ffffff; }
+.ui--search { display: flex; align-items: center; gap: calc(6px * var(--s)); height: 100%; padding: 0 calc(9px * var(--s)); }
+.ui__search-icon { flex: none; width: calc(9px * var(--s)); height: calc(9px * var(--s)); color: #a7b4c4; }
+.ui__search-icon svg, .ui--pointer svg { display: block; width: 100%; height: 100%; }
+.ui__field { position: relative; flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; }
+.ui__query { font-size: calc(10px * var(--s)); font-weight: 500; line-height: 1; white-space: nowrap; }
+.ui__type-caret { flex: none; width: 1px; height: calc(12px * var(--s)); margin-left: 1px; background: #ffffff; opacity: 0; }
+.board.is-focused .ui__type-caret { animation: rv3-blink 1.06s linear infinite; }
+.board.is-typing .ui__type-caret { animation: none; opacity: 1; }
+@keyframes rv3-blink { 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
+.ui__placeholder {
+  position: absolute; left: calc(4px * var(--s));
+  font-size: calc(10px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1; color: #8f9baa; white-space: nowrap;
+  opacity: 0;
+}
+.board.is-empty .ui__placeholder { opacity: 1; }
+.ui--browse { display: flex; align-items: center; height: 100%; }
+/* Small labels in sentence case, set apart by a fade rather than capitals (Ramir, 2026-11-10: "'Training Video' is all
+   caps, which I'm not a fan of. Let's just fade the text by a bit instead. Do the same for 'Browse'."). Used for "Browse"
+   and the video pop-up's "Training video". */
+.ui__caption { font-size: calc(8.4px * var(--s)); font-weight: 600; line-height: 1; letter-spacing: 0; color: rgba(255, 255, 255, 0.6); }
+.ui__tile-img {
+  position: absolute; inset: 0; border-radius: calc(8px * var(--s));
+  background-position: center; background-size: cover; background-repeat: no-repeat;
+}
+.ui__tile-img::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(180deg, rgba(11, 16, 23, 0) 42%, rgba(11, 16, 23, 0.86) 100%);
+}
+.ui__tile-label {
+  position: absolute; left: calc(8px * var(--s)); bottom: calc(8px * var(--s));
+  font-size: calc(9.4px * var(--s)); font-weight: 600; line-height: 1;
+}
+.ui--result { display: flex; align-items: center; gap: calc(11px * var(--s)); height: 100%; padding: calc(9px * var(--s)); } /* r3-20 */
+.ui__thumb {
+  flex: none; width: calc(64px * var(--s)); height: 100%; border-radius: calc(5px * var(--s)); /* the card's 14 − its 9 padding */
+  background: #ffffff url("img/result-midnight.jpg") center / cover no-repeat;
+}
+.ui__result-text { display: grid; gap: calc(4px * var(--s)); min-width: 0; }
+.ui__result-text b { font-size: calc(10.5px * var(--s)); font-weight: 600; line-height: 1.1; }
+.ui__result-text i { font-style: normal; font-size: calc(8px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1.2; color: #a7b4c4; }
+.ui__chev { /* r3-26 (Ramir: "a better right arrow chevron ... should be a bit thinner"): a 1.2 px line, round ends, the same
+   weight at any scale (it was two 1.5 px borders on a rotated square) */
+  flex: none; margin-left: auto; margin-right: calc(4px * var(--s));
+  width: calc(4.6px * var(--s)); height: calc(8px * var(--s)); color: #a7b4c4; overflow: visible;
+}
+.ui__chev path { vector-effect: non-scaling-stroke; }
+.board__sweep {
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, 0.75) 50%, rgba(255, 255, 255, 0) 62%);
+  background-size: 300% 100%;
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+  animation: rv3-sweep 1.9s linear infinite;
+}
+@keyframes rv3-sweep { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+/* Glass panels and chips: a frosted layer (backdrop blur), a 1 px edge, and the content on top. */
+.board__glass {
+  background: rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(calc(9px * var(--s))) saturate(1.25);
+  backdrop-filter: blur(calc(9px * var(--s))) saturate(1.25);
+}
+.board--glass .board__fill { background: #ffffff; }
+/* Understand's pop-ups sit over the light layer art and the dark Midnight cover, so they are dark frosted glass
+   (Accent Black) under the white type, legible over both (Ramir, 2026-11-09: "card 1's anim more legible by using a dark
+   background for the popups over the layer graphic"). The "Smart tags" label gets the same as a small pill. No shadows;
+   the edge stays a 1 px light ring (softer on these: card.js edgeA). */
+.card[data-card="understand"] .board__glass { background: rgba(16, 24, 32, 0.84); }
+/* The video pop-up (r3-15; it replaced the Smart tags label and chips): a label, the Midnight training video as a
+   16:9 thumbnail with a play button and its length, then the title. */
+.ui--video { display: flex; flex-direction: column; gap: calc(7px * var(--s)); height: 100%; padding: calc(11px * var(--s)); } /* r3-18: the other pop-ups' padding */
+.ui__video {
+  position: relative; display: block; flex: none; width: 100%; aspect-ratio: 16 / 9; border-radius: calc(5px * var(--s)); /* 5: r3-28 */
+  background: #0b1017 url("img/video-midnight-training.jpg") center / cover no-repeat;
+}
+.ui__video-play { /* bottom-left, so it never covers the "Midnight" title on the thumbnail */
+  position: absolute; left: calc(5px * var(--s)); bottom: calc(5px * var(--s)); width: calc(16px * var(--s)); height: calc(16px * var(--s));
+  border-radius: 50%; background: rgba(255, 255, 255, 0.92);
+}
+.ui__video-play::after {
+  content: ""; position: absolute; left: 37.5%; top: 29%; /* r3-28: 5 x 6 at (6, 4.63), from Ramir's Figma */
+  border-style: solid; border-width: calc(3px * var(--s)) 0 calc(3px * var(--s)) calc(5px * var(--s));
+  border-color: transparent transparent transparent #101820;
+}
+.ui__video-time {
+  position: absolute; right: calc(5px * var(--s)); bottom: calc(5px * var(--s));
+  padding: calc(2.5px * var(--s)) calc(4px * var(--s)); border-radius: calc(3px * var(--s));
+  background: rgba(11, 16, 23, 0.82); font-size: calc(6.4px * var(--s)); font-weight: 600; line-height: normal; /* r3-28: auto in Figma */
+}
+.ui__video-title { font-size: calc(9px * var(--s)); font-weight: 500; line-height: 1.3; text-wrap: balance; }
+
+/* r3-37 (Ramir: "differentiate ourselves a bit further by using a white bg for some of the pop-ups"; his reference has a
+   dark glass card top left and a white card bottom right): How it feels and Training video are white, with ink type and
+   faded-ink captions. No shadows: the glass sits inside the board's 1 px edge, a faint ink hairline (card.js), so the
+   card reads on the light frame. r3-39 (Ramir: "I don't like any highlights for that pop-up at all"): no row band; the searched 1.0 is
+   simply ink, as in the dark version it was white, and 3.0 is faded. (r3-37 had a mist band, r3-38 a grey one.) */
+.card[data-card="understand"] .board--light .board__glass { inset: 0; background: #ffffff; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.board--light .ui { color: #101820; }
+.board--light .ui__caption { color: rgba(16, 24, 32, 0.55); }
+.board--light .ui__video-time { color: #ffffff; }
+.board--light .ui__feel-name { color: rgba(16, 24, 32, 0.5); } /* r3-52: the fade is back (Ramir: "actually nevermind, bring back the fade"); r3-49 had both at full strength */
+.board--light .ui__feel-name.is-on { color: #101820; }
+.board--light .ui__feel-track { background: rgba(16, 24, 32, 0.12); }
+.board--light .ui__feel-track i { background: rgba(16, 24, 32, 0.28); } /* r3-52: faded again */
+.board--light .ui__feel-track.is-on i { background: #101820; } /* r3-38: ink, was Best Blue */
+.board--light .ui__feel-scale { color: rgba(16, 24, 32, 0.5); }
+
+/* r3-50: a caption with the variant on the right (the Mattress layers pop-up: "1.0 Firmer"), a shade stronger than the caption. */
+.ui__caption--row { display: flex; justify-content: space-between; gap: calc(6px * var(--s)); }
+.ui__variant { color: rgba(255, 255, 255, 0.85); }
+.board--light .ui__variant { color: rgba(16, 24, 32, 0.8); }
+
+/* r3-57: the build's name in the indicator beat ("Firmer 1.0"), semi-bold ink on the light frame. */
+.ui--variant-label { display: flex; align-items: center; height: 100%; }
+.ui__variant-label { font-size: calc(12px * var(--s)); font-weight: 600; line-height: 1; color: #101820; white-space: nowrap; }
+
+/* Understand's indicators (r3-31): dark glass pills (the pop-ups' look, sentence-sized white type) and dotted leaders in ink
+   over the light frame, ending in a dot on the layer. No shadows. */
+.ui--indicator { display: flex; align-items: center; justify-content: center; height: 100%; }
+.ui__ind { font-size: calc(8px * var(--s)); font-weight: 500; line-height: normal; white-space: nowrap; } /* r3-34: Figma's Auto (was 1) */
+.ui--leader { height: 100%; }
+.ui__leader-line {
+  position: absolute; left: 0; right: calc(3.2px * var(--s)); top: 50%; margin-top: -0.75px;
+  border-top: 1.5px dotted rgba(16, 24, 32, 0.6);
+}
+.ui__leader-dot {
+  position: absolute; right: 0; top: 50%; width: calc(3.2px * var(--s)); height: calc(3.2px * var(--s));
+  margin-top: calc(-1.6px * var(--s)); border-radius: 50%; background: #101820;
+}
+
+/* Sell (r3-35; replaces Organize): Midnight 1.0's floor kit on a dark MLILY U panel. The four files sit on tiles with their
+   names; two status chips; the spec card opens over the scrim with text-only Print and Download buttons. No shadows. */
+.ui.ui--kit-head { display: flex; flex-direction: column; gap: calc(4px * var(--s)); }
+.ui__kit-name { font-size: calc(11.5px * var(--s)); font-weight: 600; line-height: 1; color: #ffffff; }
+.ui__file-name {
+  position: absolute; left: calc(6px * var(--s)); bottom: calc(6px * var(--s));
+  font-size: calc(8.4px * var(--s)); font-weight: 500; line-height: calc(9px * var(--s)); white-space: nowrap;
+}
+.ui--chip-updated, .ui--chip-fillable, .ui--btn-print, .ui--btn-download {
+  display: flex; align-items: center; justify-content: center; height: 100%;
+  font-weight: 600; line-height: 1; white-space: nowrap;
+}
+.ui--chip-updated, .ui--chip-fillable { font-size: calc(7px * var(--s)); }
+.ui.ui--chip-updated { color: #101820; }
+.ui.ui--chip-fillable { color: rgba(255, 255, 255, 0.85); }
+.ui--btn-print, .ui--btn-download { font-size: calc(8.4px * var(--s)); }
+.ui.ui--btn-print { color: #101820; }
+
+/* The files, laid out at the spec card's open width (290 units) and scaled down in the tiles. The spec and price cards
+   follow MLILY's own (the WellFlex 1.0 cards' layout); their headings stay in capitals, as printed. */
+.ui--doc-spec, .ui--doc-price, .ui--doc-img { overflow: hidden; border-radius: calc(3px * var(--s)); }
+.ui.ui--doc-spec, .ui.ui--doc-price { color: #101820; }
+.ui__doc-img { position: absolute; inset: 0; background-size: cover; background-position: center top; }
+.doc-side {
+  position: absolute; left: 0; top: 0; bottom: 0; width: calc(104px * var(--s));
+  background: linear-gradient(180deg, #9db8d3 0%, #cddcea 42%, #b4c9dd 70%, #7d9fc4 100%);
+}
+.doc-side__name {
+  position: absolute; left: 0; right: 0; top: calc(13px * var(--s)); text-align: center;
+  font-size: calc(14px * var(--s)); font-weight: 600; line-height: 1; color: #ffffff;
+}
+.ui .doc-toggle {
+  position: absolute; left: 50%; top: calc(33px * var(--s)); transform: translateX(-50%); display: flex;
+  border: calc(0.8px * var(--s)) solid #ffffff; border-radius: calc(3px * var(--s)); overflow: hidden;
+}
+.doc-toggle span { padding: calc(2px * var(--s)) calc(5px * var(--s)); font-size: calc(5px * var(--s)); font-weight: 600; line-height: 1; color: #ffffff; white-space: nowrap; }
+.doc-toggle span:first-child { background: #ffffff; color: #003b95; }
+.doc-side__art {
+  position: absolute; left: calc(6px * var(--s)); right: calc(6px * var(--s)); top: calc(50px * var(--s)); height: calc(104px * var(--s));
+  background-position: center; background-size: contain; background-repeat: no-repeat;
+}
+.doc-side__type {
+  position: absolute; left: 0; right: 0; bottom: calc(41px * var(--s)); text-align: center;
+  font-size: calc(6.4px * var(--s)); font-weight: 600; line-height: 1; color: #ffffff;
+}
+.doc-band, .doc-foot { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; background: #003b95; }
+.doc-band { height: calc(34px * var(--s)); justify-content: center; }
+.doc-band img { height: calc(10px * var(--s)); width: auto; display: block; }
+.doc-main { position: absolute; left: calc(117px * var(--s)); right: calc(12px * var(--s)); top: calc(14px * var(--s)); }
+.doc-h { font-size: calc(6.4px * var(--s)); font-weight: 600; line-height: 1; letter-spacing: 0.04em; color: #6f9bc4; }
+.ui .doc-h--gap { margin-top: calc(10px * var(--s)); }
+.ui .doc-p { margin-top: calc(4px * var(--s)); font-size: calc(5.2px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1.45; color: rgba(16, 24, 32, 0.78); }
+.ui .doc-pill {
+  display: inline-block; margin-top: calc(7px * var(--s)); padding: calc(1.8px * var(--s)) calc(6px * var(--s));
+  border-radius: calc(2px * var(--s)); background: #d5e5f1; font-size: calc(5.2px * var(--s)); font-weight: 600; line-height: 1;
+}
+.ui .doc-list { margin-top: calc(6px * var(--s)); display: grid; gap: calc(3.6px * var(--s)); }
+.doc-list li { display: flex; align-items: center; gap: calc(4px * var(--s)); font-size: calc(5.2px * var(--s)); font-weight: 500; line-height: 1; white-space: nowrap; }
+.doc-list i {
+  flex: none; display: grid; place-items: center; width: calc(6.4px * var(--s)); height: calc(6.4px * var(--s)); border-radius: 50%;
+  background: #fbb042; color: #ffffff; font-style: normal; font-size: calc(3.8px * var(--s)); font-weight: 700; line-height: 1;
+}
+.ui .doc-icons { margin-top: calc(6px * var(--s)); display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(4px * var(--s)); }
+.doc-icons li {
+  display: flex; flex-direction: column; align-items: center; gap: calc(2.5px * var(--s)); text-align: center;
+  font-size: calc(3.8px * var(--s)); font-weight: 500; line-height: 1.2; color: rgba(16, 24, 32, 0.75);
+}
+.doc-icons img { width: calc(15px * var(--s)); height: calc(15px * var(--s)); display: block; }
+.doc-top { position: absolute; left: 0; right: 0; top: 0; height: calc(50px * var(--s)); background: #003b95; padding: calc(13px * var(--s)) calc(16px * var(--s)) 0; }
+.doc-top b { display: block; font-size: calc(15px * var(--s)); font-weight: 600; line-height: 1; color: #ffffff; }
+.doc-top span { display: block; margin-top: calc(5px * var(--s)); font-size: calc(6.6px * var(--s)); font-weight: 600; line-height: 1; color: #ffffff; }
+.doc-photo {
+  position: absolute; left: 0; right: 0; top: calc(58px * var(--s)); height: calc(74px * var(--s));
+  background-position: center; background-size: contain; background-repeat: no-repeat;
+}
+.doc-sizes {
+  position: absolute; left: calc(16px * var(--s)); right: calc(16px * var(--s)); top: calc(140px * var(--s)); height: calc(52px * var(--s));
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  border: calc(1.2px * var(--s)) solid #003b95; border-radius: calc(5px * var(--s));
+}
+.doc-sizes span {
+  padding-top: calc(4.5px * var(--s)); text-align: center; border-left: calc(0.8px * var(--s)) solid rgba(0, 59, 149, 0.35);
+  font-size: calc(5.2px * var(--s)); font-weight: 600; line-height: 1; color: #003b95; white-space: nowrap;
+}
+.doc-sizes span:first-child { border-left: 0; }
+.doc-foot { height: calc(24px * var(--s)); padding-left: calc(16px * var(--s)); }
+.doc-foot img { height: calc(8.5px * var(--s)); width: auto; display: block; }
+
+/* r3-36 (Sell storyboard 1): the spec card's side panel is a column, so a two-line name (Midnight ICE 1.0) moves the rest
+   down; long layer names wrap; four or five benefit icons share the row. A closer perspective on Sell's picture so the
+   carousel's turned cards read in depth. */
+.doc-side { display: flex; flex-direction: column; align-items: center; padding-top: calc(13px * var(--s)); }
+.doc-side__name { position: static; padding: 0 calc(8px * var(--s)); line-height: 1.05; text-wrap: balance; }
+.ui .doc-toggle { position: static; transform: none; flex: none; margin-top: calc(7px * var(--s)); }
+.doc-side__art { position: static; flex: 1 1 auto; align-self: stretch; min-height: 0; height: auto; margin: calc(8px * var(--s)) calc(6px * var(--s)) calc(6px * var(--s)); }
+.doc-side__type { position: static; margin-bottom: calc(7px * var(--s)); padding: 0 calc(6px * var(--s)); line-height: 1.15; text-wrap: balance; }
+.doc-band { position: static; align-self: stretch; flex: none; }
+.doc-list li { white-space: normal; line-height: 1.2; }
+.ui .doc-icons { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; }
+.card[data-card="sell"] .card__stage { perspective: 700px; }
+.ui--pair-caption { display: flex; align-items: center; justify-content: center; height: 100%; }
+
+/* r3-40 (Sell storyboard 2, "Ready to sell"): MLILY's Midnight 1.0 room photo with its name, a white checklist, and dark
+   glass tool cards; ticks and checks are ink and white, never tinted (no highlights). No shadows. */
+.card[data-card="sell"] .board__glass { background: rgba(16, 24, 32, 0.84); }
+.card[data-card="sell"] .board--light .board__glass { inset: 0; background: #ffffff; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.ui--photo { overflow: hidden; border-radius: calc(14px * var(--s)); }
+.ui__photo { position: absolute; inset: 0; background-position: center; background-size: cover; background-repeat: no-repeat; }
+.ui__photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 16, 23, 0) 55%, rgba(11, 16, 23, 0.7) 100%); }
+.ui__photo-name { position: absolute; left: calc(12px * var(--s)); bottom: calc(12px * var(--s)); display: flex; flex-direction: column; gap: calc(4px * var(--s)); }
+.ui__photo-name b { font-size: calc(12px * var(--s)); font-weight: 600; line-height: 1; color: #ffffff; }
+.ui__photo-name i { font-style: normal; font-size: calc(7.4px * var(--s)); font-weight: 500; line-height: 1; color: rgba(255, 255, 255, 0.85); }
+.ui--ready { padding: calc(11px * var(--s)); }
+.ui .ui__ready-title { font-size: calc(11px * var(--s)); font-weight: 600; line-height: 1; } /* r3-43: no eyebrow above it */
+.board--light .ui__more { color: rgba(16, 24, 32, 0.55); } /* Show more on white: faded ink, like the captions */
+.ui .ui__steps { margin-top: calc(9px * var(--s)); display: grid; gap: calc(7px * var(--s)); }
+.ui__steps li { display: grid; grid-template-columns: calc(10px * var(--s)) 1fr; column-gap: calc(7px * var(--s)); align-items: start; }
+.ui__steps .ring { width: calc(10px * var(--s)); height: calc(10px * var(--s)); border-radius: 50%; border: calc(1.2px * var(--s)) solid rgba(16, 24, 32, 0.22); }
+.ui__steps b { display: block; font-size: calc(8.4px * var(--s)); font-weight: 500; line-height: 1.2; }
+.ui__steps i { display: block; margin-top: calc(2px * var(--s)); font-style: normal; font-size: calc(7px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1.2; color: rgba(16, 24, 32, 0.55); }
+.ui--check, .ui--tick { height: 100%; }
+.ui--check svg, .ui--tick svg { display: block; width: 100%; height: 100%; }
+.ui--tool { padding: calc(10px * var(--s)) calc(11px * var(--s)); }
+.ui .ui__tool-rows { margin-top: calc(7px * var(--s)); display: grid; gap: calc(5px * var(--s)); }
+.ui__tool-rows li { display: flex; align-items: center; gap: calc(6px * var(--s)); font-size: calc(8.4px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1.2; white-space: nowrap; }
+.ui__tool-rows .box { flex: none; width: calc(9px * var(--s)); height: calc(9px * var(--s)); border-radius: calc(2.5px * var(--s)); border: calc(1.2px * var(--s)) solid rgba(255, 255, 255, 0.45); }
+.ui__tool-rows .box--round { border-radius: 50%; }
+
+/* r3-44: a price card's size names may wrap (SPLIT HEAD KING) inside their column. */
+.doc-sizes span { white-space: normal; line-height: 1.15; padding-left: calc(2px * var(--s)); padding-right: calc(2px * var(--s)); }
+
+/* Sell scene 2 (r3-58; r3-60): the salesman photo card, and the "Compare" card that comes out of his tablet (dark glass, like
+   Learn's layer pop-up): a caption, a band for the two stacks (separate boards, so they come in a beat later) and each
+   mattress's name and height. r3-58's chat bubbles were removed in r3-60. */
+.ui--photo-plain { overflow: hidden; border-radius: calc(14px * var(--s)); }
+.ui__photo-plain { position: absolute; inset: 0; background-position: center; background-size: cover; background-repeat: no-repeat; }
+.ui--compare { padding: calc(10px * var(--s)) calc(11px * var(--s)); }
+.ui__compare-art { display: block; }
+.ui .ui__compare { display: grid; grid-template-columns: 1fr 1fr; column-gap: calc(10px * var(--s)); }
+.ui__compare b { display: block; font-size: calc(8.4px * var(--s)); font-weight: 600; line-height: 1; color: #ffffff; white-space: nowrap; }
+.ui__compare i { display: block; margin-top: calc(3px * var(--s)); font-style: normal; font-size: calc(7px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1; color: rgba(255, 255, 255, 0.6); white-space: nowrap; }
+.ui--stack { height: 100%; }
+.ui__stack { position: absolute; inset: 0; background-position: center bottom; background-size: contain; background-repeat: no-repeat; }
+/* r3-61: "What to say" (white): a caption on the card, its talking points as separate boards (so they come in one after
+   another), each a name and a faded line like the checklist's steps; ink, as they sit on white. */
+.ui--say { padding: calc(10px * var(--s)) calc(11px * var(--s)); }
+.ui.ui--say-row { color: #101820; } /* .ui (white, later in the file) would win at equal weight */
+.ui--say-row b { display: block; font-size: calc(8.4px * var(--s)); font-weight: 500; line-height: 1.2; white-space: nowrap; }
+.ui--say-row i { display: block; margin-top: calc(2px * var(--s)); font-style: normal; font-size: calc(7px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1.2; color: rgba(16, 24, 32, 0.55); white-space: nowrap; }
+/* r3-62: "Pairs well with" (dark, in Compare's place): a caption on the card; its rows as separate boards (in one after
+   another), each a photo and a name over a faded type, like What to say's rows. */
+.ui--pairs { padding: calc(10px * var(--s)) calc(11px * var(--s)); }
+.ui--pair-row { display: flex; align-items: center; gap: calc(8px * var(--s)); height: 100%; }
+.ui__pair-photo { flex: none; width: calc(24px * var(--s)); height: calc(24px * var(--s)); border-radius: calc(4px * var(--s)); background-position: center; background-size: cover; background-repeat: no-repeat; }
+.ui--pair-row b { display: block; font-size: calc(8.4px * var(--s)); font-weight: 500; line-height: 1.2; white-space: nowrap; }
+.ui--pair-row i { display: block; margin-top: calc(2px * var(--s)); font-style: normal; font-size: calc(7px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1.2; color: rgba(255, 255, 255, 0.6); white-space: nowrap; }
+
+/* Market (r3-55; reworked r3-65; r3-67), "Post it": a phone with a dark body (the board's fill) and a white screen inset 4
+   (status bar and island, the store's header, its last post, actions, caption, home bar); a dark "Post templates" pop-up with
+   three of MLILY's Science of Cool feed ads and a text-only Download; the pick's 2 px ring; the ad flying into the post; a
+   white "Caption idea" pop-up with a text-only Copy; the caption typing into the post; the dot grid's light trail (a canvas).
+   r3-67 (Ramir: "not a big fan of the montserrat font for the IG interface"): the phone's interface is in the system font
+   (SF Pro on Apple devices), the pop-ups stay in Montserrat. No shadows. */
+.card__trail { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.card[data-card="market"] .board__glass { background: rgba(16, 24, 32, 0.84); }
+.card[data-card="market"] .board--light .board__glass { inset: 0; background: #ffffff; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.ui--phone { height: 100%; }
+.ui__screen {
+  position: absolute; inset: calc(4px * var(--s)); display: flex; flex-direction: column; overflow: hidden; border-radius: calc(18px * var(--s));
+  background: #ffffff; color: #101820; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+/* The status bar (r3-79, Ramir: "Let's align this a little better."): the time and the icons sit the same 13 in from the
+   screen's sides, on the island's centre line (9 below the screen's top), with the island centred between them. r3-67 put
+   each in the middle of its side of the island, which left the narrow time 18.8 in and the wide icons 10.7 in. */
+.ui__status { flex: none; position: relative; display: flex; align-items: center; justify-content: space-between; height: calc(18px * var(--s)); padding: 0 calc(13px * var(--s)) 0 calc(17px * var(--s)); } /* r3-80b (Ramir: "Would prefer 9:41 to be a little to the right"): the time 17 in (the icons stay 13 in) */
+.ui__status b { position: relative; top: calc(0.2px * var(--s)); font-size: calc(6.8px * var(--s)); font-weight: 600; line-height: 1; letter-spacing: -0.01em; }
+.ui__island { position: absolute; left: 50%; top: calc(4px * var(--s)); width: calc(36px * var(--s)); height: calc(10px * var(--s)); border-radius: 999px; background: #0b1017; transform: translateX(-50%); }
+.ui__status-icons { display: flex; align-items: center; gap: calc(2.6px * var(--s)); }
+.ui__status-icons svg { display: block; height: calc(5.2px * var(--s)); width: auto; }
+.ui__phone-head { flex: none; display: flex; align-items: center; gap: calc(4.5px * var(--s)); /* r3-69: 4.5 (was 6), Ramir: "have the space here a bit closer" */ height: calc(24px * var(--s)); padding: 0 calc(8px * var(--s)); }
+.ui__avatar { flex: none; display: grid; place-items: center; width: calc(15px * var(--s)); height: calc(15px * var(--s)); border-radius: 50%; background: #101820; transform: scale(var(--round-sx, 1), var(--round-sy, 1)); } /* r3-78: ink, a profile mark; r3-86: kept round under the tilt (def.keepRound) */
+.ui__avatar svg { display: block; width: calc(8.6px * var(--s)); height: calc(8.6px * var(--s)); } /* r3-96: 57% of the circle (was 9.5, 63%) */
+.ui__phone-head b { font-size: calc(7.6px * var(--s)); font-weight: 600; line-height: 1; letter-spacing: -0.025em; } /* r3-67b (Ramir: "'your store''s letter space is a bit too much") */
+.ui__phone-head .ui__dots { margin-left: auto; display: block; width: calc(9px * var(--s)); height: calc(3px * var(--s)); }
+.ui__phone-slot { flex: none; display: block; height: calc(177.5px * var(--s)); background-color: #eef1f4; background-position: center; background-size: cover; background-repeat: no-repeat; }
+.ui__phone-actions { flex: none; display: flex; align-items: center; gap: calc(9px * var(--s)); height: calc(20px * var(--s)); padding: 0 calc(8px * var(--s)); }
+.ui__phone-actions svg { display: block; width: calc(11px * var(--s)); height: calc(11px * var(--s)); }
+.ui__phone-actions .ui__save { margin-left: auto; }
+.ui .ui__phone-caption { padding: 0 calc(8px * var(--s)); font-size: calc(7.2px * var(--s)); font-weight: 400; line-height: 1.35; letter-spacing: -0.015em; color: #101820; } /* r3-77b (Ramir: "tighten the kerning a bit here"): -0.015em; the name keeps its own -0.025em */
+.ui__phone-caption b { font-weight: 600; margin-right: calc(3px * var(--s)); letter-spacing: -0.025em; }
+.ui__phone-caption .ui__query { font-size: inherit; font-weight: inherit; line-height: inherit; white-space: normal; }
+.ui__phone-caption .ui__type-caret { display: inline-block; vertical-align: calc(-1px * var(--s)); height: calc(8px * var(--s)); background: #101820; }
+.ui.ui--old-caption { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif; } /* r3-71: the old post's caption, in the phone's font (.ui.ui--: .ui's Montserrat comes later in the file) */
+.ui__home { position: absolute; left: 50%; bottom: calc(5px * var(--s)); width: calc(46px * var(--s)); height: calc(2.6px * var(--s)); border-radius: 999px; background: #101820; transform: translateX(-50%); }
+.ui--templates { padding: calc(10px * var(--s)) calc(11px * var(--s)); }
+.ui__thumbs { margin-top: calc(7px * var(--s)); display: flex; gap: calc(6px * var(--s)); } /* r3-82: 6 apart */
+.ui__thumbs span { flex: none; width: calc(44px * var(--s)); height: calc(55px * var(--s)); border-radius: calc(3.3px * var(--s)); background: rgba(255, 255, 255, 0.08); } /* r3-82: 44 × 55 */ /* r3-80: empty slots the carousel's posts land in */
+.ui--pick { height: 100%; box-sizing: border-box; border: calc(1.4px * var(--s)) solid #ffffff; border-radius: calc(4.5px * var(--s)); }
+.ui--post-img { overflow: hidden; }
+.ui__post-img { position: absolute; inset: 0; background-position: center; background-size: cover; background-repeat: no-repeat; }
+.ui--suggest { padding: calc(10px * var(--s)) calc(11px * var(--s)); }
+.ui .ui__suggest { margin-top: calc(7px * var(--s)); font-size: calc(7.6px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1.35; white-space: nowrap; } /* r3-77: three set phrases (<br>), never rewrapped */
+
+/* Scale: the dotted grid, and each format tile (colour fill + the product, contained). */
+.board__grid {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.55) calc(0.9px * var(--s)), transparent calc(1.3px * var(--s)));
+  background-size: calc(11.3px * var(--s)) calc(11.3px * var(--s));
+  background-position: center;
+}
+.board__product {
+  position: absolute; inset: 11% 9%;
+  background-position: center; background-size: contain; background-repeat: no-repeat;
+}
+
+/* Panel content is laid out at the panel's full width (--s px per unit) and scaled with the board, like Air's textures. */
+.board__content { position: absolute; left: -1px; top: -1px; transform-origin: 0 0; } /* r3-40: on the board's outer edge (its 1 px border), like the fills and like Figma's padding; it was 1 px in */
+.ui { color: #ffffff; font-family: var(--font-mont), sans-serif; }
+.ui p, .ui ul { margin: 0; padding: 0; list-style: none; }
+.ui--summary, .ui--feel, .ui--layers { padding: calc(10px * var(--s)) calc(11px * var(--s)); }
+.ui__label { font-size: calc(6.4px * var(--s)); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1; }
+.ui__label--solo { font-size: calc(6.6px * var(--s)); }
+.ui__text { margin-top: calc(6px * var(--s)) !important; font-size: calc(8.6px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1.38; }
+.ui__rows { margin-top: calc(7px * var(--s)) !important; display: grid; gap: calc(5px * var(--s)); }
+.ui__rows li { display: flex; justify-content: space-between; font-size: calc(8.4px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1.2; }
+.ui__rows i { font-style: normal; opacity: 0.9; }
+.ui__list { margin-top: calc(6px * var(--s)) !important; display: grid; gap: calc(3px * var(--s)); }
+.ui__list li { font-size: calc(8.6px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1.25; white-space: nowrap; }
+.ui__more { margin-top: calc(6px * var(--s)) !important; font-size: calc(7.4px * var(--s)); font-weight: 600; line-height: 1; color: rgba(255, 255, 255, 0.6); } /* r3-26: sentence case, faded like the captions */
+/* r3-33: How it feels (replaces In MLILY U: "those are sales tools not learning ones"). The vv PDP's feel rows on dark glass:
+   name, then a track with the feel's dot; the scale's two ends under the tracks. The searched 1.0 is white, 3.0 faded like
+   the captions. No shadows. */
+.ui__feel {
+  margin-top: calc(7px * var(--s)); display: grid; grid-template-columns: max-content 1fr;
+  column-gap: calc(10px * var(--s)); row-gap: calc(5px * var(--s)); align-items: center;
+}
+.ui__feel-name { font-size: calc(8.4px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1.2; white-space: nowrap; color: rgba(255, 255, 255, 0.6); }
+.ui__feel-name.is-on { font-weight: 500; color: #ffffff; }
+.ui__feel-track { position: relative; height: calc(3px * var(--s)); border-radius: 999px; background: rgba(255, 255, 255, 0.16); }
+.ui__feel-track i {
+  position: absolute; top: 50%; width: calc(7px * var(--s)); height: calc(7px * var(--s)); border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45); transform: translate(-50%, -50%);
+}
+.ui__feel-track.is-on i { background: #ffffff; }
+.ui__feel-scale {
+  grid-column: 2; display: flex; justify-content: space-between; margin-top: calc(-1px * var(--s));
+  font-size: calc(7px * var(--s)); font-weight: 500; line-height: 1; white-space: nowrap; color: rgba(255, 255, 255, 0.6);
+}
+.ui--chip { display: grid; place-items: center; }
+.ui__chip { display: inline-flex; align-items: center; gap: calc(5px * var(--s)); font-size: calc(10.5px * var(--s)); font-weight: 500; line-height: 1; white-space: nowrap; }
+.ui__chip i { font-style: normal; font-size: calc(9px * var(--s)); opacity: 0.85; }
+
+/* Scale's "Smart resize" panel (Air's is an image of this UI). */
+.ui--resize { padding: calc(10px * var(--s)); display: flex; flex-direction: column; align-items: flex-start; height: 100%; }
+.ui__pill {
+  display: inline-flex; align-items: center; gap: calc(5px * var(--s));
+  padding: calc(5px * var(--s)) calc(7px * var(--s)); border-radius: calc(6px * var(--s));
+  background: rgba(255, 255, 255, 0.22); border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: calc(8.4px * var(--s)); font-weight: 600; line-height: 1;
+}
+.ui__icon { width: calc(8px * var(--s)); height: calc(6.5px * var(--s)); border: 1px solid currentColor; border-radius: calc(1.5px * var(--s)); }
+.ui__caret { width: calc(4px * var(--s)); height: calc(4px * var(--s)); border-left: 1px solid currentColor; border-top: 1px solid currentColor; transform: rotate(45deg) translate(1px, 1px); }
+.ui__formats { margin: calc(10px * var(--s)) 0 0 calc(4px * var(--s)) !important; display: grid; gap: calc(9px * var(--s)); }
+.ui__formats li { display: flex; align-items: center; gap: calc(5px * var(--s)); font-size: calc(8.4px * var(--s)); font-weight: var(--fw-text, 450); line-height: 1; }
+.ui__formats b {
+  padding: calc(2px * var(--s)) calc(3px * var(--s)); border-radius: calc(2px * var(--s));
+  background: rgba(255, 255, 255, 0.85); color: #5b6772; font-size: calc(5.6px * var(--s)); font-weight: 600;
+}
+.ui__btn {
+  --hot: 0;
+  position: relative; isolation: isolate; align-self: center; margin-top: auto;
+  padding: calc(6px * var(--s)) calc(10px * var(--s)); border-radius: calc(5px * var(--s));
+  background: rgba(255, 255, 255, 0.24);
+  font-size: calc(8.4px * var(--s)); font-weight: 600; line-height: 1;
+}
+.ui__btn::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--best-blue); opacity: var(--hot); }
+
+/* Organize: folder tags, titles and the video card's player (Air layers a PNG of it on the photo). */
+.board__tag {
+  position: absolute; left: calc(10px * var(--s)); top: calc(10px * var(--s));
+  padding: calc(4px * var(--s)) calc(6px * var(--s));
+  border-radius: calc(4px * var(--s));
+  font-size: calc(10px * var(--s)); font-weight: 600; line-height: 1; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #ffffff; white-space: nowrap;
+  transform-origin: 0 0;
+}
+.board__tag--light { background: rgba(255, 255, 255, 0.25); }
+.board__tag--dark { background: var(--approved); }
+.board__title {
+  position: absolute; left: calc(12px * var(--s)); bottom: calc(12px * var(--s));
+  font-size: calc(14px * var(--s)); font-weight: 500; line-height: 1; letter-spacing: -0.005em;
+  color: #ffffff; white-space: nowrap;
+  transform-origin: 0 100%;
+}
+.board__play {
+  position: absolute; left: 50%; top: 50%;
+  width: 26%; aspect-ratio: 1; border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.92);
+}
+.board__play::after {
+  content: ""; position: absolute; left: 39%; top: 30%;
+  border-style: solid; border-width: calc(7px * var(--s)) 0 calc(7px * var(--s)) calc(11px * var(--s));
+  border-color: transparent transparent transparent #101820;
+}
+.board__bar {
+  position: absolute; left: 8%; right: 8%; bottom: 7%; height: 3px; border-radius: 3px;
+  background: rgba(255, 255, 255, 0.35);
+}
+.board__bar::before { content: ""; position: absolute; inset: 0 62% 0 0; border-radius: inherit; background: #ffffff; }
+
+/* r3-75 (Ramir: "improve typography"): the title a touch tighter; the body lighter, smaller and more open (15 px, 450, 1.55),
+   brighter (72% white, was 60%), on a measure of 34 characters with balanced lines, so no line ends on a lone word or
+   splits "the / bed"; a little more room round the block. */
+/* r3-89 (the new copy; brief: the descriptions "leave unused horizontal space inside each card"): the 34-character cap is
+   gone (at the 420 px card it held the text 35 px short of the column), so the body runs the full text column, and its size
+   follows the card's width (container units), so the lines break the same way at every desktop width. r3-91: the column
+   is the card's width less the stroke and the 22 px insets (100cqi − 44). Column / 24.5 is the largest size at which every
+   card still sets in three lines with 2% to spare, with "the benefits" held together (Sell, the tightest): 15.3 px on the
+   420 px card, 14.2 at 1512, 13.4 at 1440 (floor 13.25, so 1440 keeps three full lines rather than four short ones).
+   Cards under 371 px (windows under about 1425 px, the stacked cards on tablets and phones) set in four lines instead,
+   at column / 18.2 up to 15 px (15 at 1366 and 1280, 14 on a phone). Line height 1.5. */
+.card { container-type: inline-size; }
+/* r3-95: as before r3-94 (72% white). r3-95b: the column is the card less its 32 px sides (100cqi − 64): three lines at
+   column / 24.5, 15.3 px in a 440 cell (1440 px wide and up), 13.4 at 1280; cards under 389 px set in four lines. */
+.card .card__body { font-size: clamp(13.25px, calc((100cqi - 64px) / 24.5), 16px); text-wrap: balance; } /* Webflow sets the rest of .card__body; this is the container-unit size, which the Designer can't set */
+@container (max-width: 388px) { .card .card__body { font-size: clamp(13.75px, calc((100cqi - 64px) / 18.2), 15px); } } /* narrower cards set in four lines */
+
+@media (prefers-reduced-motion: reduce) {
+  .board__sweep { animation: none; }
+  .board.is-focused .ui__type-caret { animation: none; opacity: 1; }
+}
+
+/* THE PDP'S TYPE SYSTEM (Ramir, 2026-11-12: "Let's now turn to section sample 1 and 2 and apply the typography improvements we did to the pdp").
+   What the PDP (rvrv_rv-pdp-mattresses-vv) kept, and how it lands here:
+   FONT     Montserrat from the Adobe Fonts install (version 9.001, static weights) through local(), as family "Montserrat CC", first in every
+            stack; Google's variable Montserrat (the <link> in index.html) stays next, as the fallback. Nothing from Adobe is copied here.
+   WEIGHTS  reading text 450 -> 400 (mlilyusa.com's Regular): the card copy and every 450 in the scenes' UI (placeholder, secondary lines, rows,
+            lists, tool rows, the faded feel row). Every "font-weight: 450" now reads var(--fw-text, 450). 500 (typed text, names, pills), 600
+            (titles, captions) and 700 (the gold tag) stay: the scripts measure the pills and labels at 500 / 600, and Adobe's static 500 and
+            600 match them.
+   CARD COPY line height 1.5 -> 1.6 (the PDP's rule for wrapped Regular text), letter-spacing 0.002em -> 0, 16 px under the title (was 12; the
+            PDP's heading -> paragraph), 72 % -> 80 % white on Best Blue (6.0 -> 7.1:1, AAA like the PDP's small text). Sizes unchanged (Ramir
+            kept the PDP's original sizes); the 40 px titles keep their -0.025em (display size).
+   ?typebefore = all of this as before. Delete this block, restore the three font-family lines and the 450s to undo (backup:
+   _archive/before-pdp-type-r3-97/). */
+
