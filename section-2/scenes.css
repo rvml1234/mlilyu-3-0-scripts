@@ -1,0 +1,733 @@
+/* 2026-11-12 (Ramir: "apply the typography improvements we did to the pdp"): Montserrat from the Adobe Fonts install (version 9.001, static
+   weights) through local(), as on the PDP; nothing from Adobe is copied here. The bundled variable file is the next family in --font
+   ("Montserrat File"), fetched only if the installed fonts aren't there (no longer preloaded). ?typebefore = the bundled file, as before. */
+/* Webflow build: the local() Montserrat faces and the bundled file are removed; the page loads Montserrat from Google Fonts. */
+
+:root {
+  --ink: #1d1d1f;
+  --muted: #5b6772;
+  --muted-2: #a2a9b0;
+  --page: #ffffff;
+  --tile: #f6f6f6;
+  --night: #101820;
+  --black: #07090b;
+  --blue-2: #5e8ab4;
+  --blue-3: #a4c8e1;
+  --best-blue: #003b95;
+  --good-blue: #a4c8e1;
+  --accent-black: #101820;
+  --accent-gold: #fbb042;
+  --ease-scene: cubic-bezier(0.6, 0, 0.05, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --gutter: max(20px, 7.9vw);
+  --nav-h: calc(var(--pill-top) * 2 + var(--pill-h));
+  --nav-max: 100%;
+  --nav-side: max(16px, 2.4vw);
+  --pill-h: 60px;
+  --pill-top: 16px;
+  --font: "Montserrat", system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font);
+  background: var(--page);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Brand lockup (MLILY mark | University), shared by both navs: colour mark + ink on light, white on dark. */
+/* --lockup-h sets the whole lockup's size (20 px desktop, smaller on tablet and phone); every part scales from it. */
+.lockup { --lockup-h: 20px; display: flex; align-items: center; gap: calc(var(--lockup-h) * 0.4); color: inherit; text-decoration: none; }
+.lockup__mark { position: relative; flex: none; width: calc(var(--lockup-h) * 3); height: var(--lockup-h); margin-top: calc(var(--lockup-h) * 0.05); }
+.lockup__mark img { position: absolute; inset: 0 auto auto calc(var(--lockup-h) * -0.15); width: calc(var(--lockup-h) * 3.3); height: auto; }
+.lockup__mark .is-white { display: none; }
+[data-nav-theme="dark"] .lockup__mark .is-white { display: block; }
+[data-nav-theme="dark"] .lockup__mark .is-light { display: none; }
+.lockup__divider { flex: none; width: 1px; height: var(--lockup-h); margin-top: calc(var(--lockup-h) * 0.05); background: currentColor; }
+.lockup__word {
+  flex: none; width: calc(var(--lockup-h) * 5.0375); height: var(--lockup-h); margin-top: calc(var(--lockup-h) * 0.25);
+  background: currentColor;
+  -webkit-mask: url("assets/brand/mlilyu-word-university.png") center / 100% 100% no-repeat;
+  mask: url("assets/brand/mlilyu-word-university.png") center / 100% 100% no-repeat;
+}
+/* The pill's frame: 16 px (2.4vw) in from each side, a 60 px bar (links | centred lockup | actions) plus the round menu button. */
+.nav-frame {
+  width: min(var(--nav-max), calc(100% - 2 * var(--nav-side)));
+  margin-inline: auto;
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-bar {
+  flex: 1; min-width: 0; height: var(--pill-h);
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  padding: 0 7px 0 28px;
+  border: 1px solid transparent; border-radius: 999px;
+}
+.nav-bar .nav-links { justify-self: start; }
+/* The lockup sits on the page's centre line, not the bar's: the bar stops short of the round menu button (its width plus
+   the 10 px gap) and is padded 28 px left / 7 px right, so it moves right by half the button and gap, less half the
+   padding difference (Ramir, 2026-11-05: "center the mlily university logo"). */
+.nav-bar .lockup { justify-self: center; transform: translateX(calc((var(--pill-h) + 10px) / 2 - 10.5px)); }
+.nav-links { display: flex; gap: 36px; }
+.nav-links a, .nav-text { color: inherit; text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.nav-actions { justify-self: end; display: flex; align-items: center; gap: 20px; }
+.btn {
+  display: inline-flex; align-items: center; height: 36px; padding-inline: 16px;
+  border-radius: 999px; border: 1px solid transparent;
+  font: 500 13px/1 var(--font); text-decoration: none; white-space: nowrap;
+  transition: background-color 0.4s, color 0.4s, border-color 0.4s;
+}
+.nav-actions .btn { height: 46px; padding-inline: 22px; font-size: 14px; }
+.btn--gold { background: var(--accent-gold); color: var(--accent-black); font-weight: 600; }
+.shelves-button {
+  flex: none; width: var(--pill-h); height: var(--pill-h); padding: 0; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 1px solid transparent; background: transparent; color: inherit; cursor: pointer;
+  transition: background-color 0.4s, border-color 0.4s, color 0.4s;
+}
+.shelf-dots { display: grid; grid-template-columns: repeat(2, 4px); gap: 5px; }
+.shelf-dots span { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+.top-nav a:focus-visible, .top-nav button:focus-visible, .float-nav a:focus-visible, .float-nav button:focus-visible { outline: 2px solid var(--best-blue); outline-offset: 3px; }
+[data-nav-theme="dark"] a:focus-visible, [data-nav-theme="dark"] button:focus-visible { outline-color: var(--good-blue); }
+
+/* 1 · Intro nav: part of the page, scrolls away with it. Same frame and layout as the pill (no glass), centred on the
+   pill's line so nothing moves when the pill takes over. */
+.top-nav {
+  position: absolute; inset: 0 0 auto 0; z-index: 40;
+  height: var(--nav-h);
+  display: flex; align-items: center;
+  color: var(--accent-black);
+  border-bottom: 1px solid rgba(16, 24, 32, 0.08);
+}
+.top-nav .shelves-button { border-color: rgba(16, 24, 32, 0.14); }
+
+/* 2 · Floating capsule: slides in once the intro nav has left the screen. Its glass follows the section under it.
+   The round button holds four dots (2×2); its menu is not designed yet, so it opens nothing. */
+.float-nav {
+  --glass: rgba(16, 24, 32, 0.58);
+  --glass-line: rgba(208, 211, 212, 0.16);
+  --glass-ink: #ffffff;
+  position: fixed; z-index: 60; inset: var(--pill-top) 0 auto 0;
+  color: var(--glass-ink);
+  transform: translateY(calc(-100% - 24px)); opacity: 0; pointer-events: none;
+  transition: transform 0.7s var(--ease-out), opacity 0.35s ease, color 0.4s;
+}
+.float-nav[data-nav-theme="light"] {
+  --glass: rgba(255, 255, 255, 0.74);
+  --glass-line: rgba(16, 24, 32, 0.09);
+  --glass-ink: var(--accent-black);
+}
+.float-nav.is-shown { transform: none; opacity: 1; }
+.float-nav.is-shown .nav-frame { pointer-events: auto; }
+.float-nav .nav-bar, .float-nav .shelves-button {
+  background: var(--glass);
+  border-color: var(--glass-line);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+}
+.float-nav .nav-bar { transition: background-color 0.4s, border-color 0.4s; }
+
+
+/* Prototype-only bands that stand in for the homepage sections around this one. */
+.stub {
+  min-height: 62svh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  padding: calc(var(--nav-h) + 48px) var(--gutter) 48px;
+  background: var(--tile); color: var(--muted);
+  text-align: center; font-size: 14px; font-weight: 500;
+}
+.stub p { margin: 0; }
+.stub strong { color: var(--ink); font-weight: 600; }
+.stub--after { min-height: 48svh; padding-top: 48px; }
+.stub__link { color: var(--ink); font-weight: 600; text-underline-offset: 4px; }
+
+/* 03 Statement: one sentence, words brighten as it scrolls in, the tail stays muted. */
+.statement {
+  min-height: 100svh;
+  display: flex; align-items: center;
+  padding: calc(var(--nav-h) + 80px) var(--gutter) 120px;
+  background: var(--page);
+}
+.statement__text {
+  margin: 0; max-width: 23em;
+  font-size: clamp(26px, 2.9vw, 50px); line-height: 1.22; font-weight: 500; letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.statement__text .is-muted { color: var(--muted-2); }
+
+/* 04 In the store: a 100svh stage pinned inside a tall wrapper. Height = (sum of data-weights + 1) screens, set by the script. */
+.scenes {
+  position: relative;
+  height: calc((var(--scenes-length, 6.4) + 1) * 100svh);
+  background: var(--black); color: #fff;
+}
+.scenes__stage { position: sticky; top: 0; height: 100svh; overflow: clip; background: var(--black); }
+.scenes__media { position: absolute; inset: 0; }
+
+/* Panels stack in source order; the script sets each panel's opacity from scroll, so cross-fades follow the reader's hand. */
+/* isolation: each panel is its own layer, so nothing inside one (scene 2's raised labels, z-index 1) can paint over the
+   next panel while it fades in on top (Ramir, 2026-11-05: the text in scene 2 "seeps into the third scene"). */
+.scene-panel { position: absolute; inset: 0; overflow: clip; opacity: 0; isolation: isolate; }
+.scene-panel:first-child { opacity: 1; }
+.shade { position: absolute; inset: 0; pointer-events: none; }
+.shade--left { background: linear-gradient(90deg, rgba(7, 9, 11, 0.88) 0%, rgba(7, 9, 11, 0.74) 30%, rgba(7, 9, 11, 0.4) 48%, rgba(7, 9, 11, 0) 66%); }
+.shade--floor { background: linear-gradient(90deg, rgba(7, 9, 11, 0.72) 0%, rgba(7, 9, 11, 0.36) 30%, rgba(7, 9, 11, 0) 50%); }
+.shade--bottom { background: linear-gradient(180deg, rgba(7, 9, 11, 0.4) 0%, rgba(7, 9, 11, 0) 16%, rgba(7, 9, 11, 0) 58%, rgba(7, 9, 11, 0.85) 100%); }
+.shade--photo {
+  background:
+    linear-gradient(90deg, rgba(7, 9, 11, 0.8) 0%, rgba(7, 9, 11, 0.56) 34%, rgba(7, 9, 11, 0.16) 56%, rgba(7, 9, 11, 0) 72%),
+    linear-gradient(180deg, rgba(7, 9, 11, 0.4) 0%, rgba(7, 9, 11, 0) 22%, rgba(7, 9, 11, 0) 55%, rgba(7, 9, 11, 0.88) 100%);
+}
+
+/* Scene 1: frame sequence. */
+.scene-panel__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* Scene 2: a showroom floor in SVG, tilted in 3D; the camera (--tx/--ty/--zoom/--rz) holds on the route with one slow push-in. */
+.scene-panel--floor { background: radial-gradient(120% 90% at 62% 36%, #1b3048 0%, var(--night) 46%, var(--black) 100%); }
+.floor-wrap {
+  position: absolute; inset: 0;
+  perspective: 1500px; perspective-origin: 62% 0%;
+  -webkit-mask-image: linear-gradient(180deg, transparent 4%, #000 30%);
+  mask-image: linear-gradient(180deg, transparent 4%, #000 30%);
+}
+.floor {
+  position: absolute; left: 62%; top: 58%;
+  width: min(130vw, 2600px); aspect-ratio: 2400 / 1760;
+  transform: translate(-50%, -50%) rotateX(58deg) rotateZ(var(--rz, -8deg)) scale(var(--zoom, 0.62)) translate3d(var(--tx, 0px), var(--ty, 0px), 0);
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+.floor svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.floor__plate { fill: rgba(255, 255, 255, 0.012); stroke: rgba(255, 255, 255, 0.07); stroke-width: 2; }
+.bed rect { transition: fill 0.6s, stroke 0.6s; }
+/* Plain beds: the drawing (bedGlyph in scenes.js) carries its own colours; these are only the state overrides. */
+.bed.is-mlily .bed__throw { display: none; }
+.bed.is-current .bed__frame { stroke: rgba(164, 200, 225, 0.45); }
+.bed.is-lit .bed__frame { fill: rgba(94, 138, 180, 0.16); stroke: rgba(164, 200, 225, 0.95); }
+.bed.is-lit .bed__head { fill: rgba(164, 200, 225, 0.7); }
+.bed.is-mlily .bed__top { fill: rgba(255, 255, 255, 0.07); }
+.bed__stripe { fill: var(--blue-2); opacity: 0.75; }
+.bed.is-lit .bed__stripe { fill: var(--blue-3); opacity: 1; }
+.bed__logo { opacity: 0.6; transition: opacity 0.6s; }
+.bed.is-lit .bed__logo { opacity: 1; }
+.route { fill: none; stroke: url(#routeGrad); stroke-width: 18; stroke-linecap: round; stroke-linejoin: round; }
+.route--glow { stroke-width: 46; opacity: 0.38; }
+.route__dot { fill: #fff; opacity: 0; transition: opacity 0.4s; }
+.route__dot.is-on { opacity: 1; }
+.route__tip-core { fill: #fff; }
+.route__tip-glow { fill: var(--blue-3); opacity: 0.85; }
+
+/* Scene 2 in real 3D: a WebGL canvas under the same labels and shades. The flat SVG floor shows only when the kind is "floor". */
+.floor3d { position: absolute; inset: 0; }
+.floor3d__canvas { display: block; width: 100%; height: 100%; }
+.scene-panel--floor[data-kind="floor3d"] .floor-wrap { display: none; }
+.scene-panel--floor[data-kind="floor"] .floor3d { display: none; }
+
+.floor-label { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+.floor-label__inner {
+  position: absolute; left: -1px; bottom: 0; /* with the line's 0.5 px margin, the 1 px line is centred on the stop */
+  display: flex; gap: 18px;
+  height: max(clamp(120px, 19vh, 200px), var(--lift, 0px)); /* --lift: set by the 3D floor so the text clears the headboard */
+}
+/* Label line: a 1 px solid leader (Ramir, 2026-11-08: the dots felt "too similar to solidroad"; he picked the leader
+   from leader / beam / stitch and dropped its end ring, so the 3D floor dot marks the stop on its own). */
+.scene-panel--floor { --line-c: rgba(255, 255, 255, 0.85); }
+.floor-label__line { flex: none; width: 1px; margin-left: 0.5px; background: var(--line-c); }
+/* Body = round photo + title/sub, side by side, to the right of the line. The circle's top meets the line's top. */
+.floor-label__body { display: flex; align-items: center; gap: clamp(12px, 1vw, 16px); align-self: flex-start; }
+.floor-label__photo {
+  flex: none; width: var(--photo-d); height: var(--photo-d); border-radius: 50%; overflow: hidden;
+  --photo-d: clamp(48px, 3.9vw, 68px);
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06) 70%);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85); /* a 2 px ring only: no drop shadows (Ramir) */
+}
+.floor-label__photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.floor-label__text { display: flex; flex-direction: column; gap: 6px; white-space: nowrap; }
+/* The middle stop hangs below the route (still to the right of its line) so three stops fit along one short row. */
+.floor-label--below .floor-label__inner { bottom: auto; top: 0; height: clamp(90px, 13vh, 140px); }
+.floor-label--below .floor-label__body { align-self: flex-end; }
+.floor-label__text .floor-label__sub { color: rgba(255, 255, 255, 0.85); }
+.floor-label__title { font-size: clamp(18px, 1.75vw, 30px); font-weight: 500; letter-spacing: -0.01em; }
+.floor-label__sub { font-size: clamp(13px, 1.15vw, 19px); font-weight: 500; color: rgba(255, 255, 255, 0.7); }
+
+/* Scene 2's bright 3D showroom (data-tone="light", set by the script once the room is up; the flat fallback keeps the
+   dark look). A warm white wash replaces the dark shades (it reads as the window side of the room), and the labels
+   turn to ink with a soft light halo, so they stay readable over white covers, the rug and the darker Midnight top. */
+.scene-panel--floor[data-kind="floor3d"] { background: #0b1016; }
+/* The 3D room has a pale floor under midnight walls: slightly deeper shades keep the white copy and the label that
+   hangs below the route readable on it. */
+.scene-panel--floor[data-kind="floor3d"] .shade--floor { background: linear-gradient(90deg, rgba(7, 9, 11, 0.78) 0%, rgba(7, 9, 11, 0.5) 30%, rgba(7, 9, 11, 0.16) 46%, rgba(7, 9, 11, 0) 58%); }
+.scene-panel--floor[data-kind="floor3d"] .shade--bottom { background: linear-gradient(180deg, rgba(7, 9, 11, 0.4) 0%, rgba(7, 9, 11, 0) 16%, rgba(7, 9, 11, 0) 46%, rgba(7, 9, 11, 0.6) 70%, rgba(7, 9, 11, 0.9) 100%); }
+.scene-panel--floor[data-kind="floor3d"] .floor-label--below .floor-label__sub { color: rgba(255, 255, 255, 0.95); }
+/* The shades come after the labels in the markup; in the low view the lower label sits in the bottom shade, so the
+   3D floor's labels are lifted above them (their own dark halo keeps them readable). */
+.scene-panel--floor[data-kind="floor3d"] .floor-label { z-index: 1; }
+/* Scene 2's labels leave early in the cross-fade to scene 3 (gone by the time it is a third of the way in), so no text
+   seeps into the next scene. */
+.scene-panel--floor .floor-label { opacity: clamp(0, 1 - var(--next-fade, 0) * 3, 1); }
+.scene-panel--floor[data-tone="light"] .shade--floor { background: linear-gradient(90deg, rgba(246, 243, 238, 0.66) 0%, rgba(246, 243, 238, 0.46) 26%, rgba(246, 243, 238, 0.12) 42%, rgba(246, 243, 238, 0) 54%); }
+.scene-panel--floor[data-tone="light"] .shade--bottom { background: linear-gradient(180deg, rgba(246, 243, 238, 0.3) 0%, rgba(246, 243, 238, 0) 12%, rgba(246, 243, 238, 0) 76%, rgba(246, 243, 238, 0.42) 100%); }
+.scene-panel--floor[data-tone="light"] { --line-c: rgba(16, 24, 32, 0.6); }
+.scene-panel--floor[data-tone="light"] .floor-label__text { color: var(--accent-black); }
+.scene-panel--floor[data-tone="light"] .floor-label__text .floor-label__sub { color: #39424b; }
+.scene-panel--floor[data-tone="light"] .floor-label__photo { box-shadow: 0 0 0 2px #ffffff; }
+
+/* Scene 3: a still photo with a slow push-in tied to scroll. */
+.scene-panel__photo {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 28%;
+  transform: scale(var(--zoom, 1.12)); transform-origin: 70% 32%;
+}
+
+/* Text column + three-segment rail: rail at ~7.9vw, text 36px right of it, vertically centred.
+   Typography pass (2026-11-09, Ramir's design manager: "the typography here can use some work"):
+   - Titles hold one line on desktop and balance into two even lines where they must wrap, never a lone last word.
+   - Titles are about 2.3× the body (was up to 3×). Body a size up at 450 weight with 1.55 leading, about 45–55 characters a line.
+   - The title-to-body gap is about half the title size (was 32px).
+   - Deeper shades behind the copy keep it legible over busy picture areas. No text or drop shadows (Ramir: "I am very
+     anti-drop shadow"). */
+.scenes__ui {
+  position: absolute; inset: 0;
+  display: flex; align-items: center;
+  padding-inline: var(--gutter);
+  pointer-events: none;
+}
+.scenes__text { display: flex; align-items: stretch; gap: 36px; min-height: 176px; max-width: 760px; }
+.scenes__rail { flex: none; display: flex; flex-direction: column; gap: 4px; width: 2px; }
+.scenes__seg { position: relative; flex: 1; overflow: hidden; border-radius: 2px; background: rgba(255, 255, 255, 0.2); }
+.scenes__fill { position: absolute; inset: 0; background: #fff; transform-origin: top; transform: scaleY(var(--p, 0)); }
+.scenes__copy { display: grid; flex: 1; min-width: 0; align-content: start; }
+.scene-copy { grid-area: 1 / 1; visibility: hidden; }
+.scene-copy.is-active { visibility: visible; }
+.scenes__copy { font-kerning: normal; font-feature-settings: "kern" 1, "liga" 1; text-rendering: optimizeLegibility; }
+.scene-copy h2 {
+  margin: 0;
+  font-size: clamp(30px, 2.5vw, 42px); line-height: 1.1; font-weight: 500; letter-spacing: -0.024em;
+  text-wrap: balance;
+}
+.scene-copy p {
+  margin: clamp(14px, 1.2vw, 20px) 0 0; max-width: 27em;
+  font-size: clamp(15px, 1.05vw, 17px); line-height: 1.55; font-weight: var(--fw-text, 450); letter-spacing: 0.002em;
+  color: rgba(255, 255, 255, 0.86);
+}
+/* v181 (Ramir 2026-11-11: "Yes, scenes too"): the titles reveal like the headline, after serious.business's titles.
+   The script splits each title into its lines as laid out (.reveal-line, --li = line number); each line hangs from its
+   top edge in 3D and swings from tilted back (rotateX -35deg, rotateY -5deg, 1rem away) to flat on a gentle ease-out
+   while its words rise into it from under its clip on a stronger one, 0.75 s, a sixth of a second between lines. It
+   plays each time its scene becomes the active one (scene 1's as the opening finishes: no copy is active before
+   then); leaving a scene resets it at once. The blurb keeps its fade-up (the titles' too until v180). */
+.scene-copy h2 { perspective: 1000px; }
+.reveal-line {
+  display: block; width: fit-content; white-space: nowrap;
+  overflow: clip; padding-block: 0.08em; margin-block: -0.08em;
+  transform-origin: 50% 0; transform: rotateX(-35deg) rotateY(-5deg) translateZ(-1rem);
+}
+.reveal-line > span { display: block; transform: translateY(112%); }
+.scene-copy.is-active .reveal-line {
+  transform: none;
+  transition: transform 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) calc(var(--li, 0) * 0.1667s);
+}
+.scene-copy.is-active .reveal-line > span {
+  transform: none;
+  transition: transform 0.75s cubic-bezier(0.165, 0.84, 0.44, 1) calc(var(--li, 0) * 0.1667s);
+}
+.scene-copy p { opacity: 0; transform: translateY(24px); transition: color 0.5s ease; }
+.scene-copy p { text-wrap: balance; } /* short blurbs (2–5 lines): even lines, no short last line (others wrap as before) */
+.scene-copy.is-active p {
+  opacity: 1; transform: none;
+  transition: opacity 0.9s var(--ease-scene) 0.08s, transform 0.9s var(--ease-scene) 0.08s, color 0.5s ease;
+}
+/* Over a light scene (data-tone="light" on the section, set by the script from what fills the stage): ink text and rail. */
+.scenes__ui { transition: color 0.5s ease; }
+.scenes__seg, .scenes__fill { transition: background-color 0.5s ease; }
+.scenes[data-tone="light"] .scenes__ui { color: var(--accent-black); }
+.scenes[data-tone="light"] .scene-copy p { color: rgba(16, 24, 32, 0.8); }
+.scenes[data-tone="light"] .scenes__seg { background: rgba(16, 24, 32, 0.14); }
+.scenes[data-tone="light"] .scenes__fill { background: var(--accent-black); }
+
+/* Tablet and down: text drops to the bottom over a shade so it never fights the visual in the middle. */
+@media (max-width: 991px) {
+  .nav-links { display: none; }
+  .nav-bar { grid-template-columns: auto 1fr; padding-left: 22px; }
+  .nav-bar .lockup { justify-self: start; transform: none; }
+  .lockup { --lockup-h: 17px; }
+  .floor-label[data-narrow-hide] { display: none; } /* New model: desktop only; scenes.js also drops it from the camera fit */
+  .scenes__ui { align-items: flex-end; padding-bottom: 64px; }
+  .shade--left, .shade--floor { background: linear-gradient(180deg, rgba(7, 9, 11, 0) 36%, rgba(7, 9, 11, 0.56) 66%, rgba(7, 9, 11, 0.9) 100%); }
+  .scene-panel--floor[data-kind="floor3d"] .shade--floor { background: linear-gradient(180deg, rgba(7, 9, 11, 0) 36%, rgba(7, 9, 11, 0.56) 66%, rgba(7, 9, 11, 0.9) 100%); }
+  .scene-panel--floor[data-tone="light"] .shade--floor { background: linear-gradient(180deg, rgba(246, 243, 238, 0) 42%, rgba(246, 243, 238, 0.9) 100%); }
+  .floor { width: 170vw; left: 42%; top: 42%; }
+  .floor-wrap { perspective-origin: 50% 0%; }
+  .scene-panel__photo { object-position: 62% 30%; }
+  /* 2026-11-09, Ramir: "images and text are a lot smaller on tablet and mobile". A size up for the copy and labels;
+     then the typography pass: titles sized to hold one line where they can and balance otherwise, a tighter gap. */
+  .scenes__text { max-width: 620px; gap: 28px; }
+  .scene-copy h2 { font-size: clamp(30px, 4.3vw, 40px); }
+  .scene-copy p { margin-top: 16px; max-width: 28em; font-size: 17px; }
+  .floor-label__photo { --photo-d: clamp(52px, 7vw, 64px); }
+  .floor-label__title { font-size: clamp(20px, 2.8vw, 26px); }
+  .floor-label__sub { font-size: clamp(14px, 1.9vw, 17px); }
+}
+
+/* Phone. (The scene copy was one step smaller here; 2026-11-09 it went back up, Ramir found it too small.) */
+@media (max-width: 560px) {
+  :root { --pill-h: 52px; --pill-top: 10px; --nav-side: 10px; }
+  .lockup { --lockup-h: 15px; }
+  .lockup__word { width: calc(var(--lockup-h) * 0.675); -webkit-mask-image: url("assets/brand/mlilyu-word-u.png"); mask-image: url("assets/brand/mlilyu-word-u.png"); }
+  .nav-frame { gap: 8px; }
+  .nav-bar { padding: 0 6px 0 18px; }
+  .nav-actions .btn { height: 40px; padding-inline: 16px; font-size: 13px; }
+  .nav-text { display: none; }
+  .statement__text { font-size: 26px; }
+  .scenes__ui { padding-bottom: 48px; padding-inline: 20px; } /* a bit wider column so short titles hold one line */
+  .scenes__text { gap: 20px; min-height: 140px; }
+  .scene-copy h2 { font-size: clamp(26px, 7.4vw, 32px); line-height: 1.12; }
+  .scene-copy p { margin-top: 12px; font-size: 15px; line-height: 1.5; }
+  .floor { width: 230vw; left: 36%; top: 40%; }
+  .floor-label__inner { height: max(96px, var(--lift, 0px)); gap: 10px; }
+  .floor-label--below .floor-label__inner { height: 72px; }
+  /* Phones: the two raised labels (New model, Weekend sale) must sit side by side, so the label is a touch smaller here. */
+  .floor-label__body { gap: 6px; }
+  .floor-label__photo { --photo-d: 36px; }
+  .floor-label__text { gap: 3px; }
+  .floor-label__title { font-size: 17px; }
+  .floor-label__sub { font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-line, .reveal-line > span { transform: none; } /* v181: the titles just show, as before */
+  .scene-copy.is-active .reveal-line,
+  .scene-copy.is-active .reveal-line > span,
+  .scene-copy.is-active p { transition: none; }
+  .float-nav { transition: opacity 0.2s; transform: none; }
+}
+
+/* ── Opening (2026-11-09: Seasats-style window; light brand gradient; medley; one window under the type) ─────────────
+   Phase 0 of the same pinned stage, before scene 1. The script sets, from scroll:
+     --intro    0→1 over data-intro screens                           --intro-m  the medley's exit, 0→1 over the first 60%
+     --intro-g  the window's growth, 0→1 from 30%                     --intro-e  the same, eased
+     --intro-s  scene 1's scale inside the window                     --win-t/-l/-r/-b/-cx/-cy  the slot under the type, px
+     --intro-dx/-dy  the shift that centres the mattress in the slot
+     --intro-u  the headline's rise from the middle of the screen to its place above the window: its target runs
+                over the first 55%, and the value follows it with inertia (a damped spring in the script)
+   The window starts hidden (opacity 0) and fades in as it scales up, so the opacity and the scale move together.
+   Layers: gradient, medley and titles sit under .scenes__media, which is clipped to the slot and opens to the full
+   screen. When it's done (data-intro-done) the clip, the scale and the intro layer switch off. */
+.scenes {
+  --thumb-w: clamp(220px, 24vw, 380px);
+  --thumb-h: calc(var(--thumb-w) * 9 / 16);
+  --thumb-r: 12px;
+  --slot-gap: clamp(28px, 4.4vh, 48px); /* headline to window */
+  --intro-ink: #101820;      /* Accent Black */
+  --intro-black: #141314;    /* v176: Ramir's black for the opening (his swatch, 2026-11-11: "Use this color for our black") */
+  --night-blue: 0, 59, 149;  /* v179: Best Blue #003B95 for the night glow (his swatch, 2026-11-11: "This one to be exact") */
+}
+.scenes__intro { position: absolute; inset: 0; overflow: clip; color: var(--intro-ink); background: #f6fafc; }
+.scenes__media { z-index: 1; }
+.scenes__ui { z-index: 2; }
+
+.scenes[data-intro] .scenes__media {
+  clip-path: inset(
+    calc(var(--win-t, 0px) * (1 - var(--intro-e, 1)))
+    calc(var(--win-r, 0px) * (1 - var(--intro-e, 1)))
+    calc(var(--win-b, 0px) * (1 - var(--intro-e, 1)))
+    calc(var(--win-l, 0px) * (1 - var(--intro-e, 1)))
+    round calc(var(--thumb-r) * clamp(0, (1 - var(--intro-e, 1)) / 0.08, 1))
+  );
+  /* fades in with the growth, but never before the headline has risen out of its way (u 0.7 → 1) */
+  opacity: clamp(0, min(var(--intro-g, 1) * 2.5, (var(--intro-u, 1) - 0.7) / 0.3), 1);
+}
+.scenes[data-intro] .scenes__media > .scene-panel:first-child {
+  transform-origin: var(--win-cx, 50%) var(--win-cy, 50%);
+  transform:
+    translate(calc(var(--intro-dx, 0px) * (1 - var(--intro-e, 1))), calc(var(--intro-dy, 0px) * (1 - var(--intro-e, 1))))
+    scale(var(--intro-s, 1));
+}
+.scenes[data-intro-done] .scenes__media { clip-path: none; opacity: 1; }
+.scenes[data-intro-done] .scenes__media > .scene-panel:first-child { transform: none; }
+.scenes[data-intro-done] .scenes__intro { visibility: hidden; }
+.scenes[data-intro-done] .intro-aura__blob { animation-play-state: paused; }
+
+/* The gradient, in the brand palette only: white into Good Blue tints (#A4C8E1 mixed with white), soft Good Blue and
+   Better Blue glows, a hint of Best Blue at the very bottom, and a white bloom behind the type. */
+.intro-aura {
+  position: absolute; inset: -12%;
+  background: linear-gradient(180deg, #ffffff 0%, #f6fafc 40%, #e8f1f8 78%, #dce9f3 100%);
+}
+/* v175 (2026-11-11, Ramir: "change 'Where does great sleep start' to a black bg then when it switches to great sleep
+   starts on your sales floor we get back to the gradient"): the opening starts on black, laid over the gradient, and
+   the black lifts off it as the text switch plays. --intro-day (0 → 1) is set by the script from the switch's own
+   timed playhead, so the black fades out with the switch and back in when it plays back. The question is white
+   (.intro-line__from); the answer stays Accent Black. v176: the black is Ramir's #141314 (--intro-black; v175 used
+   the stage's #07090b, which the scenes still use).
+   v178 (Ramir: "add a gradient similar to this", bluesqx.com's Experiences + Impact, "Put it at where does great sleep
+   start"): the black is its own layer, .intro-night, between the light gradient and the photos, with an indigo glow
+   in it. bluesqx plays a looping video of a grainy indigo plume under 50% black; this is our own take in CSS: three
+   soft indigo blooms (sampled from his screenshot: about #12114c to #17174c at the brightest, black at the edges),
+   brightest a little above the question and reaching the top edge, each drifting on its own slow loop so the shape
+   keeps changing, and a fixed film grain over them (overlay, so it shows in the glow and hardly in the black).
+   v179 (Ramir: "Looks great, let's use a blue from our brand color palette. This one to be exact."): the blooms are
+   Best Blue #003B95 (--night-blue; his swatch was #163a8f in raw pixels, which is #003B95 in his display's P3), one
+   colour fading out by alpha, at v178's strengths. */
+.intro-night {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden; isolation: isolate;
+  background: var(--intro-black);
+  opacity: calc(1 - var(--intro-day, 0));
+}
+/* Each bloom is placed by its centre (--cx, --cy) and sized in screen units, never narrower than about 70% of the
+   screen's height, so on a tall phone it stays a soft bloom rather than a narrow beam. */
+.intro-night__glow {
+  position: absolute; will-change: transform, opacity; animation: night-drift-a 14s ease-in-out infinite;
+  left: var(--cx); top: var(--cy); width: var(--w); height: var(--h); margin: calc(var(--h) / -2) 0 0 calc(var(--w) / -2);
+}
+.intro-night__glow--1 { /* the main bloom, a little above the question */
+  --cx: 54%; --cy: 38%; --w: max(76vw, 72svh); --h: 96svh;
+  background: radial-gradient(closest-side, rgba(var(--night-blue), 0.42), rgba(var(--night-blue), 0.27) 38%, rgba(var(--night-blue), 0.12) 66%, rgba(var(--night-blue), 0) 100%);
+}
+.intro-night__glow--2 { /* the plume's tail, low on the left */
+  --cx: 34%; --cy: 66%; --w: max(46vw, 44svh); --h: 62svh;
+  background: radial-gradient(closest-side, rgba(var(--night-blue), 0.32), rgba(var(--night-blue), 0.13) 55%, rgba(var(--night-blue), 0) 100%);
+  animation-name: night-drift-b; animation-duration: 11s;
+}
+.intro-night__glow--3 { /* its reach to the top edge */
+  --cx: 60%; --cy: 8%; --w: max(52vw, 50svh); --h: 50svh;
+  background: radial-gradient(closest-side, rgba(var(--night-blue), 0.26), rgba(var(--night-blue), 0.11) 55%, rgba(var(--night-blue), 0) 100%);
+  animation-name: night-drift-c; animation-duration: 17s;
+}
+/* v182 (Ramir 2026-11-11: "can you make sure the gradient on where does great sleep start is moving?"): it was moving,
+   but only 3–6 px a second (19–27 s back-and-forth loops, ±3–6% of the screen), which reads as still on a soft glow.
+   Now each bloom goes round its own circuit (14 / 11 / 17 s, never in step) through several waypoints, travels about
+   9–12% of the screen, turns a little (they are ovals, so the shape changes) and swells and dims slightly, so the glow
+   keeps morphing like bluesqx's video: roughly 30–50 px a second on a desktop screen, slowing at each turn. */
+@keyframes night-drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); opacity: 1; }
+  25% { transform: translate3d(-9vw, 7vh, 0) rotate(10deg) scale(1.12); opacity: 0.9; }
+  50% { transform: translate3d(6vw, 11vh, 0) rotate(-6deg) scale(0.92); opacity: 1; }
+  75% { transform: translate3d(10vw, -5vh, 0) rotate(6deg) scale(1.08); opacity: 0.94; }
+}
+@keyframes night-drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); opacity: 1; }
+  33% { transform: translate3d(12vw, -8vh, 0) rotate(-12deg) scale(1.15); opacity: 0.85; }
+  66% { transform: translate3d(-6vw, -12vh, 0) rotate(8deg) scale(0.9); opacity: 1; }
+}
+@keyframes night-drift-c {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1.04); opacity: 1; }
+  30% { transform: translate3d(-10vw, 6vh, 0) rotate(14deg) scale(0.94); opacity: 0.88; }
+  60% { transform: translate3d(8vw, 9vh, 0) rotate(-10deg) scale(1.12); opacity: 1; }
+}
+.intro-night::after { /* film grain */
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='1.6' intercept='-0.3'/%3E%3CfeFuncG type='linear' slope='1.6' intercept='-0.3'/%3E%3CfeFuncB type='linear' slope='1.6' intercept='-0.3'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+  mix-blend-mode: overlay; opacity: 0.5;
+}
+.scenes[data-intro-done] .intro-night__glow { animation-play-state: paused; }
+.intro-aura__blob {
+  position: absolute; width: 72vmax; height: 72vmax; border-radius: 50%;
+  will-change: transform;
+  animation: aura-drift-a 24s ease-in-out infinite alternate;
+}
+.intro-aura__blob--1 { left: -20%; top: -28%; background: radial-gradient(closest-side, rgba(164, 200, 225, 0.6), rgba(164, 200, 225, 0)); }
+.intro-aura__blob--2 { right: -24%; top: -8%; background: radial-gradient(closest-side, rgba(94, 138, 180, 0.22), rgba(94, 138, 180, 0)); animation-name: aura-drift-b; animation-duration: 29s; }
+.intro-aura__blob--3 { left: 14%; bottom: -54%; background: radial-gradient(closest-side, rgba(0, 59, 149, 0.12), rgba(0, 59, 149, 0)); animation-name: aura-drift-c; animation-duration: 34s; }
+.intro-aura__blob--4 { left: 27%; top: 8%; width: 52vmax; height: 40vmax; background: radial-gradient(closest-side, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0)); animation-name: aura-drift-d; animation-duration: 21s; }
+@keyframes aura-drift-a { 0% { transform: translate3d(0, 0, 0) scale(1); } 50% { transform: translate3d(16vw, 9vh, 0) scale(1.14); } 100% { transform: translate3d(4vw, 22vh, 0) scale(0.94); } }
+@keyframes aura-drift-b { 0% { transform: translate3d(0, 0, 0) scale(1.05); } 50% { transform: translate3d(-14vw, 16vh, 0) scale(0.92); } 100% { transform: translate3d(-24vw, -4vh, 0) scale(1.12); } }
+@keyframes aura-drift-c { 0% { transform: translate3d(0, 0, 0) scale(1); } 50% { transform: translate3d(-12vw, -10vh, 0) scale(1.1); } 100% { transform: translate3d(14vw, -4vh, 0) scale(0.96); } }
+@keyframes aura-drift-d { 0% { transform: translate3d(0, 0, 0) scale(0.92); } 50% { transform: translate3d(4vw, 3vh, 0) scale(1.06); } 100% { transform: translate3d(-4vw, 5vh, 0) scale(1); } }
+
+/* The medley: photos at three depths around the titles (front: full strength; back: smaller and faded, as on the Spyker
+   page). On load each one wipes up into view, then drifts a few pixels on its own loop. Scrolling scatters them outward
+   along the line from the centre, further for nearer photos, before the window starts to open.
+   2026-11-09 (v161): they also turn slowly around the headline, faster while scrolling. The script moves each photo along
+   its own wide ellipse through the resting place set here and passes the offset from it as --ox / --oy, scatter
+   included (outward from where the photo is on its ring). Size, depth, opacity, float and wipe-in stay as they are, and
+   the photos stay upright. Without --ox / --oy (reduced motion, no script) they scatter along --dx / --dy as before.
+   v167, the z-axis: the ring is seen from above, so the script also passes --oz (size on the ring: bigger round the near,
+   bottom side, smaller round the far, top side), --of (a little fainter on the far side) and a z-index (nearer on top). */
+.medley { position: absolute; inset: 0; }
+.medley__item {
+  position: absolute; margin: 0; left: var(--x); top: var(--y); width: min(var(--w), var(--wh, 100vh)); aspect-ratio: var(--r);
+  opacity: calc(var(--o, 1) * var(--of, 1) * (1 - var(--intro-m, 0)));
+  transform:
+    translate3d(
+      var(--ox, calc(var(--dx) * var(--intro-m, 0) * 24vw * var(--depth))),
+      var(--oy, calc(var(--dy) * var(--intro-m, 0) * 24vh * var(--depth))),
+      0)
+    scale(calc(var(--oz, 1) * (1 + var(--intro-m, 0) * 0.12 * var(--depth))));
+  will-change: transform, opacity;
+}
+.medley__item img {
+  display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 4px;
+  animation: medley-in 1.2s var(--ease-out) var(--delay, 0s) both, medley-float var(--float, 9s) ease-in-out calc(var(--delay, 0s) + 1.2s) infinite alternate;
+  animation-play-state: paused;
+}
+.scenes__intro.is-in .medley__item img { animation-play-state: running; }
+.scenes[data-intro-done] .medley__item img { animation-play-state: paused; } /* after the rule above, so it wins */
+/* v177: with the orbit on (the script sets data-enter), the photos come in round the ring from beyond the top-right
+   corner instead of wiping up in place, so here they only float. The play state still follows the two rules above. */
+.scenes__intro[data-enter] .medley__item img {
+  animation-name: medley-float; animation-duration: var(--float, 9s); animation-timing-function: ease-in-out;
+  animation-delay: var(--delay, 0s); animation-iteration-count: infinite; animation-direction: alternate;
+  animation-fill-mode: none;
+}
+@keyframes medley-in { from { opacity: 0; clip-path: inset(100% 0 0 0 round 4px); } to { opacity: 1; clip-path: inset(0 0 0 0 round 4px); } }
+@keyframes medley-float { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, calc(var(--depth) * -10px), 0); } }
+.medley__item--1 { --x: 6%;  --y: 12%; --w: 14vw; --wh: 21vh; --r: 4 / 3; --dx: -0.83; --dy: -0.55; --depth: 0.55; --o: 0.5;  --delay: 0.05s; --float: 10s; }
+.medley__item--2 { --x: 24%; --y: 4%;  --w: 18vw; --wh: 27vh; --r: 3 / 2; --dx: -0.38; --dy: -0.92; --depth: 1;    --o: 1;    --delay: 0.15s; --float: 8s; }
+.medley__item--3 { --x: 76%; --y: 7%;  --w: 18vw; --wh: 27vh; --r: 4 / 3; --dx: 0.78;  --dy: -0.62; --depth: 0.9;  --o: 1;    --delay: 0.25s; --float: 9s; }
+.medley__item--4 { --x: 2%;  --y: 46%; --w: 15vw; --wh: 22.5vh; --r: 3 / 2; --dx: -0.99; --dy: 0.12;  --depth: 1;    --o: 1;    --delay: 0.35s; --float: 11s; }
+.medley__item--5 { --x: 85%; --y: 48%; --w: 12vw; --wh: 18vh; --r: 4 / 3; --dx: 0.98;  --dy: 0.19;  --depth: 0.55; --o: 0.5;  --delay: 0.45s; --float: 10s; }
+.medley__item--6 { --x: 10%; --y: 74%; --w: 13vw; --wh: 19.5vh; --r: 3 / 2; --dx: -0.67; --dy: 0.74;  --depth: 0.75; --o: 0.8;  --delay: 0.55s; --float: 9s; }
+.medley__item--7 { --x: 75%; --y: 71%; --w: 15vw; --wh: 22.5vh; --r: 3 / 2; --dx: 0.66;  --dy: 0.75;  --depth: 1;    --o: 1;    --delay: 0.65s; --float: 8s; }
+.medley__item--8 { --x: 59%; --y: 3%;  --w: 10vw; --wh: 15vh; --r: 4 / 3; --dx: 0.46;  --dy: -0.89; --depth: 0.5;  --o: 0.45; --delay: 0.75s; --float: 12s; }
+/* v174 (2026-11-11, Ramir: "There is a bit of a gap here, can we add some photos to it?"). The ring had one wide stretch:
+   about 96° between 7 and 6 round the bottom, where every other pair is 25–51° apart, and the turn carried that stretch
+   round the screen (an empty left side about 27 s in). 9 (ChiroPro 1.0, near) and 10 (WellFlex 3.0, far) sit in it at
+   about 106° and 74° on the ring, on the same size of ring as the others, so no gap is over 51° now. Desktop only:
+   tablets and phones keep their own layouts (below). */
+.medley__item--9  { --x: 32%; --y: 82%;   --w: 15vw; --wh: 22.5vh; --r: 4 / 3; --dx: -0.28; --dy: 0.96; --depth: 0.95; --o: 1;   --delay: 0.85s; --float: 9s; }
+.medley__item--10 { --x: 57%; --y: 84.5%; --w: 11vw; --wh: 16.5vh; --r: 3 / 2; --dx: 0.28;  --dy: 0.96; --depth: 0.55; --o: 0.5; --delay: 0.95s; --float: 11s; }
+/* On the orbit, photos on different rings can pass each other: the nearer one always goes over (stacked by --depth).
+   The medley is its own stacking context, so these never reach above the headline or the window. */
+.medley { isolation: isolate; }
+.medley__item--1, .medley__item--5, .medley__item--8, .medley__item--10 { z-index: 1; }
+.medley__item--6 { z-index: 2; }
+.medley__item--3 { z-index: 3; }
+.medley__item--2, .medley__item--4, .medley__item--7, .medley__item--9 { z-index: 4; }
+/* Photos above the titles keep at least --type-gap clear of the first line. Where the titles sit high (short or wide
+   windows, phones; the hidden window under them pushes them up) these slide up, bleeding off the top if they must,
+   instead of covering it. --type-top is the first line's top, measured by the script; --hr is height / width. */
+.medley { --type-gap: clamp(16px, 3vh, 32px); }
+.medley__item--1, .medley__item--3, .medley__item--5, .medley__item--8 { --hr: 0.75; }
+.medley__item--2, .medley__item--4, .medley__item--6, .medley__item--7 { --hr: 0.6667; }
+.medley__item--2, .medley__item--8 {
+  top: min(var(--y), calc(var(--type-top, 100vh) - var(--type-gap) - min(var(--w), var(--wh, 100vh)) * var(--hr)));
+}
+
+/* The headline: one sentence of its own (not the scene titles again), set on two lines that each hold on wider screens.
+   Medium weight, tight tracking for display size, 1.08 leading; kerning and ligatures on. On load the lines come in
+   the way serious.business reveals its titles (v180, see .intro-line). At rest it sits in the middle of the screen: the column (headline, gap, window slot)
+   is centred, so the headline is pushed down by half the slot and gap. Scrolling lifts it, slowly and with inertia, to its
+   place in the column, making room for the window that opens under it (--intro-u); as the window grows it keeps lifting and fades. */
+.intro-copy {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding-inline: var(--gutter); text-align: center;
+}
+.intro-title {
+  margin: 0; font-kerning: normal; font-feature-settings: "kern" 1, "liga" 1; text-rendering: optimizeLegibility;
+  font-size: clamp(30px, 4.2vw, 72px); font-weight: 500; line-height: 1.08; letter-spacing: -0.028em;
+  color: var(--intro-ink);
+  perspective: 1000px; /* v180: the lines' reveal swings them in 3D */
+  opacity: clamp(0, 1 - var(--intro-g, 0) * 1.8, 1);
+  transform: translateY(calc((var(--thumb-h) + var(--slot-gap)) / 2 * (1 - var(--intro-u, 0)) - var(--intro-g, 0) * 6vh));
+}
+.intro-slot { flex: none; display: block; width: var(--thumb-w); height: var(--thumb-h); margin-top: var(--slot-gap); }
+/* The reveal (v180, Ramir 2026-11-11: "change the text reveal to something like in https://serious.business/"), after
+   their "title" reveal (read from their main.js): each line hangs from its top edge in 3D (the headline has a 1000px
+   perspective) and swings from tilted back, rotateX -35deg / rotateY -5deg / 1rem away, to flat, on a gentle ease-out
+   (their Quad.easeOut); at the same time its words rise into it from under the line's clip (their y 100%, here 112% to
+   clear the clip's padding) on a stronger ease-out (Quart.easeOut). Both take 0.75 s; the second line starts a sixth of
+   a second after the first. It starts 0.35 s after the opening comes into view, as before, so it runs with the photos'
+   entrance. Was v160–v179: each line rose 105% with a 5deg skew and faded in, 0.95 s, 0.12 s apart. */
+.intro-line {
+  display: block; overflow-x: visible; overflow-y: clip; padding-block: 0.08em; margin-block: -0.08em; /* v184: clip
+     only vertically (all the reveal and the switch need), so a line a pixel wider than its box is never trimmed */
+  transform-origin: 50% 0;
+  transform: rotateX(-35deg) rotateY(-5deg) translateZ(-1rem);
+  transition: transform 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition-delay: calc(0.35s + var(--i, 0) * 0.1667s);
+}
+.intro-line > span {
+  display: grid; justify-items: center;
+  transform: translateY(112%);
+  transition: transform 0.75s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition-delay: calc(0.35s + var(--i, 0) * 0.1667s);
+}
+.scenes__intro.is-in .intro-line, .scenes__intro.is-in .intro-line > span { transform: none; }
+/* v168 text switch (Ramir, 2026-11-10: "a text switch animation ... a mask change. The previous text goes up into the
+   y-direction, the next 2 lines come up"). Each line is the mask (its own clip) and holds two texts in one grid cell, so
+   it is as wide as the wider of them and the headline's box, which the orbit keeps clear of, never changes. --sw (0 to 1,
+   set on each line by the script: a timed play, 0.8 s per line, the second 0.12 s after the first, started a
+   quarter of the way into the half turn and played back above it) lifts the first text up out of the mask and brings
+   the second up into it from below. 112% clears the mask's 0.08em padding. */
+.intro-line__from, .intro-line__to { grid-area: 1 / 1; display: block; will-change: transform; }
+.intro-line__from { transform: translateY(calc(var(--sw, 0) * -112%)); color: #fff; } /* v175: on the black */
+.intro-line__to { transform: translateY(calc((1 - var(--sw, 0)) * 112%)); }
+/* v184: each line holds one line at every width. Phones used to fall back to a balanced wrap, but with v184's copy the
+   20-character "We keep you current." (about 322 px of 343 at 35 px) broke by a sub-pixel there and the answer went to
+   three lines. Every line now fits down to 320 px (measured), so no wrapping anywhere; keep lines to about 20 characters. */
+.intro-title .intro-line > span { white-space: nowrap; }
+@media (max-width: 991px) {
+  /* Tablet (2026-11-09, Ramir: "images and text are a lot smaller on tablet and mobile"): a bigger headline, and bigger
+     photos laid out for a tall screen, two large ones across the top and three along the bottom. */
+  .medley__item { --wh: 100vh; }
+  .medley__item--1, .medley__item--5, .medley__item--8, .medley__item--9, .medley__item--10 { display: none; }
+  .medley__item--2 { --x: 4%;  --y: 4%;  --w: 40vw; --wh: 30vh; }
+  .medley__item--3 { --x: 56%; --y: 9%;  --w: 40vw; --wh: 30vh; }
+  .medley__item--4 { --x: -6%; --y: 66%; --w: 42vw; --wh: 32vh; --o: 0.7; }
+  .medley__item--6 { --x: 24%; --y: 88%; --w: 34vw; --wh: 26vh; --o: 0.6; }
+  .medley__item--7 { --x: 60%; --y: 74%; --w: 44vw; --wh: 33vh; --o: 0.7; }
+  .intro-title { font-size: clamp(40px, 6.6vw, 64px); }
+  /* Here the top row reaches over the headline's column, so both keep clear of its first line. */
+  .medley__item--3 {
+    top: min(var(--y), calc(var(--type-top, 100vh) - var(--type-gap) - min(var(--w), var(--wh, 100vh)) * var(--hr)));
+  }
+}
+@media (max-width: 560px) {
+  .scenes { --thumb-w: 64vw; --thumb-r: 10px; }
+  .intro-copy { padding-inline: 16px; }
+  .medley__item--1 { display: none; }
+  .medley__item--2 { --x: -8%;  --y: 4%;  --w: 58vw; --wh: 100vh; }
+  .medley__item--3 { --x: 52%;  --y: 10%; --w: 54vw; --wh: 100vh; }
+  .medley__item--4 { --x: -14%; --y: 70%; --w: 52vw; --wh: 60vh; --o: 0.6; }
+  .medley__item--7 { --x: 62%;  --y: 76%; --w: 52vw; --wh: 60vh; --o: 0.6; }
+  /* Two more wait just off the sides for the orbit (v162). The headline fills a phone's width, so a turn carries the
+     four photos above and below it out past the edges together; these two come round the sides as they go, so the
+     screen never empties. At rest they are off screen: the phone layout looks as before. */
+  .medley__item--5 { display: block; --x: 118%; --y: 40%; --w: 50vw; --wh: 100vh; --o: 0.6; }
+  .medley__item--6 { --x: -67%; --y: 39%; --w: 50vw; --wh: 100vh; --o: 0.6; }
+  /* each line still holds within 16 px side margins: v184's longest line, "We keep you current.", is about 9.7× the
+     font size wide, so the size is capped at (screen − 32 px) / 9.85 (trims under 1 px at 320–390 px) */
+  .intro-title { font-size: min(clamp(30px, 9.4vw, 44px), calc((100vw - 32px) / 9.85)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-aura__blob, .intro-night__glow { animation: none; }
+  .medley__item img { animation: medley-in 0.4s linear both; }
+  /* the reveal is a quick fade in place here */
+  .intro-line, .intro-line > span { transform: none; transition: none; }
+  .intro-line > span { opacity: 0; transition: opacity 0.3s linear; }
+  .scenes__intro.is-in .intro-line > span { opacity: 1; }
+  /* the text switch is a plain cross-fade here */
+  .intro-line__from, .intro-line__to { transform: none; }
+  .intro-line__from { opacity: calc(1 - var(--sw, 0)); }
+  .intro-line__to { opacity: var(--sw, 0); }
+}
+
+/* THE PDP'S TYPE SYSTEM (Ramir, 2026-11-12: "Let's now turn to section sample 1 and 2 and apply the typography improvements we did to the pdp").
+   What the PDP (rvrv_rv-pdp-mattresses-vv) kept, and how it lands here (font loading: see the top of this file):
+   WEIGHTS  the scene copy 450 -> 400 (mlilyusa.com's Regular; "font-weight: 450" reads var(--fw-text, 450)). The floor labels take the PDP's
+            roles: the stop's name 500 -> 600, its line under it 500 -> 400. The headline and the scene titles keep 500 (display sizes).
+   LEADING  the scene copy 1.55 (1.5 on phones) -> 1.6, the PDP's rule for wrapped Regular text.
+   TRACKING Montserrat text at 0: the scene copy (was 0.002em) and the stop names (was -0.01em). The headline and the scene titles keep
+            theirs (display sizes).
+   COLOUR   ink #1D1D1F -> Accent Black #101820 and muted #5B6772 -> #4F5A66, as on the PDP (both only where the page is light). The answer
+            headline is ink on the light gradient, so it takes the PDP's light-page rendering (font smoothing auto, not antialiased).
+   Sizes unchanged (Ramir kept the PDP's original sizes). ?typebefore = all of this as before (backup: _archive/before-pdp-type-v184/). */
+:root { --fw-text: 400; }
+html.type-before { --fw-text: 450; --font: "Montserrat File", system-ui, -apple-system, sans-serif; }
+html:not(.type-before) { --ink: #101820; --muted: #4f5a66; }
+html:not(.type-before) .scene-copy p { line-height: 1.6; letter-spacing: 0; }
+html:not(.type-before) .floor-label__title { font-weight: 600; letter-spacing: 0; }
+html:not(.type-before) .floor-label__sub { font-weight: 400; }
+html:not(.type-before) .intro-line__to { -webkit-font-smoothing: auto; -moz-osx-font-smoothing: auto; }
