@@ -1762,16 +1762,33 @@ function initScenes(root) {
   // v169 plays the switch on a timer instead, back to 1.2; v172 makes the whole scroll 25% longer, so 1.5). With reduced
   // motion there is no turn, but the switch (a quick cross-fade there) still needs its moment, so it keeps half.
   const TURN_OVERLAP = 0.25; // of the turn (was a fixed 0.3 screens of 1.2 until v171)
-  const introBase = Number(root.dataset.intro || 0);
-  const turnLen = introBase ? Number(root.dataset.introTurn || 0) * (reduceMotion ? 0.5 : 1) : 0;
-  const turnLead = turnLen * (1 - TURN_OVERLAP); // where the rest of the opening starts
-  const intro = introBase + turnLead;
+  // Tablet and phone (2026-11-17, Ramir: "prolong the animation a bit for store scroll, the beginning especially is a bit
+  // too quick from a tablet and mobile perspective (the scenes are fine)"): under 992 px the opening takes more scroll,
+  // the half turn at its very start most (NARROW_TURN), the scatter, rise and window a little (NARROW_REST). The three
+  // scenes keep their length. Re-set when the window crosses 992 px (a tablet turned, say). Desktop is unchanged.
+  const NARROW_TURN = 1.6;
+  const NARROW_REST = 1.3;
+  const narrowMQ = matchMedia('(max-width: 991px)');
+  let introBase = 0;
+  let turnLen = 0;
+  let turnLead = 0; // where the rest of the opening starts
+  let intro = 0;
+  let span = total;
+  const setLengths = () => {
+    const n = narrowMQ.matches;
+    const base = Number(root.dataset.intro || 0);
+    introBase = base * (n ? NARROW_REST : 1);
+    turnLen = base ? Number(root.dataset.introTurn || 0) * (reduceMotion ? 0.5 : 1) * (n ? NARROW_TURN : 1) : 0;
+    turnLead = turnLen * (1 - TURN_OVERLAP);
+    intro = introBase + turnLead;
+    span = total + intro;
+    root.style.setProperty('--scenes-length', span);
+  };
+  setLengths();
   const introLayer = root.querySelector('[data-intro-layer]');
   const slot = root.querySelector('[data-intro-slot]');
   const stage = root.querySelector('.store-scroll__stage');
   const ui = root.querySelector('.store-scroll__ui');
-  const span = total + intro;
-  root.style.setProperty('--scenes-length', span);
 
   const scenes = panels.map((panel) => sceneKinds[panel.dataset.kind](panel, {
     lead: Number(panel.dataset.lead || 0),
@@ -2201,6 +2218,7 @@ function initScenes(root) {
   io.observe(root);
 
   window.addEventListener('resize', () => { scenes.forEach((s) => s.resize && s.resize()); splitTitles(); measureIntro(); updateAll(trigger.progress); });
+  narrowMQ.addEventListener('change', () => { setLengths(); ScrollTrigger.refresh(); });
   updateAll(trigger.progress);
 }
 
