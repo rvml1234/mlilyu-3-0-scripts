@@ -29,12 +29,12 @@
    curve."): the 1 px stroke is back (14% white, 30% on the card that plays), with square corners (was 20 px, Air's), and
    the text is back inside it. r3-90's borderless cards (text flush with the ticker) are in _archive/before-boxy-r3-90c/. */
 /* r3-94: the r3-91 stroke became the frame's lines: each card draws its left side. */
-.card :is(.card__stage, .card__text) { transition: opacity 0.2s var(--ease); }
-.card:not(.is-active) :is(.card__stage, .card__text) { opacity: 0.4; }
-.card:focus-visible { outline: 2px solid #ffffff; outline-offset: -2px; }
+.pillar-card :is(.pillar-card__stage, .pillar-card__text) { transition: opacity 0.2s var(--ease); }
+.pillar-card:not(.is-active) :is(.pillar-card__stage, .pillar-card__text) { opacity: 0.4; }
+.pillar-card:focus-visible { outline: 2px solid #ffffff; outline-offset: -2px; }
 
 /* The picture square, full bleed (r3-72; Air clipped it to a rounded square 16 units in). */
-.card__stage {
+.pillar-card__stage {
   --s: 1;
   position: relative; width: 100%; aspect-ratio: 1;
   perspective: 1600px;
@@ -46,9 +46,9 @@
   clip-path: inset(7.691% round 8px);
 }
 /* The ticker: a faint white track and its white fill, scaled by --p (0 to 1, set by the row through the card's turn). */
-.card__progress { position: relative; flex: none; height: 1px; background: rgba(255, 255, 255, 0.14); } /* r3-74: 1 px (r3-73: 2, r3-72: 3) */
-.card__progress i, .card__progress-fill { position: absolute; inset: 0; background: #ffffff; transform-origin: 0 50%; transform: scaleX(var(--p, 0)); }
-.card__tilt { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+.pillar-card__progress { position: relative; flex: none; height: 1px; background: rgba(255, 255, 255, 0.14); } /* r3-74: 1 px (r3-73: 2, r3-72: 3) */
+.pillar-card__progress i, .pillar-card__progress-fill { position: absolute; inset: 0; background: #ffffff; transform-origin: 0 50%; transform: scaleX(var(--p, 0)); }
+.pillar-card__tilt { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
 
 .board {
   position: absolute; left: 50%; top: 50%;
@@ -143,7 +143,7 @@
    (Accent Black) under the white type, legible over both (Ramir, 2026-11-09: "card 1's anim more legible by using a dark
    background for the popups over the layer graphic"). The "Smart tags" label gets the same as a small pill. No shadows;
    the edge stays a 1 px light ring (softer on these: card.js edgeA). */
-.card[data-card="understand"] .board__glass { background: rgba(16, 24, 32, 0.84); }
+.pillar-card[data-card="understand"] .board__glass { background: rgba(16, 24, 32, 0.84); }
 /* The video pop-up (r3-15; it replaced the Smart tags label and chips): a label, the Midnight training video as a
    16:9 thumbnail with a play button and its length, then the title. */
 .ui--video { display: flex; flex-direction: column; gap: calc(7px * var(--s)); height: 100%; padding: calc(11px * var(--s)); } /* r3-18: the other pop-ups' padding */
@@ -172,7 +172,7 @@
    faded-ink captions. No shadows: the glass sits inside the board's 1 px edge, a faint ink hairline (card.js), so the
    card reads on the light frame. r3-39 (Ramir: "I don't like any highlights for that pop-up at all"): no row band; the searched 1.0 is
    simply ink, as in the dark version it was white, and 3.0 is faded. (r3-37 had a mist band, r3-38 a grey one.) */
-.card[data-card="understand"] .board--light .board__glass { inset: 0; background: #ffffff; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.pillar-card[data-card="understand"] .board--light .board__glass { inset: 0; background: #ffffff; -webkit-backdrop-filter: none; backdrop-filter: none; }
 .board--light .ui { color: #101820; }
 .board--light .ui__caption { color: rgba(16, 24, 32, 0.55); }
 .board--light .ui__video-time { color: #ffffff; }
@@ -305,13 +305,13 @@
 .doc-band { position: static; align-self: stretch; flex: none; }
 .doc-list li { white-space: normal; line-height: 1.2; }
 .ui .doc-icons { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; }
-.card[data-card="sell"] .card__stage { perspective: 700px; }
+.pillar-card[data-card="sell"] .pillar-card__stage { perspective: 700px; }
 .ui--pair-caption { display: flex; align-items: center; justify-content: center; height: 100%; }
 
 /* r3-40 (Sell storyboard 2, "Ready to sell"): MLILY's Midnight 1.0 room photo with its name, a white checklist, and dark
    glass tool cards; ticks and checks are ink and white, never tinted (no highlights). No shadows. */
-.card[data-card="sell"] .board__glass { background: rgba(16, 24, 32, 0.84); }
-.card[data-card="sell"] .board--light .board__glass { inset: 0; background: #ffffff; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.pillar-card[data-card="sell"] .board__glass { background: rgba(16, 24, 32, 0.84); }
+.pillar-card[data-card="sell"] .board--light .board__glass { inset: 0; background: #ffffff; -webkit-backdrop-filter: none; backdrop-filter: none; }
 .ui--photo { overflow: hidden; border-radius: calc(14px * var(--s)); }
 .ui__photo { position: absolute; inset: 0; background-position: center; background-size: cover; background-repeat: no-repeat; }
 .ui__photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 16, 23, 0) 55%, rgba(11, 16, 23, 0.7) 100%); }
@@ -369,9 +369,9 @@
    white "Caption idea" pop-up with a text-only Copy; the caption typing into the post; the dot grid's light trail (a canvas).
    r3-67 (Ramir: "not a big fan of the montserrat font for the IG interface"): the phone's interface is in the system font
    (SF Pro on Apple devices), the pop-ups stay in Montserrat. No shadows. */
-.card__trail { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.card[data-card="market"] .board__glass { background: rgba(16, 24, 32, 0.84); }
-.card[data-card="market"] .board--light .board__glass { inset: 0; background: #ffffff; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.pillar-card__trail { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.pillar-card[data-card="market"] .board__glass { background: rgba(16, 24, 32, 0.84); }
+.pillar-card[data-card="market"] .board--light .board__glass { inset: 0; background: #ffffff; -webkit-backdrop-filter: none; backdrop-filter: none; }
 .ui--phone { height: 100%; }
 .ui__screen {
   position: absolute; inset: calc(4px * var(--s)); display: flex; flex-direction: column; overflow: hidden; border-radius: calc(18px * var(--s));
@@ -527,11 +527,11 @@
    420 px card, 14.2 at 1512, 13.4 at 1440 (floor 13.25, so 1440 keeps three full lines rather than four short ones).
    Cards under 371 px (windows under about 1425 px, the stacked cards on tablets and phones) set in four lines instead,
    at column / 18.2 up to 15 px (15 at 1366 and 1280, 14 on a phone). Line height 1.5. */
-.card { container-type: inline-size; }
+.pillar-card { container-type: inline-size; }
 /* r3-95: as before r3-94 (72% white). r3-95b: the column is the card less its 32 px sides (100cqi − 64): three lines at
    column / 24.5, 15.3 px in a 440 cell (1440 px wide and up), 13.4 at 1280; cards under 389 px set in four lines. */
-.card .card__body { font-size: clamp(13.25px, calc((100cqi - 64px) / 24.5), 16px); text-wrap: balance; } /* Webflow sets the rest of .card__body; this is the container-unit size, which the Designer can't set */
-@container (max-width: 388px) { .card .card__body { font-size: clamp(13.75px, calc((100cqi - 64px) / 18.2), 15px); } } /* narrower cards set in four lines */
+.pillar-card .pillar-card__body { font-size: clamp(13.25px, calc((100cqi - 64px) / 24.5), 16px); text-wrap: balance; } /* Webflow sets the rest of .pillar-card__body; this is the container-unit size, which the Designer can't set */
+@container (max-width: 388px) { .pillar-card .pillar-card__body { font-size: clamp(13.75px, calc((100cqi - 64px) / 18.2), 15px); } } /* narrower cards set in four lines */
 
 @media (prefers-reduced-motion: reduce) {
   .board__sweep { animation: none; }

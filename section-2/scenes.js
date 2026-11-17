@@ -214,7 +214,7 @@ function sequenceScene(panel, { lead, hold }) {
 
 function floorScene(panel, { lead, hold }) {
   const svg = panel.querySelector('svg');
-  const floor = panel.querySelector('.floor');
+  const floor = panel.querySelector('.floor-plan__plane');
   const route = svg.querySelector('[data-route]');
   const glow = svg.querySelector('[data-route-glow]');
   const tip = svg.querySelector('[data-tip]');
@@ -1674,11 +1674,11 @@ const sceneKinds = {
 function initScenes(root) {
   const panels = [...root.querySelectorAll('[data-panel]')];
   const copies = [...root.querySelectorAll('[data-copy]')];
-  const fills = [...root.querySelectorAll('.scenes__fill')];
+  const fills = [...root.querySelectorAll('.store-scroll__fill')];
   // The scene titles' reveal (v181, Ramir 2026-11-11: "Yes, scenes too", the headline's serious.business-style reveal).
   // Each title is split into its lines as laid out (balanced wrap, current font and width), and each line becomes its
   // own clip that swings in (css: .reveal-line, --li = line number). Split again once the fonts load and on resize.
-  // The visible copy is aria-hidden (screen readers get the .sr-only copy), so the extra spans change nothing there.
+  // The visible copy is aria-hidden (screen readers get the .u-sr-only copy), so the extra spans change nothing there.
   const titles = copies.map((c) => c.querySelector('h2')).filter(Boolean);
   function splitTitles() {
     titles.forEach((h) => {
@@ -1732,8 +1732,8 @@ function initScenes(root) {
   const intro = introBase + turnLead;
   const introLayer = root.querySelector('[data-intro-layer]');
   const slot = root.querySelector('[data-intro-slot]');
-  const stage = root.querySelector('.scenes__stage');
-  const ui = root.querySelector('.scenes__ui');
+  const stage = root.querySelector('.store-scroll__stage');
+  const ui = root.querySelector('.store-scroll__ui');
   const span = total + intro;
   root.style.setProperty('--scenes-length', span);
 

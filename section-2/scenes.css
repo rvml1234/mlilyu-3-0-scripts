@@ -39,7 +39,7 @@ body {
 }
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
-.sr-only {
+.u-sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
@@ -164,24 +164,24 @@ html.lenis, html.lenis body { height: auto; }
 .statement__text .is-muted { color: var(--muted-2); }
 
 /* 04 In the store: a 100svh stage pinned inside a tall wrapper. Height = (sum of data-weights + 1) screens, set by the script. */
-.scenes {
+.store-scroll {
   position: relative;
   height: calc((var(--scenes-length, 6.4) + 1) * 100svh);
   background: var(--black); color: #fff;
 }
-.scenes__stage { position: sticky; top: 0; height: 100svh; overflow: clip; background: var(--black); }
-.scenes__media { position: absolute; inset: 0; }
+.store-scroll__stage { position: sticky; top: 0; height: 100svh; overflow: clip; background: var(--black); }
+.store-scroll__media { position: absolute; inset: 0; }
 
 /* Panels stack in source order; the script sets each panel's opacity from scroll, so cross-fades follow the reader's hand. */
 /* isolation: each panel is its own layer, so nothing inside one (scene 2's raised labels, z-index 1) can paint over the
    next panel while it fades in on top (Ramir, 2026-11-05: the text in scene 2 "seeps into the third scene"). */
 .scene-panel { position: absolute; inset: 0; overflow: clip; opacity: 0; isolation: isolate; }
 .scene-panel:first-child { opacity: 1; }
-.shade { position: absolute; inset: 0; pointer-events: none; }
-.shade--left { background: linear-gradient(90deg, rgba(7, 9, 11, 0.88) 0%, rgba(7, 9, 11, 0.74) 30%, rgba(7, 9, 11, 0.4) 48%, rgba(7, 9, 11, 0) 66%); }
-.shade--floor { background: linear-gradient(90deg, rgba(7, 9, 11, 0.72) 0%, rgba(7, 9, 11, 0.36) 30%, rgba(7, 9, 11, 0) 50%); }
-.shade--bottom { background: linear-gradient(180deg, rgba(7, 9, 11, 0.4) 0%, rgba(7, 9, 11, 0) 16%, rgba(7, 9, 11, 0) 58%, rgba(7, 9, 11, 0.85) 100%); }
-.shade--photo {
+.scene-panel__shade { position: absolute; inset: 0; pointer-events: none; }
+.scene-panel__shade--left { background: linear-gradient(90deg, rgba(7, 9, 11, 0.88) 0%, rgba(7, 9, 11, 0.74) 30%, rgba(7, 9, 11, 0.4) 48%, rgba(7, 9, 11, 0) 66%); }
+.scene-panel__shade--floor { background: linear-gradient(90deg, rgba(7, 9, 11, 0.72) 0%, rgba(7, 9, 11, 0.36) 30%, rgba(7, 9, 11, 0) 50%); }
+.scene-panel__shade--bottom { background: linear-gradient(180deg, rgba(7, 9, 11, 0.4) 0%, rgba(7, 9, 11, 0) 16%, rgba(7, 9, 11, 0) 58%, rgba(7, 9, 11, 0.85) 100%); }
+.scene-panel__shade--photo {
   background:
     linear-gradient(90deg, rgba(7, 9, 11, 0.8) 0%, rgba(7, 9, 11, 0.56) 34%, rgba(7, 9, 11, 0.16) 56%, rgba(7, 9, 11, 0) 72%),
     linear-gradient(180deg, rgba(7, 9, 11, 0.4) 0%, rgba(7, 9, 11, 0) 22%, rgba(7, 9, 11, 0) 55%, rgba(7, 9, 11, 0.88) 100%);
@@ -192,21 +192,21 @@ html.lenis, html.lenis body { height: auto; }
 
 /* Scene 2: a showroom floor in SVG, tilted in 3D; the camera (--tx/--ty/--zoom/--rz) holds on the route with one slow push-in. */
 .scene-panel--floor { background: radial-gradient(120% 90% at 62% 36%, #1b3048 0%, var(--night) 46%, var(--black) 100%); }
-.floor-wrap {
+.floor-plan {
   position: absolute; inset: 0;
   perspective: 1500px; perspective-origin: 62% 0%;
   -webkit-mask-image: linear-gradient(180deg, transparent 4%, #000 30%);
   mask-image: linear-gradient(180deg, transparent 4%, #000 30%);
 }
-.floor {
+.floor-plan__plane {
   position: absolute; left: 62%; top: 58%;
   width: min(130vw, 2600px); aspect-ratio: 2400 / 1760;
   transform: translate(-50%, -50%) rotateX(58deg) rotateZ(var(--rz, -8deg)) scale(var(--zoom, 0.62)) translate3d(var(--tx, 0px), var(--ty, 0px), 0);
   transform-origin: 50% 50%;
   will-change: transform;
 }
-.floor svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.floor__plate { fill: rgba(255, 255, 255, 0.012); stroke: rgba(255, 255, 255, 0.07); stroke-width: 2; }
+.floor-plan__plane svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.floor-plan__plate { fill: rgba(255, 255, 255, 0.012); stroke: rgba(255, 255, 255, 0.07); stroke-width: 2; }
 .bed rect { transition: fill 0.6s, stroke 0.6s; }
 /* Plain beds: the drawing (bedGlyph in scenes.js) carries its own colours; these are only the state overrides. */
 .bed.is-mlily .bed__throw { display: none; }
@@ -228,7 +228,7 @@ html.lenis, html.lenis body { height: auto; }
 /* Scene 2 in real 3D: a WebGL canvas under the same labels and shades. The flat SVG floor shows only when the kind is "floor". */
 .floor3d { position: absolute; inset: 0; }
 .floor3d__canvas { display: block; width: 100%; height: 100%; }
-.scene-panel--floor[data-kind="floor3d"] .floor-wrap { display: none; }
+.scene-panel--floor[data-kind="floor3d"] .floor-plan { display: none; }
 .scene-panel--floor[data-kind="floor"] .floor3d { display: none; }
 
 .floor-label { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
@@ -249,7 +249,7 @@ html.lenis, html.lenis body { height: auto; }
   background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06) 70%);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85); /* a 2 px ring only: no drop shadows (Ramir) */
 }
-.floor-label__photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.floor-label__img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .floor-label__text { display: flex; flex-direction: column; gap: 6px; white-space: nowrap; }
 /* The middle stop hangs below the route (still to the right of its line) so three stops fit along one short row. */
 .floor-label--below .floor-label__inner { bottom: auto; top: 0; height: clamp(90px, 13vh, 140px); }
@@ -264,8 +264,8 @@ html.lenis, html.lenis body { height: auto; }
 .scene-panel--floor[data-kind="floor3d"] { background: #0b1016; }
 /* The 3D room has a pale floor under midnight walls: slightly deeper shades keep the white copy and the label that
    hangs below the route readable on it. */
-.scene-panel--floor[data-kind="floor3d"] .shade--floor { background: linear-gradient(90deg, rgba(7, 9, 11, 0.78) 0%, rgba(7, 9, 11, 0.5) 30%, rgba(7, 9, 11, 0.16) 46%, rgba(7, 9, 11, 0) 58%); }
-.scene-panel--floor[data-kind="floor3d"] .shade--bottom { background: linear-gradient(180deg, rgba(7, 9, 11, 0.4) 0%, rgba(7, 9, 11, 0) 16%, rgba(7, 9, 11, 0) 46%, rgba(7, 9, 11, 0.6) 70%, rgba(7, 9, 11, 0.9) 100%); }
+.scene-panel--floor[data-kind="floor3d"] .scene-panel__shade--floor { background: linear-gradient(90deg, rgba(7, 9, 11, 0.78) 0%, rgba(7, 9, 11, 0.5) 30%, rgba(7, 9, 11, 0.16) 46%, rgba(7, 9, 11, 0) 58%); }
+.scene-panel--floor[data-kind="floor3d"] .scene-panel__shade--bottom { background: linear-gradient(180deg, rgba(7, 9, 11, 0.4) 0%, rgba(7, 9, 11, 0) 16%, rgba(7, 9, 11, 0) 46%, rgba(7, 9, 11, 0.6) 70%, rgba(7, 9, 11, 0.9) 100%); }
 .scene-panel--floor[data-kind="floor3d"] .floor-label--below .floor-label__sub { color: rgba(255, 255, 255, 0.95); }
 /* The shades come after the labels in the markup; in the low view the lower label sits in the bottom shade, so the
    3D floor's labels are lifted above them (their own dark halo keeps them readable). */
@@ -273,8 +273,8 @@ html.lenis, html.lenis body { height: auto; }
 /* Scene 2's labels leave early in the cross-fade to scene 3 (gone by the time it is a third of the way in), so no text
    seeps into the next scene. */
 .scene-panel--floor .floor-label { opacity: clamp(0, 1 - var(--next-fade, 0) * 3, 1); }
-.scene-panel--floor[data-tone="light"] .shade--floor { background: linear-gradient(90deg, rgba(246, 243, 238, 0.66) 0%, rgba(246, 243, 238, 0.46) 26%, rgba(246, 243, 238, 0.12) 42%, rgba(246, 243, 238, 0) 54%); }
-.scene-panel--floor[data-tone="light"] .shade--bottom { background: linear-gradient(180deg, rgba(246, 243, 238, 0.3) 0%, rgba(246, 243, 238, 0) 12%, rgba(246, 243, 238, 0) 76%, rgba(246, 243, 238, 0.42) 100%); }
+.scene-panel--floor[data-tone="light"] .scene-panel__shade--floor { background: linear-gradient(90deg, rgba(246, 243, 238, 0.66) 0%, rgba(246, 243, 238, 0.46) 26%, rgba(246, 243, 238, 0.12) 42%, rgba(246, 243, 238, 0) 54%); }
+.scene-panel--floor[data-tone="light"] .scene-panel__shade--bottom { background: linear-gradient(180deg, rgba(246, 243, 238, 0.3) 0%, rgba(246, 243, 238, 0) 12%, rgba(246, 243, 238, 0) 76%, rgba(246, 243, 238, 0.42) 100%); }
 .scene-panel--floor[data-tone="light"] { --line-c: rgba(16, 24, 32, 0.6); }
 .scene-panel--floor[data-tone="light"] .floor-label__text { color: var(--accent-black); }
 .scene-panel--floor[data-tone="light"] .floor-label__text .floor-label__sub { color: #39424b; }
@@ -294,26 +294,26 @@ html.lenis, html.lenis body { height: auto; }
    - The title-to-body gap is about half the title size (was 32px).
    - Deeper shades behind the copy keep it legible over busy picture areas. No text or drop shadows (Ramir: "I am very
      anti-drop shadow"). */
-.scenes__ui {
+.store-scroll__ui {
   position: absolute; inset: 0;
   display: flex; align-items: center;
   padding-inline: var(--gutter);
   pointer-events: none;
 }
-.scenes__text { display: flex; align-items: stretch; gap: 36px; min-height: 176px; max-width: 760px; }
-.scenes__rail { flex: none; display: flex; flex-direction: column; gap: 4px; width: 2px; }
-.scenes__seg { position: relative; flex: 1; overflow: hidden; border-radius: 2px; background: rgba(255, 255, 255, 0.2); }
-.scenes__fill { position: absolute; inset: 0; background: #fff; transform-origin: top; transform: scaleY(var(--p, 0)); }
-.scenes__copy { display: grid; flex: 1; min-width: 0; align-content: start; }
+.store-scroll__text { display: flex; align-items: stretch; gap: 36px; min-height: 176px; max-width: 760px; }
+.store-scroll__rail { flex: none; display: flex; flex-direction: column; gap: 4px; width: 2px; }
+.store-scroll__segment { position: relative; flex: 1; overflow: hidden; border-radius: 2px; background: rgba(255, 255, 255, 0.2); }
+.store-scroll__fill { position: absolute; inset: 0; background: #fff; transform-origin: top; transform: scaleY(var(--p, 0)); }
+.store-scroll__copy { display: grid; flex: 1; min-width: 0; align-content: start; }
 .scene-copy { grid-area: 1 / 1; visibility: hidden; }
 .scene-copy.is-active { visibility: visible; }
-.scenes__copy { font-kerning: normal; font-feature-settings: "kern" 1, "liga" 1; text-rendering: optimizeLegibility; }
-.scene-copy h2 {
+.store-scroll__copy { font-kerning: normal; font-feature-settings: "kern" 1, "liga" 1; text-rendering: optimizeLegibility; }
+.scene-copy__title {
   margin: 0;
   font-size: clamp(30px, 2.5vw, 42px); line-height: 1.1; font-weight: 500; letter-spacing: -0.024em;
   text-wrap: balance;
 }
-.scene-copy p {
+.scene-copy__text {
   margin: clamp(14px, 1.2vw, 20px) 0 0; max-width: 27em;
   font-size: clamp(15px, 1.05vw, 17px); line-height: 1.55; font-weight: var(--fw-text, 450); letter-spacing: 0.002em;
   color: rgba(255, 255, 255, 0.86);
@@ -324,7 +324,7 @@ html.lenis, html.lenis body { height: auto; }
    while its words rise into it from under its clip on a stronger one, 0.75 s, a sixth of a second between lines. It
    plays each time its scene becomes the active one (scene 1's as the opening finishes: no copy is active before
    then); leaving a scene resets it at once. The blurb keeps its fade-up (the titles' too until v180). */
-.scene-copy h2 { perspective: 1000px; }
+.scene-copy__title { perspective: 1000px; }
 .reveal-line {
   display: block; width: fit-content; white-space: nowrap;
   overflow: clip; padding-block: 0.08em; margin-block: -0.08em;
@@ -339,19 +339,19 @@ html.lenis, html.lenis body { height: auto; }
   transform: none;
   transition: transform 0.75s cubic-bezier(0.165, 0.84, 0.44, 1) calc(var(--li, 0) * 0.1667s);
 }
-.scene-copy p { opacity: 0; transform: translateY(24px); transition: color 0.5s ease; }
-.scene-copy p { text-wrap: balance; } /* short blurbs (2–5 lines): even lines, no short last line (others wrap as before) */
-.scene-copy.is-active p {
+.scene-copy__text { opacity: 0; transform: translateY(24px); transition: color 0.5s ease; }
+.scene-copy__text { text-wrap: balance; } /* short blurbs (2–5 lines): even lines, no short last line (others wrap as before) */
+.scene-copy.is-active .scene-copy__text {
   opacity: 1; transform: none;
   transition: opacity 0.9s var(--ease-scene) 0.08s, transform 0.9s var(--ease-scene) 0.08s, color 0.5s ease;
 }
 /* Over a light scene (data-tone="light" on the section, set by the script from what fills the stage): ink text and rail. */
-.scenes__ui { transition: color 0.5s ease; }
-.scenes__seg, .scenes__fill { transition: background-color 0.5s ease; }
-.scenes[data-tone="light"] .scenes__ui { color: var(--accent-black); }
-.scenes[data-tone="light"] .scene-copy p { color: rgba(16, 24, 32, 0.8); }
-.scenes[data-tone="light"] .scenes__seg { background: rgba(16, 24, 32, 0.14); }
-.scenes[data-tone="light"] .scenes__fill { background: var(--accent-black); }
+.store-scroll__ui { transition: color 0.5s ease; }
+.store-scroll__segment, .store-scroll__fill { transition: background-color 0.5s ease; }
+.store-scroll[data-tone="light"] .store-scroll__ui { color: var(--accent-black); }
+.store-scroll[data-tone="light"] .scene-copy__text { color: rgba(16, 24, 32, 0.8); }
+.store-scroll[data-tone="light"] .store-scroll__segment { background: rgba(16, 24, 32, 0.14); }
+.store-scroll[data-tone="light"] .store-scroll__fill { background: var(--accent-black); }
 
 /* Tablet and down: text drops to the bottom over a shade so it never fights the visual in the middle. */
 @media (max-width: 991px) {
@@ -360,18 +360,18 @@ html.lenis, html.lenis body { height: auto; }
   .nav-bar .lockup { justify-self: start; transform: none; }
   .lockup { --lockup-h: 17px; }
   .floor-label[data-narrow-hide] { display: none; } /* New model: desktop only; scenes.js also drops it from the camera fit */
-  .scenes__ui { align-items: flex-end; padding-bottom: 64px; }
-  .shade--left, .shade--floor { background: linear-gradient(180deg, rgba(7, 9, 11, 0) 36%, rgba(7, 9, 11, 0.56) 66%, rgba(7, 9, 11, 0.9) 100%); }
-  .scene-panel--floor[data-kind="floor3d"] .shade--floor { background: linear-gradient(180deg, rgba(7, 9, 11, 0) 36%, rgba(7, 9, 11, 0.56) 66%, rgba(7, 9, 11, 0.9) 100%); }
-  .scene-panel--floor[data-tone="light"] .shade--floor { background: linear-gradient(180deg, rgba(246, 243, 238, 0) 42%, rgba(246, 243, 238, 0.9) 100%); }
-  .floor { width: 170vw; left: 42%; top: 42%; }
-  .floor-wrap { perspective-origin: 50% 0%; }
+  .store-scroll__ui { align-items: flex-end; padding-bottom: 64px; }
+  .scene-panel__shade--left, .scene-panel__shade--floor { background: linear-gradient(180deg, rgba(7, 9, 11, 0) 36%, rgba(7, 9, 11, 0.56) 66%, rgba(7, 9, 11, 0.9) 100%); }
+  .scene-panel--floor[data-kind="floor3d"] .scene-panel__shade--floor { background: linear-gradient(180deg, rgba(7, 9, 11, 0) 36%, rgba(7, 9, 11, 0.56) 66%, rgba(7, 9, 11, 0.9) 100%); }
+  .scene-panel--floor[data-tone="light"] .scene-panel__shade--floor { background: linear-gradient(180deg, rgba(246, 243, 238, 0) 42%, rgba(246, 243, 238, 0.9) 100%); }
+  .floor-plan__plane { width: 170vw; left: 42%; top: 42%; }
+  .floor-plan { perspective-origin: 50% 0%; }
   .scene-panel__photo { object-position: 62% 30%; }
   /* 2026-11-09, Ramir: "images and text are a lot smaller on tablet and mobile". A size up for the copy and labels;
      then the typography pass: titles sized to hold one line where they can and balance otherwise, a tighter gap. */
-  .scenes__text { max-width: 620px; gap: 28px; }
-  .scene-copy h2 { font-size: clamp(30px, 4.3vw, 40px); }
-  .scene-copy p { margin-top: 16px; max-width: 28em; font-size: 17px; }
+  .store-scroll__text { max-width: 620px; gap: 28px; }
+  .scene-copy__title { font-size: clamp(30px, 4.3vw, 40px); }
+  .scene-copy__text { margin-top: 16px; max-width: 28em; font-size: 17px; }
   .floor-label__photo { --photo-d: clamp(52px, 7vw, 64px); }
   .floor-label__title { font-size: clamp(20px, 2.8vw, 26px); }
   .floor-label__sub { font-size: clamp(14px, 1.9vw, 17px); }
@@ -387,11 +387,11 @@ html.lenis, html.lenis body { height: auto; }
   .nav-actions .btn { height: 40px; padding-inline: 16px; font-size: 13px; }
   .nav-text { display: none; }
   .statement__text { font-size: 26px; }
-  .scenes__ui { padding-bottom: 48px; padding-inline: 20px; } /* a bit wider column so short titles hold one line */
-  .scenes__text { gap: 20px; min-height: 140px; }
-  .scene-copy h2 { font-size: clamp(26px, 7.4vw, 32px); line-height: 1.12; }
-  .scene-copy p { margin-top: 12px; font-size: 15px; line-height: 1.5; }
-  .floor { width: 230vw; left: 36%; top: 40%; }
+  .store-scroll__ui { padding-bottom: 48px; padding-inline: 20px; } /* a bit wider column so short titles hold one line */
+  .store-scroll__text { gap: 20px; min-height: 140px; }
+  .scene-copy__title { font-size: clamp(26px, 7.4vw, 32px); line-height: 1.12; }
+  .scene-copy__text { margin-top: 12px; font-size: 15px; line-height: 1.5; }
+  .floor-plan__plane { width: 230vw; left: 36%; top: 40%; }
   .floor-label__inner { height: max(96px, var(--lift, 0px)); gap: 10px; }
   .floor-label--below .floor-label__inner { height: 72px; }
   /* Phones: the two raised labels (New model, Weekend sale) must sit side by side, so the label is a touch smaller here. */
@@ -406,7 +406,7 @@ html.lenis, html.lenis body { height: auto; }
   .reveal-line, .reveal-line > span { transform: none; } /* v181: the titles just show, as before */
   .scene-copy.is-active .reveal-line,
   .scene-copy.is-active .reveal-line > span,
-  .scene-copy.is-active p { transition: none; }
+  .scene-copy.is-active .scene-copy__text { transition: none; }
   .float-nav { transition: opacity 0.2s; transform: none; }
 }
 
@@ -419,9 +419,9 @@ html.lenis, html.lenis body { height: auto; }
      --intro-u  the headline's rise from the middle of the screen to its place above the window: its target runs
                 over the first 55%, and the value follows it with inertia (a damped spring in the script)
    The window starts hidden (opacity 0) and fades in as it scales up, so the opacity and the scale move together.
-   Layers: gradient, medley and titles sit under .scenes__media, which is clipped to the slot and opens to the full
+   Layers: gradient, medley and titles sit under .store-scroll__media, which is clipped to the slot and opens to the full
    screen. When it's done (data-intro-done) the clip, the scale and the intro layer switch off. */
-.scenes {
+.store-scroll {
   --thumb-w: clamp(220px, 24vw, 380px);
   --thumb-h: calc(var(--thumb-w) * 9 / 16);
   --thumb-r: 12px;
@@ -430,11 +430,11 @@ html.lenis, html.lenis body { height: auto; }
   --intro-black: #141314;    /* v176: Ramir's black for the opening (his swatch, 2026-11-11: "Use this color for our black") */
   --night-blue: 0, 59, 149;  /* v179: Best Blue #003B95 for the night glow (his swatch, 2026-11-11: "This one to be exact") */
 }
-.scenes__intro { position: absolute; inset: 0; overflow: clip; color: var(--intro-ink); background: #f6fafc; }
-.scenes__media { z-index: 1; }
-.scenes__ui { z-index: 2; }
+.store-scroll__intro { position: absolute; inset: 0; overflow: clip; color: var(--intro-ink); background: #f6fafc; }
+.store-scroll__media { z-index: 1; }
+.store-scroll__ui { z-index: 2; }
 
-.scenes[data-intro] .scenes__media {
+.store-scroll[data-intro] .store-scroll__media {
   clip-path: inset(
     calc(var(--win-t, 0px) * (1 - var(--intro-e, 1)))
     calc(var(--win-r, 0px) * (1 - var(--intro-e, 1)))
@@ -445,16 +445,16 @@ html.lenis, html.lenis body { height: auto; }
   /* fades in with the growth, but never before the headline has risen out of its way (u 0.7 → 1) */
   opacity: clamp(0, min(var(--intro-g, 1) * 2.5, (var(--intro-u, 1) - 0.7) / 0.3), 1);
 }
-.scenes[data-intro] .scenes__media > .scene-panel:first-child {
+.store-scroll[data-intro] .store-scroll__media > .scene-panel:first-child {
   transform-origin: var(--win-cx, 50%) var(--win-cy, 50%);
   transform:
     translate(calc(var(--intro-dx, 0px) * (1 - var(--intro-e, 1))), calc(var(--intro-dy, 0px) * (1 - var(--intro-e, 1))))
     scale(var(--intro-s, 1));
 }
-.scenes[data-intro-done] .scenes__media { clip-path: none; opacity: 1; }
-.scenes[data-intro-done] .scenes__media > .scene-panel:first-child { transform: none; }
-.scenes[data-intro-done] .scenes__intro { visibility: hidden; }
-.scenes[data-intro-done] .intro-aura__blob { animation-play-state: paused; }
+.store-scroll[data-intro-done] .store-scroll__media { clip-path: none; opacity: 1; }
+.store-scroll[data-intro-done] .store-scroll__media > .scene-panel:first-child { transform: none; }
+.store-scroll[data-intro-done] .store-scroll__intro { visibility: hidden; }
+.store-scroll[data-intro-done] .intro-aura__blob { animation-play-state: paused; }
 
 /* The gradient, in the brand palette only: white into Good Blue tints (#A4C8E1 mixed with white), soft Good Blue and
    Better Blue glows, a hint of Best Blue at the very bottom, and a white bloom behind the type. */
@@ -529,7 +529,7 @@ html.lenis, html.lenis body { height: auto; }
   background-size: 240px 240px;
   mix-blend-mode: overlay; opacity: 0.5;
 }
-.scenes[data-intro-done] .intro-night__glow { animation-play-state: paused; }
+.store-scroll[data-intro-done] .intro-night__glow { animation-play-state: paused; }
 .intro-aura__blob {
   position: absolute; width: 72vmax; height: 72vmax; border-radius: 50%;
   will-change: transform;
@@ -565,16 +565,16 @@ html.lenis, html.lenis body { height: auto; }
     scale(calc(var(--oz, 1) * (1 + var(--intro-m, 0) * 0.12 * var(--depth))));
   will-change: transform, opacity;
 }
-.medley__item img {
+.medley__img {
   display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 4px;
   animation: medley-in 1.2s var(--ease-out) var(--delay, 0s) both, medley-float var(--float, 9s) ease-in-out calc(var(--delay, 0s) + 1.2s) infinite alternate;
   animation-play-state: paused;
 }
-.scenes__intro.is-in .medley__item img { animation-play-state: running; }
-.scenes[data-intro-done] .medley__item img { animation-play-state: paused; } /* after the rule above, so it wins */
+.store-scroll__intro.is-in .medley__img { animation-play-state: running; }
+.store-scroll[data-intro-done] .medley__img { animation-play-state: paused; } /* after the rule above, so it wins */
 /* v177: with the orbit on (the script sets data-enter), the photos come in round the ring from beyond the top-right
    corner instead of wiping up in place, so here they only float. The play state still follows the two rules above. */
-.scenes__intro[data-enter] .medley__item img {
+.store-scroll__intro[data-enter] .medley__img {
   animation-name: medley-float; animation-duration: var(--float, 9s); animation-timing-function: ease-in-out;
   animation-delay: var(--delay, 0s); animation-iteration-count: infinite; animation-direction: alternate;
   animation-fill-mode: none;
@@ -647,13 +647,13 @@ html.lenis, html.lenis body { height: auto; }
   transition: transform 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   transition-delay: calc(0.35s + var(--i, 0) * 0.1667s);
 }
-.intro-line > span {
+.intro-line__inner {
   display: grid; justify-items: center;
   transform: translateY(112%);
   transition: transform 0.75s cubic-bezier(0.165, 0.84, 0.44, 1);
   transition-delay: calc(0.35s + var(--i, 0) * 0.1667s);
 }
-.scenes__intro.is-in .intro-line, .scenes__intro.is-in .intro-line > span { transform: none; }
+.store-scroll__intro.is-in .intro-line, .store-scroll__intro.is-in .intro-line__inner { transform: none; }
 /* v168 text switch (Ramir, 2026-11-10: "a text switch animation ... a mask change. The previous text goes up into the
    y-direction, the next 2 lines come up"). Each line is the mask (its own clip) and holds two texts in one grid cell, so
    it is as wide as the wider of them and the headline's box, which the orbit keeps clear of, never changes. --sw (0 to 1,
@@ -666,7 +666,7 @@ html.lenis, html.lenis body { height: auto; }
 /* v184: each line holds one line at every width. Phones used to fall back to a balanced wrap, but with v184's copy the
    20-character "We keep you current." (about 322 px of 343 at 35 px) broke by a sub-pixel there and the answer went to
    three lines. Every line now fits down to 320 px (measured), so no wrapping anywhere; keep lines to about 20 characters. */
-.intro-title .intro-line > span { white-space: nowrap; }
+.intro-title .intro-line__inner { white-space: nowrap; }
 @media (max-width: 991px) {
   /* Tablet (2026-11-09, Ramir: "images and text are a lot smaller on tablet and mobile"): a bigger headline, and bigger
      photos laid out for a tall screen, two large ones across the top and three along the bottom. */
@@ -684,7 +684,7 @@ html.lenis, html.lenis body { height: auto; }
   }
 }
 @media (max-width: 560px) {
-  .scenes { --thumb-w: 64vw; --thumb-r: 10px; }
+  .store-scroll { --thumb-w: 64vw; --thumb-r: 10px; }
   .intro-copy { padding-inline: 16px; }
   .medley__item--1 { display: none; }
   .medley__item--2 { --x: -8%;  --y: 4%;  --w: 58vw; --wh: 100vh; }
@@ -703,11 +703,11 @@ html.lenis, html.lenis body { height: auto; }
 
 @media (prefers-reduced-motion: reduce) {
   .intro-aura__blob, .intro-night__glow { animation: none; }
-  .medley__item img { animation: medley-in 0.4s linear both; }
+  .medley__img { animation: medley-in 0.4s linear both; }
   /* the reveal is a quick fade in place here */
-  .intro-line, .intro-line > span { transform: none; transition: none; }
-  .intro-line > span { opacity: 0; transition: opacity 0.3s linear; }
-  .scenes__intro.is-in .intro-line > span { opacity: 1; }
+  .intro-line, .intro-line__inner { transform: none; transition: none; }
+  .intro-line__inner { opacity: 0; transition: opacity 0.3s linear; }
+  .store-scroll__intro.is-in .intro-line__inner { opacity: 1; }
   /* the text switch is a plain cross-fade here */
   .intro-line__from, .intro-line__to { transform: none; }
   .intro-line__from { opacity: calc(1 - var(--sw, 0)); }
@@ -727,7 +727,7 @@ html.lenis, html.lenis body { height: auto; }
 :root { --fw-text: 400; }
 html.type-before { --fw-text: 450; --font: "Montserrat File", system-ui, -apple-system, sans-serif; }
 html:not(.type-before) { --ink: #101820; --muted: #4f5a66; }
-html:not(.type-before) .scene-copy p { line-height: 1.6; letter-spacing: 0; }
+html:not(.type-before) .scene-copy__text { line-height: 1.6; letter-spacing: 0; }
 html:not(.type-before) .floor-label__title { font-weight: 600; letter-spacing: 0; }
 html:not(.type-before) .floor-label__sub { font-weight: 400; }
 html:not(.type-before) .intro-line__to { -webkit-font-smoothing: auto; -moz-osx-font-smoothing: auto; }

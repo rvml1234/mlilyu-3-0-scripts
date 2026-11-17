@@ -716,7 +716,7 @@
   };
   const SELL_KEY = SELL_BOARDS[new URLSearchParams(location.search).get('sell')] ? new URLSearchParams(location.search).get('sell') : '2';
   const DEFS = { understand, sell: SELL_BOARDS[SELL_KEY], market };
-  { const body = document.querySelector('[data-card="sell"] .card__body'); if (body) body.textContent = SELL_COPY[SELL_KEY]; }
+  { const body = document.querySelector('[data-card="sell"] .pillar-card__body'); if (body) body.textContent = SELL_COPY[SELL_KEY]; }
 
   // HTML for the panels Air draws as text images, and Understand's dashboard (r3-12).
   // Category tiles (r3-14): a MLILY lifestyle photo (crops listed in assets/img/SOURCES-dashboard.md) and its name.
@@ -835,7 +835,7 @@
     let trail = null;
     if (def.trail) {
       const cv = document.createElement('canvas');
-      cv.className = 'card__trail';
+      cv.className = 'pillar-card__trail';
       cv.setAttribute('aria-hidden', 'true');
       stage.insertBefore(cv, tilt);
       trail = { cv, ctx: cv.getContext('2d'), px: [], py: [], heat: [], w: 0, h: 0, mouse: null, hot: false, dirty: true,
