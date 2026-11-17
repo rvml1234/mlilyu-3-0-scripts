@@ -1768,6 +1768,11 @@ function initScenes(root) {
   // scenes keep their length. Re-set when the window crosses 992 px (a tablet turned, say). Desktop is unchanged.
   const NARROW_TURN = 1.6;
   const NARROW_REST = 1.3;
+  // Desktop (2026-11-17, Ramir: "It's a bit too fast on desktop. Would like it if 'How do you stay ready to sell' part got
+  // a bit more screen time before the transition"): the half turn takes a quarter more scroll (WIDE_TURN) and the text
+  // switch waits until later in it (SWITCH_AT_WIDE, below), so the first headline holds for about a screen of scroll
+  // (was under half a screen) while the photos turn. The rest of the opening and the scenes are unchanged.
+  const WIDE_TURN = 1.25;
   const narrowMQ = matchMedia('(max-width: 991px)');
   let introBase = 0;
   let turnLen = 0;
@@ -1778,7 +1783,7 @@ function initScenes(root) {
     const n = narrowMQ.matches;
     const base = Number(root.dataset.intro || 0);
     introBase = base * (n ? NARROW_REST : 1);
-    turnLen = base ? Number(root.dataset.introTurn || 0) * (reduceMotion ? 0.5 : 1) * (n ? NARROW_TURN : 1) : 0;
+    turnLen = base ? Number(root.dataset.introTurn || 0) * (reduceMotion ? 0.5 : 1) * (n ? NARROW_TURN : WIDE_TURN) : 0;
     turnLead = turnLen * (1 - TURN_OVERLAP);
     intro = introBase + turnLead;
     span = total + intro;
@@ -2119,7 +2124,8 @@ function initScenes(root) {
   // out, the second SWITCH_STAGGER after the first. Coming back above (SWITCH_BACK of slack, so resting on the line
   // can't flicker it) plays it back; turning round mid-way just runs the playhead the other way, so it never jumps.
   // Reduced motion: a quick cross-fade (css) at the same point.
-  const SWITCH_AT = 0.25; // of the half turn's scroll
+  const SWITCH_AT_NARROW = 0.25; // of the half turn's scroll, tablet and phone (2.88 screens: 0.72 screens in)
+  const SWITCH_AT_WIDE = 0.45;   // desktop (2.25 screens: 1.01 screens in; was 0.25 of 1.8 = 0.45 screens)
   const SWITCH_BACK = 0.04;
   // Timing: 0.8 s per line, 0.12 s apart, about 0.92 s in all (v169; v170–v171 tried 0.6 and 0.75 s, but Ramir: "The
   // text switch was fine before, i'm talking about the overall scroll", so it is back to v169's).
@@ -2161,6 +2167,7 @@ function initScenes(root) {
     introTurn = turnLen ? clamp01(x / turnLen) : 0;
     if (switchLines.length) {
       const f = turnLen ? x / turnLen : 1;
+      const SWITCH_AT = narrowMQ.matches ? SWITCH_AT_NARROW : SWITCH_AT_WIDE;
       if (!switchPrimed) {
         // a page opened mid-scroll starts on the right headline, without playing
         switchOn = f >= SWITCH_AT; switchT = switchOn ? switchTotal : 0; switchPrimed = true; showSwitch();
