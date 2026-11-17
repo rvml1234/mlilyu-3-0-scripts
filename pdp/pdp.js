@@ -70,6 +70,13 @@
     b.click();
   });
 
+  /* 2b Sections a mattress doesn't have (The Dream: one feel, so no Firmness cards and no Compare the feels, as in the prototype) ---- */
+  var countItems = function (el) { return el ? $$(".w-dyn-item", el).length : 0; };
+  var firmness = $(".variant-group");
+  if (firmness && !countItems(firmness)) firmness.style.display = "none";
+  var feelsSec = $(".feels");
+  if (feelsSec && $$(".feels__cells", feelsSec).length < 2) feelsSec.style.display = "none";
+
   /* 3 Actions row ----------------------------------------------------------------------------------------------------------------------- */
   var TARGET = { photos: ".photo-strip", layers: ".layers" };
   function jump(sel) {

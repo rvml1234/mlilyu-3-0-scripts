@@ -5,6 +5,9 @@
 /* ® at 60 %, raised to cap height (pdp.js wraps every ® in .reg-mark). ™ is left alone: both fonts draw it small already. */
 .reg-mark { font-size: .6em; line-height: 0; vertical-align: .45em; }
 
+/* Webflow's "No items found." under an empty list: never shown on the product page (a mattress without a section simply has none) */
+.pdp-page .w-dyn-empty { display: none; }
+
 /* Common questions: paragraphs and links inside the Rich Text answers */
 .faq__a p { margin: 0; }
 .faq__a p + p { margin-top: 12px; }
