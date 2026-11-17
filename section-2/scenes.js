@@ -1493,7 +1493,7 @@ function floor3dScene(panel, { lead, hold }) {
     const inner = el.firstElementChild;
     gsap.set(inner, { autoAlpha: 0, y: 18 });
     const raised = !el.classList.contains('floor-label--below');
-    return { el, inner, dot, spot, bed, raised, body: inner.querySelector('.floor-label__body'), bodyH: 0, glow: bed.mlilyParts.glow, at: n.u, on: false, level: 0, narrowHide: el.hasAttribute('data-narrow-hide') };
+    return { el, inner, dot, spot, bed, raised, below: !raised, body: inner.querySelector('.floor-label__body'), bodyH: 0, glow: bed.mlilyParts.glow, at: n.u, on: false, level: 0, narrowHide: el.hasAttribute('data-narrow-hide') };
   });
   // Tablet and phone (≤ 991 px) drop the data-narrow-hide stops (New model): no label, dot or spotlight, and the camera
   // centres on and fits only the stops left (Floor cards, Weekend sale). Desktop keeps all three.
@@ -1600,6 +1600,41 @@ function floor3dScene(panel, { lead, hold }) {
     }
   }
 
+  // Tablet and phone (2026-11-17, Ramir: "Fix the floor cards overlap at tablet width"): under 992 px the scene copy sits
+  // at the bottom, and a label that hangs below its stop (Floor cards) could run into it in a short window. Checked at
+  // the end of the scene (t = 1, the tightest push-in, where a below label sits lowest): the label's line first shortens
+  // so its body ends 16 px above the copy (never under 28 px); if even that does not fit, the label goes up like the
+  // others, as long as it clears the next raised label to its right. Desktop and windows with room keep the design as is.
+  const stageEl = canvas.closest('.store-scroll__stage');
+  const copyEl = stageEl && stageEl.querySelector('.store-scroll__copy');
+  function fitBelow() {
+    marks.forEach((mk) => {
+      if (!mk.below) return;
+      mk.raised = false;
+      mk.el.classList.add('floor-label--below');
+      mk.inner.style.removeProperty('height');
+    });
+    if (!isNarrow() || !stageEl || !copyEl) return;
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    const copyTop = copyEl.getBoundingClientRect().top - stageEl.getBoundingClientRect().top;
+    placeCamera(1);
+    camera.updateMatrixWorld();
+    const screen = (p) => { const v = p.clone().project(camera); return { x: ((v.x + 1) / 2) * w, y: ((1 - v.y) / 2) * h }; };
+    marks.filter((mk) => mk.below && live(mk)).forEach((mk) => {
+      const at = screen(mk.dot.position);
+      const room = copyTop - 16 - at.y;
+      if (mk.inner.offsetHeight <= room) return;
+      if (room >= 28) { mk.inner.style.height = `${Math.floor(room)}px`; return; }
+      const right = at.x + mk.inner.offsetWidth + 12;
+      const blocked = marks.some((o) => o !== mk && o.raised && live(o) && screen(o.dot.position).x > at.x && screen(o.dot.position).x < right);
+      if (blocked) { mk.inner.style.height = '28px'; return; }
+      mk.raised = true;
+      mk.el.classList.remove('floor-label--below');
+      mk.bodyH = mk.body ? mk.body.offsetHeight : 0;
+    });
+  }
+
   function size() {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
@@ -1614,6 +1649,7 @@ function floor3dScene(panel, { lead, hold }) {
     camera.updateProjectionMatrix();
     focus = isNarrow() ? focusNarrow : focusAll;
     solveFit();
+    fitBelow();
   }
 
   function render(t) {

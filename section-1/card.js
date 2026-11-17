@@ -1073,12 +1073,37 @@
   let paused = false;
   const show = (i) => { current = i; timer = 0; cards.forEach((c, k) => c.setActive(k === i)); };
   show(0);
+  // Tablet and phone (2026-11-17, Ramir: "switch to the next card animation when the next card is scrolled into view at
+  // an optimal position in the viewport"): under 992 px the cards stack, so the row stops taking turns on a timer. The
+  // card whose picture is nearest the middle of the screen plays (and loops); the turn passes to the next card as its
+  // picture comes nearer the middle than the last one's. Off-screen pictures never play. Desktop keeps the timed turns
+  // and the hover.
+  const stacked = matchMedia('(max-width: 991px)');
+  const pickByScroll = () => {
+    if (!stacked.matches || held !== null || paused) return;
+    const mid = innerHeight / 2;
+    let best = null;
+    let bestD = Infinity;
+    cards.forEach((c, k) => {
+      const r = (c.el.querySelector('[data-stage]') || c.el).getBoundingClientRect();
+      if (r.bottom <= 0 || r.top >= innerHeight) return;
+      const d = Math.abs(r.top + r.height / 2 - mid);
+      if (d < bestD) { bestD = d; best = k; }
+    });
+    if (best !== null && best !== current) show(best);
+  };
+  let pickQueued = false;
+  const queuePick = () => { if (!pickQueued) { pickQueued = true; requestAnimationFrame(() => { pickQueued = false; pickByScroll(); }); } };
+  addEventListener('scroll', queuePick, { passive: true });
+  addEventListener('resize', queuePick);
+  stacked.addEventListener('change', () => { held = null; timer = 0; queuePick(); });
+  queuePick();
   cards.forEach((c, i) => {
     if (!noHover) {
       c.el.addEventListener('mouseenter', () => { held = i; show(i); });
       c.el.addEventListener('mouseleave', () => { if (held === i) held = null; timer = 0; });
     }
-    c.el.addEventListener('focus', () => { held = i; show(i); });
+    c.el.addEventListener('focus', () => { if (stacked.matches) return; held = i; show(i); }); // stacked: a tap must not stop the scroll pick
     c.el.addEventListener('blur', () => { if (held === i) held = null; timer = 0; });
   });
 
@@ -1086,7 +1111,7 @@
   const tick = (t) => {
     const dt = Math.max(0, (t - last) / 1000);
     last = t;
-    if (held === null && !paused) {
+    if (held === null && !paused && !stacked.matches) {
       timer += dt * 1000;
       if (timer >= cards[current].loop + GAP) show((current + 1) % cards.length);
     }
@@ -1094,7 +1119,7 @@
     // turn, through each loop while a card is hovered; the others stay empty.
     cards.forEach((c, k) => {
       c.frame(dt);
-      const p = k !== current ? 0 : held === k ? (c.time() % c.loop) / c.loop : Math.min(1, timer / c.loop);
+      const p = k !== current ? 0 : (held === k || stacked.matches) ? (c.time() % c.loop) / c.loop : Math.min(1, timer / c.loop);
       c.el.style.setProperty('--p', p.toFixed(4));
     });
     requestAnimationFrame(tick);
