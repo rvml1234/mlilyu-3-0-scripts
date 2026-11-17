@@ -731,3 +731,8 @@ html:not(.type-before) .scene-copy p { line-height: 1.6; letter-spacing: 0; }
 html:not(.type-before) .floor-label__title { font-weight: 600; letter-spacing: 0; }
 html:not(.type-before) .floor-label__sub { font-weight: 400; }
 html:not(.type-before) .intro-line__to { -webkit-font-smoothing: auto; -moz-osx-font-smoothing: auto; }
+
+/* Webflow build (2026-11-17): Webflow can't keep the inline style="--i:0 / 1" on the headline lines, so each line takes its stagger
+   from its place in the heading (the first span is the screen-reader sentence, then the two lines). */
+.intro-title > .intro-line:nth-child(2) { --i: 0; }
+.intro-title > .intro-line:nth-child(3) { --i: 1; }
