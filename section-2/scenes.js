@@ -1973,7 +1973,10 @@ function initScenes(root) {
   const enterEase = (x) => (1 - Math.cos(Math.PI * clamp01(x))) / 2;
   let enterAt = -Math.PI / 4; // the top-right corner as an angle on the rings (measureOrbit)
   let enterSpan = 0;          // the spin, radians: the longest trip + ENTER_LEAD (measureOrbit)
-  let enterT = -1;            // seconds into the entrance; -1 = not started, the photos wait off screen
+  // Tablet and phone (2026-11-17, Ramir: "let's not open up with the orbit into position, just have it prepositioned
+  // already, along with the text in the beginning"): under 992 px at load the entrance is already over, so the photos
+  // start in their places on the ring (css skips the headline's rise-in at the same width). Desktop keeps the entrance.
+  let enterT = narrowMQ.matches ? ENTER_DUR : -1; // seconds into the entrance; -1 = not started, the photos wait off screen
 
   function measureOrbit() {
     if (!orbitOn) return;

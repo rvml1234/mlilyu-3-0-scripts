@@ -654,6 +654,11 @@ html.lenis, html.lenis body { height: auto; }
   transition-delay: calc(0.35s + var(--i, 0) * 0.1667s);
 }
 .store-scroll__intro.is-in .intro-line, .store-scroll__intro.is-in .intro-line__inner { transform: none; }
+/* Tablet and phone (2026-11-17, Ramir: "just have it prepositioned already, along with the text in the beginning"): the
+   headline is in place from the first frame, no rise-in; the photos start on the ring too (scenes.js, enterT). */
+@media (max-width: 991px) {
+  .intro-line, .intro-line__inner { transform: none; transition: none; }
+}
 /* v168 text switch (Ramir, 2026-11-10: "a text switch animation ... a mask change. The previous text goes up into the
    y-direction, the next 2 lines come up"). Each line is the mask (its own clip) and holds two texts in one grid cell, so
    it is as wide as the wider of them and the headline's box, which the orbit keeps clear of, never changes. --sw (0 to 1,
