@@ -51,17 +51,17 @@
     r.weight = v("weight") === "" ? null : number(v("weight"));
     r.layers = number(v("layers")); r.pieces = number(v("pieces"));
     r.dims = triple(v("dims")); r.box = triple(v("box"));
-    r.notes = lines(text(el.querySelector('.specs-row__data [data-col="notes"]')));
+    r.notes = lines(text(el.querySelector('.specs-item__data [data-col="notes"]')));
     r.product = el.getAttribute("data-product") || "";
     r.el = el;
-    r.cells = el.querySelector(".specs-row__cells");
+    r.cells = el.querySelector(".specs-item__cells");
     r.check = el.querySelector("[data-specs-check]");
     paintRow(r);
     return r;
   }
   // Numbers read as prices and measures; an empty cell shows a dash
   function paintRow(r) {
-    var shown = { msrp: money(r.msrp), dims: tight(r.dims), box: tight(r.box), weight: lb(r.weight) };
+    var shown = { size: r.size || "One size", msrp: money(r.msrp), dims: tight(r.dims), box: tight(r.box), weight: lb(r.weight) };
     all("[data-col] .specs-td__value", r.el).forEach(function (p) {
       var key = p.closest("[data-col]").getAttribute("data-col"), v = key in shown ? shown[key] : text(p);
       p.classList.remove("w-dyn-bind-empty");
@@ -70,8 +70,7 @@
       if (!v) p.title = "Not in the ecommerce guide";
     });
     var feel = r.el.querySelector(".specs-product__feel");
-    feel.classList.remove("w-dyn-bind-empty");
-    if (!r.feel) feel.textContent = "One feel";
+    if (feel) { feel.classList.remove("w-dyn-bind-empty"); if (!r.feel) feel.textContent = "One feel"; }
     var tag = r.el.querySelector("[data-specs-tag]");
     if (r.notes.length) { tag.classList.add("is-on"); tag.title = r.notes.join(" "); }
     r.check.setAttribute("aria-label", "Select " + r.sku);
@@ -82,13 +81,13 @@
     all("[data-specs-col]", el).forEach(function (m) { if (m.getAttribute("aria-checked") !== "true") hidden[m.getAttribute("data-specs-col")] = true; });
     var p = {
       id: id, el: el, label: "", defaults: hidden,
-      table: el.querySelector("[data-specs-table]"), list: el.querySelector(".specs-rows"), wrap: el.querySelector("[data-specs-wrap]"),
+      table: el.querySelector("[data-specs-table]"), list: el.querySelector(".specs-items"), wrap: el.querySelector("[data-specs-wrap]"),
       filters: el.querySelector("[data-specs-filters]"), search: el.querySelector("[data-specs-search]"),
       cols: all("[data-specs-head] [data-col]", el).map(function (th) {
         var label = th.querySelector(".specs-sort__text span"), unit = th.querySelector(".specs-sort__unit");
         return { key: th.getAttribute("data-col"), label: label ? label.textContent.trim() : "", unit: unit ? unit.textContent.trim() : "", num: th.classList.contains("specs-th--num"), th: th };
       }),
-      rows: all(".specs-row", el).map(readRow)
+      rows: all(".specs-item", el).map(readRow)
     };
     var tab = root.querySelector('[data-specs-tab="' + id + '"]');
     p.label = tab ? tab.firstChild.textContent.trim() : id;
@@ -137,7 +136,7 @@
     p.cols.forEach(function (c) {
       var on = !hidden[c.key];
       if (on) shown++;
-      [c.th].concat(all('.specs-row [data-col="' + c.key + '"]', p.el)).forEach(function (el) { el.classList.toggle("is-on", on); el.classList.toggle("is-off", !on); });
+      [c.th].concat(all('.specs-item [data-col="' + c.key + '"]', p.el)).forEach(function (el) { el.classList.toggle("is-on", on); el.classList.toggle("is-off", !on); });
     });
     p.table.style.gridTemplateColumns = "repeat(" + shown + ", auto) minmax(0, 1fr) auto";
     all("[data-specs-col]", p.el).forEach(function (m) { m.setAttribute("aria-checked", String(!hidden[m.getAttribute("data-specs-col")])); });
@@ -150,7 +149,7 @@
       rows = [];
       order.forEach(function (name) {
         var g = groups[name]; if (!g.length) return;
-        var line = g[0].el.querySelector(".specs-row__meta"), count = g[0].el.querySelector("[data-specs-group-count]");
+        var metas = all(".specs-item__meta", g[0].el), line = metas.length > 1 ? metas[0] : null, count = g[0].el.querySelector("[data-specs-group-count]");
         g[0].el.classList.add("is-first");
         count.textContent = (text(line) ? "· " : "") + g.length + (g.length === 1 ? " SKU" : " SKUs");
         rows = rows.concat(g);
@@ -247,7 +246,7 @@
   function closeDrawer(silent) {
     if (!state.drawer) return;
     var r = findRow(state.drawer); state.drawer = null; drawer.classList.remove("is-open");
-    if (r) { r.el.classList.remove("is-open"); if (!silent) r.el.querySelector("[data-specs-open]").focus(); }
+    if (r) { r.el.classList.remove("is-open"); if (!silent) r.el.querySelector("[data-specs-open]").focus({ preventScroll: true }); }
   }
   function detailsText(r) {
     var m = isMattress(), out = [r.name + (m && r.feel ? " " + r.feel : "") + ", " + (r.size || "One size") + (r.color ? ", " + r.color : ""), "SKU " + r.sku];
@@ -355,7 +354,7 @@
   function showTab(id, focus) {
     if (!panels[id]) return;
     state.cat = id;
-    Object.keys(panels).forEach(function (k) { panels[k].el.hidden = k !== id; });
+    Object.keys(panels).forEach(function (k) { panels[k].el.classList.toggle("is-active", k === id); });
     all("[data-specs-tab]").forEach(function (t) {
       var on = t.getAttribute("data-specs-tab") === id;
       t.setAttribute("aria-selected", String(on)); t.setAttribute("tabindex", on ? "0" : "-1");
@@ -418,7 +417,7 @@
       render(); return;
     }
     if ((b = t.closest("[data-specs-check]"))) {
-      var row = rowFor(b.closest(".specs-row"));
+      var row = rowFor(b.closest(".specs-item"));
       if (state.selected[row.sku]) delete state.selected[row.sku]; else state.selected[row.sku] = true;
       b.setAttribute("aria-checked", String(!!state.selected[row.sku])); row.el.classList.toggle("is-selected", !!state.selected[row.sku]);
       syncSelection(filtered()); return;
@@ -427,9 +426,9 @@
     if ((b = t.closest("[data-specs-copy-details]"))) { var r1 = findRow(state.drawer), btn1 = b; if (r1) copyText(detailsText(r1), function (ok) { flash(btn1, ok ? "Copied" : "Couldn’t copy"); say(ok ? "Copied the details" : "Couldn’t copy", true); }); return; }
     if ((b = t.closest("[data-specs-copy-listing]"))) { var r2 = findRow(state.drawer), btn2 = b; if (r2) copyText(listingText(r2), function (ok) { btn2.textContent = ok ? "Copied" : "Couldn’t copy"; setTimeout(function () { btn2.textContent = "Copy listing copy"; }, 1600); say(ok ? "Copied the listing copy" : "Couldn’t copy", true); }); return; }
     // the more arrow, or a click anywhere else on a row, opens its details
-    var cells = t.closest(".specs-row__cells");
+    var cells = t.closest(".specs-item__cells");
     if (cells && (t.closest("[data-specs-open]") || !t.closest("a"))) {
-      var r = rowFor(cells.closest(".specs-row"));
+      var r = rowFor(cells.closest(".specs-item"));
       if (state.drawer === r.sku) closeDrawer(!t.closest("[data-specs-open]")); else openDrawer(r.sku);
     }
   });

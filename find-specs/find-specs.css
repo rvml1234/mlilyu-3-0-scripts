@@ -1,12 +1,18 @@
 /* MLILY U 3.0, the Find Specs page: only the states find-specs.js switches and what Webflow's classes can't express.
    Layout, type and color live in Webflow on the specs-* classes. */
 
+/* On the page one tab shows at a time and the tool fills the screen; in Designer every tab stays visible, one under the other */
+.specs { height: calc(100dvh - 64px); min-height: 640px; }
+.specs-panel { display: none; flex: 1 1 0%; height: auto; }
+.specs-panel.is-active { display: flex; }
+@media (max-width: 991px) { .specs { height: calc(100dvh - 56px); } }
+
 .specs [hidden] { display: none !important; }
 .specs .w-dyn-empty { display: none; }
 
 /* Each row carries its product's header; only the first row of a group shows it */
-.specs-row__group { display: none; }
-.specs-row.is-first .specs-row__group { display: block; }
+.specs-item__group { display: none; }
+.specs-item.is-first .specs-item__group { display: block; }
 
 /* Tabs, chips, toggles */
 .specs-tabs::-webkit-scrollbar, .specs-sizes::-webkit-scrollbar, .specs-filters__selects::-webkit-scrollbar { display: none; }
@@ -19,7 +25,7 @@
 .specs-cols__menu.is-open { display: block; }
 .specs-selbar.is-on { display: flex; }
 .specs-drawer.is-open { display: flex; }
-.specs-panel.is-empty .specs-table { display: none; }
+.specs-panel.is-empty .specs-grid { display: none; }
 .specs-panel.is-empty .specs-empty { display: grid; }
 @media (max-width: 767px) { .specs-filters.is-open .specs-filters__panel { display: flex; } }
 
@@ -51,19 +57,19 @@
 .specs-th.is-on { display: block; }
 .specs-td.is-on { display: flex; }
 .specs-th.is-off, .specs-td.is-off { display: none; }
-.specs-row:not(:first-child).is-first .specs-row__group { padding-top: 40px; }
+.specs-item:not(:first-child).is-first .specs-item__group { padding-top: 40px; }
 .specs-none { color: var(--color--text-muted-dark); }
-.specs-copy.is-done { color: var(--color--link-blue-dark); }
+.specs-copy-btn.is-done { color: var(--color--link-blue-dark); }
 .specs-tag.is-on { display: inline-flex; }
 .specs-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--color--gold); }
-.specs-table.is-flat .specs-product__name { display: block; }
-.specs-table.is-flat .specs-product__feel { font-size: 13px; line-height: 18px; font-weight: 400; color: var(--color--text-muted-dark); }
+.specs-grid.is-flat .specs-product__name { display: block; }
+.specs-grid.is-flat .specs-product__feel { font-size: 13px; line-height: 18px; font-weight: 400; color: var(--color--text-muted-dark); }
 .specs-wrap.is-scrolled-x .specs-th--product, .specs-wrap.is-scrolled-x .specs-td--product { border-right: 1px solid var(--color--divider-dark); }
-.specs-row__cells:hover > .specs-td { background-color: color-mix(in srgb, #fff 3%, #141314); }
-.specs-row.is-selected .specs-td { background-color: color-mix(in srgb, #a2c2fa 7%, #141314); }
-.specs-row.is-open .specs-td { background-color: color-mix(in srgb, #fff 6%, #141314); }
+.specs-item__cells:hover > .specs-td { background-color: color-mix(in srgb, #fff 3%, #141314); }
+.specs-item.is-selected .specs-td { background-color: color-mix(in srgb, #a2c2fa 7%, #141314); }
+.specs-item.is-open .specs-td { background-color: color-mix(in srgb, #fff 6%, #141314); }
 @media (max-width: 767px) {
   .specs-td.is-on { display: flex; }
-  .specs-row__cells:hover > .specs-td, .specs-row.is-selected .specs-td, .specs-row.is-open .specs-td { background-color: transparent; }
-  .specs-row.is-selected .specs-row__cells { background-color: color-mix(in srgb, #a2c2fa 7%, #141314); }
+  .specs-item__cells:hover > .specs-td, .specs-item.is-selected .specs-td, .specs-item.is-open .specs-td { background-color: transparent; }
+  .specs-item.is-selected .specs-item__cells { background-color: color-mix(in srgb, #a2c2fa 7%, #141314); }
 }
