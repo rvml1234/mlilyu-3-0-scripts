@@ -31,6 +31,18 @@
   main.appendChild(status);
   function say(msg) { status.textContent = msg; }
 
+  /* Compare the feels: one line per layer (the CMS field keeps one layer per line) ------------------------------------------------------ */
+  $$(".feels__cell--lines").forEach(function (cell) {
+    var lines = cell.textContent.split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean);
+    cell.textContent = "";
+    lines.forEach(function (line) {
+      var item = document.createElement("span");
+      item.className = "feels__item";
+      item.textContent = line;
+      cell.appendChild(item);
+    });
+  });
+
   /* 1 ® marks ----------------------------------------------------------------------------------------------------------------------- */
   (function wrapMarks(root) {
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
@@ -71,12 +83,6 @@
   });
 
   /* 2b What a mattress doesn't have -------------------------------------------------------------------------------------------------- */
-  // An empty CMS field can name its replacement in Webflow (At a glance, Made in: data-empty="Ask your rep")
-  $$("[data-empty]").forEach(function (el) {
-    if (filled(el)) return;
-    el.classList.remove("w-dyn-bind-empty");
-    el.textContent = el.getAttribute("data-empty");
-  });
   // No feels: no Firmness section. One feel (The Dream): nothing to compare.
   var countItems = function (el) { return el ? $$(".w-dyn-item", el).length : 0; };
   var firmness = $(".variant-group");
@@ -143,7 +149,7 @@
     if (feels.length) { out.push("## Firmness"); out.push(feels.map(function (f) { return "- **" + f.label + "**" + (f.line ? ": " + f.line : ""); }).join("\n")); }
     var sizes = $$(".facts__size").map(text).filter(Boolean);
     if (sizes.length) out.push("**Sizes:** " + sizes.join(", "));
-    var facts = $$(".facts__cell").map(function (c) { return [text($(".facts__label", c)), text($(".facts__value", c))]; }).filter(function (r) { return r[1]; });
+    var facts = $$(".facts__cell").filter(shown).map(function (c) { return [text($(".facts__label", c)), text($(".facts__value", c))]; }).filter(function (r) { return r[1]; });
     if (facts.length) { out.push("## At a glance"); out.push(facts.map(function (r) { return "- " + r[0] + ": " + r[1]; }).join("\n")); }
     var feelNames = $$(".layers__feel").map(text);
     var lists = [$(".layers__lists .w-dyn-list:not(.layers__alt)"), $(".layers__alt")].filter(Boolean);
@@ -161,7 +167,7 @@
     var cols = $$(".feels__cells");
     if (cols.length > 1) {
       var labels = $$(".feels__label").map(text);
-      var cells = cols.map(function (c) { return $$(".feels__cell", c).map(function (p) { return p.textContent.trim().split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean).join("; "); }); });
+      var cells = cols.map(function (c) { return $$(".feels__cell", c).map(function (p) { var items = $$(".feels__item", p); return items.length ? items.map(text).join("; ") : text(p); }); });
       out.push("## Compare the feels");
       out.push(mdTable([""].concat(cols.map(function (c) { return text($(".feels__head", c)); })), labels.map(function (l, i) { return [l].concat(cells.map(function (c) { return c[i] || ""; })); })));
     }

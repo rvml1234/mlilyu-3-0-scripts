@@ -11,6 +11,39 @@
 /* Best for: no label without its text */
 .rail__best-for:has(.w-dyn-bind-empty) { display: none; }
 
+/* At a glance: one row, the first four facts that have a value (Build, Thickness, Certified, Warranty, Made in, Ships) */
+.facts__cell:has(.w-dyn-bind-empty),
+.facts__cell:nth-child(n+5 of .facts__cell:not(:has(.w-dyn-bind-empty))) { display: none; }
+
+/* Highlights: each pictogram cropped to its drawing, so the badge is as wide as the drawing needs (same boxes as the prototype) */
+.icon-set__art { position: relative; display: block; width: var(--art-w, 16px); height: var(--art-h, 16px); overflow: visible; }
+.icon-set__icon { position: absolute; left: var(--icon-x, 0); top: var(--icon-y, 0); width: var(--icon-s, 16px); height: var(--icon-s, 16px); max-width: none; }
+.icon-set__art:has(img[src*="icon-10-year-warranty"]) { --art-w: 14.74px; --art-h: 16.7px; --icon-x: -1.96px; --icon-y: -.98px; --icon-s: 18.66px; }
+.icon-set__art:has(img[src*="icon-sustainable-materials"]) { --art-w: 16.57px; --art-h: 16.75px; --icon-x: -1.08px; --icon-y: -.98px; --icon-s: 18.72px; }
+.icon-set__art:has(img[src*="icon-increased-breathability"]) { --art-w: 23.52px; --art-h: 16.69px; --icon-x: -1.38px; --icon-y: -4.8px; --icon-s: 26.28px; }
+.icon-set__art:has(img[src*="icon-adapts-to-body"]) { --art-w: 21.59px; --art-h: 16.76px; --icon-x: -1.27px; --icon-y: -3.68px; --icon-s: 24.12px; }
+.icon-set__art:has(img[src*="icon-pcm-coating"]) { --art-w: 16.75px; --art-h: 16.75px; --icon-x: -.98px; --icon-y: -.98px; --icon-s: 18.72px; }
+.icon-set__art:has(img[src*="icon-chiropractors-choice"]) { --art-w: 17.08px; --art-h: 17.08px; --icon-x: -1px; --icon-y: -1px; --icon-s: 19.08px; }
+.icon-set__art:has(img[src*="icon-3-zone-pocket-springs"]) { --art-w: 23.52px; --art-h: 13.01px; --icon-x: -1.38px; --icon-y: -6.64px; --icon-s: 26.28px; }
+.icon-set__art:has(img[src*="icon-regulates-temperature"]) { --art-w: 16.11px; --art-h: 16.11px; --icon-x: -.94px; --icon-y: -.94px; --icon-s: 18px; }
+.icon-set__art:has(img[src*="icon-copper-infused"]) { --art-w: 17.08px; --art-h: 17.08px; --icon-x: -1px; --icon-y: -1px; --icon-s: 19.08px; }
+.icon-set__art:has(img[src*="icon-cooling-fabric"]) { --art-w: 16.75px; --art-h: 16.75px; --icon-x: -.98px; --icon-y: -.98px; --icon-s: 18.72px; }
+.icon-set__art:has(img[src*="icon-ventilated-memory-foam"]) { --art-w: 19.98px; --art-h: 16.74px; --icon-x: -1.17px; --icon-y: -2.79px; --icon-s: 22.32px; }
+
+/* Compare the feels: one line per layer, 6 px apart (pdp.js splits the CMS text); narrower label column on phones */
+.feels__item { display: block; }
+.feels__item + .feels__item { margin-top: 6px; }
+@media (max-width: 560px) {
+  .feels__grid { grid-template-columns: 88px minmax(0, 1fr); }
+  .download-card { min-height: 44px; }   /* footer cards: a comfortable tap target */
+}
+
+/* Under 640 px: 16 px side margins (Webflow's own breakpoints are 767 and 479) */
+@media (max-width: 639px) {
+  .page-container { padding-left: 16px; padding-right: 16px; }
+  .product-hero__inner { padding-left: 16px; padding-right: 16px; }
+}
+
 /* Common questions: paragraphs and links inside the Rich Text answers */
 .faq__a p { margin: 0; }
 .faq__a p + p { margin-top: 12px; }
