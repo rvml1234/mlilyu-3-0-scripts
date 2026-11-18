@@ -650,5 +650,5 @@
       INDEX.unshift({ kind: "product", label: p.name, sub: p.sub || "Mattress", href: productHref(p.slug), icon: "products", words: ((p.sub || "") + " mattress").toLowerCase() });
     });
   }
-  window.MLILY_SHELL = { topHeight: topH, addProducts: addProducts, jumpOffset: jumpOffset, jumpTo: jumpTo, closeMenus: function () { closeLayer(false); closeAccount(false); closeResults(); } };
+  window.MLILY_SHELL = { addProducts: addProducts, jumpOffset: jumpOffset, jumpTo: jumpTo, closeMenus: function () { closeLayer(false); closeAccount(false); closeResults(); } };
 })();

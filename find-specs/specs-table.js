@@ -414,7 +414,6 @@
     state.model = hit ? hit.name : "";
     state.feel = p.get("feel") || ""; state.build = p.get("build") || ""; state.q = p.get("q") || "";
     state.sizes = (p.get("size") || "").split(",").filter(Boolean);
-    return !!(hit || state.feel || state.build || state.q || state.sizes.length || type);
   }
   function writeUrl() {
     var p = new URLSearchParams(), hit = state.model && cat().rows.filter(function (r) { return r.name === state.model; })[0];
@@ -440,11 +439,9 @@
   }
   function start() {
     ensureData(function () {
-      var linked = readUrl();
+      readUrl();
       renderAll();
       tellShell();
-      // arriving from a mattress page or a shared link: straight to the table, under the top bar
-      if (linked && window.scrollTo) window.scrollTo(0, mount.getBoundingClientRect().top + window.scrollY - (window.MLILY_SHELL ? window.MLILY_SHELL.topHeight() : 64));
     });
   }
 
