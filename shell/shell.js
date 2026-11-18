@@ -38,6 +38,7 @@
         { id: "training", label: "Training", href: "/library/training", icon: "training", meta: "27 videos", job: "Six training videos, one per mattress line, and 21 product videos in one list." } ] },
       { id: "sell", label: "Sell", items: [
         { id: "floor-tools", label: "Floor tools", href: "/library/floor-tools", icon: "floor", meta: "68 cards · Price Book", job: "Fillable price cards, spec cards, quick guides and manuals, some in French, plus the current Price Book." },
+        { id: "find-specs", label: "Find Specs", href: "/find-specs", icon: "specs", meta: "164 SKUs", job: "Every SKU, UPC, MSRP and box size, with filters, copy and CSV." },
         { id: "display", label: "Display", href: "/library/display", icon: "display", meta: "13 pieces", job: "Display pieces with photos and sizes, and the display order request." },
         { id: "selling-online", label: "Selling online", href: "/library/selling-online", icon: "online", meta: "3 formats", job: "Shopify, BigCommerce and universal CSV and Excel files, with the MSRP and MAP online policy." } ] },
       { id: "market", label: "Market", items: [
@@ -65,6 +66,7 @@
     products: '<path d="M3 5v15"/><path d="M3 12.5h16a2 2 0 0 1 2 2V20"/><path d="M3 16.75h18"/><rect x="5.75" y="8.5" width="6" height="4" rx="1.5"/>',
     training: '<path d="M2.5 9.25 12 4.75l9.5 4.5-9.5 4.5z"/><path d="M6.25 11.5v4.25c0 1.4 2.6 2.75 5.75 2.75s5.75-1.35 5.75-2.75V11.5"/><path d="M21.5 9.25v5"/>',
     floor: '<rect x="4" y="6.5" width="12.5" height="14.5" rx="2"/><path d="M8 3.5h10a2 2 0 0 1 2 2v12"/><path d="M7.25 11h6M7.25 14.25h6M7.25 17.5h3.5"/>',
+    specs: '<rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 9.5v10"/>',
     display: '<path d="M4.75 4.5h14.5l1.75 5H3z"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-5h4v5"/><path d="M3 20h18"/>',
     online: '<rect x="2.75" y="3.5" width="18.5" height="13.5" rx="2"/><path d="M9 21h6M12 17v4"/><path d="M7.25 7h1.5l1.3 5.25h5.6l1.1-3.6H9.15"/><circle cx="10.6" cy="14.3" r=".5"/><circle cx="15.1" cy="14.3" r=".5"/>',
     brand: '<path d="M4 9.5h3.5L15 5v14l-7.5-4.5H4z"/><path d="M7.5 14.5v4a1.5 1.5 0 0 0 3 0v-2.75"/><path d="M18.25 9.25a3.75 3.75 0 0 1 0 5.5"/>',
@@ -204,8 +206,9 @@
       '<p class="sh-drawer__note">' + esc(NAV.account.name) + " · " + esc(NAV.account.note) + "</p></div></div></div>";
   document.body.appendChild(drawer);
   $$(".sh-home", drawer).forEach(function (a) { a.removeAttribute("id"); });
-  // the drawer's own Products row is where this page sits
-  $$(".sh-item", drawer).forEach(function (a) { if (a.getAttribute("href") === byId("products").href) a.setAttribute("aria-current", "true"); });
+  // the drawer's row for where this page sits
+  var hereHref = location.pathname === byId("find-specs").href ? byId("find-specs").href : byId("products").href;
+  $$(".sh-item", drawer).forEach(function (a) { if (a.getAttribute("href") === hereHref) a.setAttribute("aria-current", "true"); });
   if (menuBtn) {
     menuBtn.setAttribute("aria-haspopup", "dialog"); menuBtn.setAttribute("aria-controls", "sh-drawer"); menuBtn.setAttribute("aria-expanded", "false");
     menuBtn.setAttribute("data-sh-tip", "Menu");
@@ -412,7 +415,7 @@
   }
   // "/" opens search (not while typing, not over a dialog)
   document.addEventListener("keydown", function (e) {
-    if (e.key !== NAV.search.key || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key !== NAV.search.key || e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
     var t = e.target;
     if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
     if (openLayerEl || document.querySelector("dialog[open]")) return;
@@ -535,7 +538,9 @@
     spyIndex(true);
   }
 
-  /* ---- 7 tablet and phone: the PDP bar and its two dropdowns ------------------------------------------------------------------------- */
+  /* ---- 7 tablet and phone: the PDP bar and its two dropdowns (mattress pages only) ---------------------------------------------------- */
+  var reveal = function () {};   // the layers call this; only mattress pages have the bar it shows
+  if ($(".pdp-page")) (function () {
   var bar = document.createElement("div");
   bar.className = "sh-pdpbar"; bar.setAttribute("role", "navigation"); bar.setAttribute("aria-label", "Mattress index");
   bar.innerHTML = '<button type="button" class="sh-js-btn sh-pdpbar__switch" aria-haspopup="dialog" aria-expanded="false" aria-controls="sh-sheet" data-sh-sheet-open="mattresses">' +
@@ -594,11 +599,11 @@
   });
   var spyName = $("[data-sh-section-name]", bar), barQueued = false, barOn = null;
   var heroTitle = $(".product-hero__title") || $("h1");
-  function reveal() {
+  reveal = function () {
     var past = !heroTitle || !shown(heroTitle) || heroTitle.getBoundingClientRect().bottom < topH();
     var on = past || openLayerEl === sheet;
     if (on !== barOn) { barOn = on; root.classList.toggle("sh-pdpbar-on", on); }
-  }
+  };
   function barTick() {
     barQueued = false;
     reveal();
@@ -611,6 +616,7 @@
   window.addEventListener("scroll", queueBar, { passive: true });
   window.addEventListener("resize", queueBar);
   barTick();
+  })();
 
   /* ---- 8 tooltips ----------------------------------------------------------------------------------------------------------------------- */
   var tipBox = document.createElement("div");
@@ -638,5 +644,11 @@
   [menuBtn, acctBtn].forEach(function (b) { if (b) b.addEventListener("click", hideTip); });
 
   syncTheme();
-  window.MLILY_SHELL = { jumpOffset: jumpOffset, jumpTo: jumpTo, closeMenus: function () { closeLayer(false); closeAccount(false); closeResults(); } };
+  // a page without the Mattress index can hand the top bar's search its mattresses (find-specs/specs-table.js does)
+  function addProducts(list) {
+    list.slice().reverse().forEach(function (p) {
+      INDEX.unshift({ kind: "product", label: p.name, sub: p.sub || "Mattress", href: productHref(p.slug), icon: "products", words: ((p.sub || "") + " mattress").toLowerCase() });
+    });
+  }
+  window.MLILY_SHELL = { topHeight: topH, addProducts: addProducts, jumpOffset: jumpOffset, jumpTo: jumpTo, closeMenus: function () { closeLayer(false); closeAccount(false); closeResults(); } };
 })();

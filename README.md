@@ -6,6 +6,7 @@ Page scripts for the MLILY U 3.0 Webflow site, served to Webflow through jsDeliv
 - `section-2/`: Section sample 2, the Midnight scroll section.
 - `pdp/`: the product page template (Mattresses).
 - `shell/`: the 3.0 shell (top bar, menus, Mattress index).
+- `find-specs/`: the Find Specs page and its data.
 
 Each Webflow page loads a fixed version, so a change only goes live when the page is pointed at it:
 
@@ -64,9 +65,13 @@ prototype (mlilyu-3-0-shell: js/shell.js, js/side-index.js, data/nav.js). Webflo
 Load order on the template page: `pdp/pdp.css`, `pdp/pdp-laptop.css`, then `shell/shell.css` in the head; `shell/shell.js` in the footer after `pdp/pdp.js`
 (`pdp-laptop.css` is generated: after changing tablet styles in Webflow and publishing, run `python3 tools/build-laptop-css.py`)
 
-Find Specs and Compare: `pdp.js` loads `pdp/dialogs.css` + `pdp/dialogs.js` from its own folder the first time either is wanted, and `dialogs.js` loads
-`pdp/specs-data.js` when Find Specs opens. `specs-data.js` is the prototype's `data/specs.js` (2026 Ecommerce Guide + Price Book MSRP) and is public like everything
-in this repository. Compare has no data file: it reads the mattress pages themselves.
+Find Specs and Compare on a mattress page: `pdp.js` loads `pdp/dialogs.css` + `pdp/dialogs.js` from its own folder the first time either is wanted. Find Specs there is a
+quick lookup for that mattress and loads `find-specs/mattress/<slug>.js`. Compare has no data file: it reads the mattress pages themselves.
+
+Find Specs page (`/find-specs`): the Shell top bar component, a banner slot, and `[data-find-specs]`, which `find-specs/specs-table.js` fills. Load `shell/shell.css` +
+`find-specs/specs-table.css` in the head and `shell/shell.js` + `find-specs/specs-table.js` in the footer (same commit hash). Filters are kept in the address
+(`?type=&product=&feel=&build=&size=&q=`). `find-specs/specs-data.js` is the prototype's `data/specs.js` (2026 Ecommerce Guide + Price Book MSRP), public like everything in this
+repository. After changing it, run `python3 tools/build-specs-data.py` to rebuild the per-mattress files.
 (same commit hash). `pdp.js` asks the shell for its jump offset (`window.MLILY_SHELL.jumpOffset()`), 16 px without it.
 
 Hooks: `sh-top`, `data-sh-menu`, `sh-home`, `page-crumbs__link`, `data-sh-search-box` + `sh-search__placeholder`,

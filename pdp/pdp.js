@@ -112,10 +112,10 @@
   }
   function openDialog(kind, trigger) {
     say("Opening " + (kind === "compare" ? "Compare" : "Find Specs"));
-    loadDialogs().then(function () { say(""); window.MLILY_DIALOGS.open(kind, trigger); }, function () {
-      dialogs = null;
-      say("That couldn't be opened. Please try again.");
-    });
+    var failed = function () { say("That couldn't be opened. Please try again."); };
+    loadDialogs().then(function () {
+      return window.MLILY_DIALOGS.open(kind, trigger).then(function () { say(""); }, failed);
+    }, function () { dialogs = null; failed(); });
   }
   var TARGET = { photos: ".photo-strip", layers: ".layers" };
   function jump(sel) {
