@@ -1,0 +1,69 @@
+/* MLILY U 3.0, the Find Specs page: only the states find-specs.js switches and what Webflow's classes can't express.
+   Layout, type and color live in Webflow on the specs-* classes. */
+
+.specs [hidden] { display: none !important; }
+.specs .w-dyn-empty { display: none; }
+
+/* Each row carries its product's header; only the first row of a group shows it */
+.specs-row__group { display: none; }
+.specs-row.is-first .specs-row__group { display: block; }
+
+/* Tabs, chips, toggles */
+.specs-tabs::-webkit-scrollbar, .specs-sizes::-webkit-scrollbar, .specs-filters__selects::-webkit-scrollbar { display: none; }
+.specs-tab[aria-selected="true"] { color: var(--color--white); }
+.specs-tab[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--color--white); }
+.specs-tab[aria-disabled="true"] { opacity: .45; cursor: default; pointer-events: none; }
+.specs-chip[aria-pressed="true"] { border-color: var(--color--white); color: var(--color--white); }
+.specs-filters__clear.is-on { display: inline-flex; }
+.specs-filters__badge.is-on { display: inline-flex; }
+.specs-cols__menu.is-open { display: block; }
+.specs-selbar.is-on { display: flex; }
+.specs-drawer.is-open { display: flex; }
+.specs-panel.is-empty .specs-table { display: none; }
+.specs-panel.is-empty .specs-empty { display: grid; }
+@media (max-width: 767px) { .specs-filters.is-open .specs-filters__panel { display: flex; } }
+
+/* Checkboxes */
+.specs-checkbox[aria-checked="true"], [aria-checked="true"] > .specs-checkbox {
+  border-color: var(--color--white); background-color: var(--color--white);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.4 6.3l2.4 2.4 4.8-5' fill='none' stroke='%23141314' stroke-width='1.8' stroke-linecap='square'/%3E%3C/svg%3E");
+}
+.specs-checkbox[aria-checked="mixed"] {
+  border-color: var(--color--white); background-color: var(--color--white);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6h7' fill='none' stroke='%23141314' stroke-width='1.8'/%3E%3C/svg%3E");
+}
+
+/* Form controls Webflow can't style through its panel */
+.specs-search__input, .specs-select__input { margin: 0; border: 0; outline: 0; font-family: inherit; }
+.specs-select__input { appearance: none; -webkit-appearance: none; }
+.specs-select__input option { background: #212021; color: #fff; }
+.specs-search__input::placeholder { color: var(--color--text-muted-dark); opacity: 1; }
+.specs-search__input::-webkit-search-cancel-button { appearance: none; display: none; }
+.specs-search:focus-within { border-color: var(--color--white); color: var(--color--white); }
+.specs-select:has(select:focus-visible) { border-color: var(--color--white); outline: 2px solid var(--color--link-blue-dark); outline-offset: 2px; }
+.specs a:focus-visible, .specs-wrap:focus-visible { outline: 2px solid var(--color--link-blue-dark); outline-offset: 2px; }
+.specs-wrap:focus-visible { outline-offset: -2px; }
+
+/* Table */
+.specs-count b { font-weight: 600; color: var(--color--white); }
+.specs-sort.is-sorted { color: var(--color--white); }
+.specs-sort.is-sorted .specs-sort__icon, .specs-sort:hover .specs-sort__icon { opacity: 1; }
+.specs-th.is-on { display: block; }
+.specs-td.is-on { display: flex; }
+.specs-th.is-off, .specs-td.is-off { display: none; }
+.specs-row:not(:first-child).is-first .specs-row__group { padding-top: 40px; }
+.specs-none { color: var(--color--text-muted-dark); }
+.specs-copy.is-done { color: var(--color--link-blue-dark); }
+.specs-tag.is-on { display: inline-flex; }
+.specs-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--color--gold); }
+.specs-table.is-flat .specs-product__name { display: block; }
+.specs-table.is-flat .specs-product__feel { font-size: 13px; line-height: 18px; font-weight: 400; color: var(--color--text-muted-dark); }
+.specs-wrap.is-scrolled-x .specs-th--product, .specs-wrap.is-scrolled-x .specs-td--product { border-right: 1px solid var(--color--divider-dark); }
+.specs-row__cells:hover > .specs-td { background-color: color-mix(in srgb, #fff 3%, #141314); }
+.specs-row.is-selected .specs-td { background-color: color-mix(in srgb, #a2c2fa 7%, #141314); }
+.specs-row.is-open .specs-td { background-color: color-mix(in srgb, #fff 6%, #141314); }
+@media (max-width: 767px) {
+  .specs-td.is-on { display: flex; }
+  .specs-row__cells:hover > .specs-td, .specs-row.is-selected .specs-td, .specs-row.is-open .specs-td { background-color: transparent; }
+  .specs-row.is-selected .specs-row__cells { background-color: color-mix(in srgb, #a2c2fa 7%, #141314); }
+}
