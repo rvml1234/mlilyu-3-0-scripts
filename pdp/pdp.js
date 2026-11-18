@@ -5,7 +5,7 @@
 
    1  ® marks: wrapped in .reg-mark (60 %, raised)
    2  "#" links that are buttons: no jump to the top; 2b empty facts and sections
-   3  Actions row: Photos / Layers scroll to their section; keys P and L (S and C wait for the Find Specs and Compare dialogs)
+   3  Actions row: Find Specs / Compare open their dialogs (dialogs.js); Photos / Layers scroll to their section; keys S, C, P and L
    4  Copy page: copies the page as Markdown (the arrow's menu is not built yet)
    5  Training: the checklist collapses to two rows with a fade and "Show more"; the card fires a `video-open` event (no player yet)
    6  Photos: Swiper (endless, free drag with momentum, arrows, keyboard)
@@ -16,6 +16,7 @@
   "use strict";
   var main = document.querySelector(".pdp-page");
   if (!main) return;
+  var HERE = document.currentScript ? document.currentScript.src.replace(/[^/]*$/, "") : "";   // where this file (and its dialogs) is served from
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -96,6 +97,26 @@
   if (feelsSec && $$(".feels__cells", feelsSec).length < 2) feelsSec.style.display = "none";
 
   /* 3 Actions row ----------------------------------------------------------------------------------------------------------------------- */
+  // Find Specs and Compare: dialogs.js + dialogs.css load the first time they're wanted, so the page itself stays light
+  var dialogs = null;
+  function loadDialogs() {
+    if (dialogs) return dialogs;
+    dialogs = new Promise(function (resolve, reject) {
+      var link = document.createElement("link"), js = document.createElement("script"), waiting = 2;
+      var ready = function () { if (!--waiting) resolve(); };
+      link.rel = "stylesheet"; link.href = HERE + "dialogs.css"; link.onload = ready; link.onerror = reject;
+      js.src = HERE + "dialogs.js"; js.onload = ready; js.onerror = reject;
+      document.head.appendChild(link); document.head.appendChild(js);
+    });
+    return dialogs;
+  }
+  function openDialog(kind, trigger) {
+    say("Opening " + (kind === "compare" ? "Compare" : "Find Specs"));
+    loadDialogs().then(function () { say(""); window.MLILY_DIALOGS.open(kind, trigger); }, function () {
+      dialogs = null;
+      say("That couldn't be opened. Please try again.");
+    });
+  }
   var TARGET = { photos: ".photo-strip", layers: ".layers" };
   function jump(sel) {
     var node = $(sel);
@@ -105,13 +126,17 @@
     var top = node.getBoundingClientRect().top + window.scrollY - off;
     window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion.matches ? "auto" : "smooth" });
   }
-  function act(action) { if (TARGET[action]) jump(TARGET[action]); }
+  function act(action, trigger) {
+    if (TARGET[action]) jump(TARGET[action]);
+    else openDialog(action, trigger);
+  }
   $$("[data-action]").forEach(function (b) {
     var a = b.getAttribute("data-action");
     if (TARGET[a] && !shown($(TARGET[a]))) b.style.display = "none";   // Photos and Layers only where the page has them
-    if (TARGET[a]) b.addEventListener("click", function () { act(a); });
+    if (!TARGET[a]) ["pointerenter", "focus"].forEach(function (type) { b.addEventListener(type, loadDialogs, { once: true }); });
+    b.addEventListener("click", function () { act(a, b); });
   });
-  var KEYS = { p: "photos", l: "layers" };
+  var KEYS = { s: "specs", c: "compare", p: "photos", l: "layers" };
   document.addEventListener("keydown", function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
     var t = e.target;
@@ -122,7 +147,7 @@
     var b = $('[data-action="' + action + '"]');
     if (!shown(b)) return;
     e.preventDefault();
-    act(action);
+    act(action, b);
   });
 
   /* 4 Copy page --------------------------------------------------------------------------------------------------------------------- */

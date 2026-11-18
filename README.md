@@ -63,6 +63,10 @@ prototype (mlilyu-3-0-shell: js/shell.js, js/side-index.js, data/nav.js). Webflo
 
 Load order on the template page: `pdp/pdp.css`, `pdp/pdp-laptop.css`, then `shell/shell.css` in the head; `shell/shell.js` in the footer after `pdp/pdp.js`
 (`pdp-laptop.css` is generated: after changing tablet styles in Webflow and publishing, run `python3 tools/build-laptop-css.py`)
+
+Find Specs and Compare: `pdp.js` loads `pdp/dialogs.css` + `pdp/dialogs.js` from its own folder the first time either is wanted, and `dialogs.js` loads
+`pdp/specs-data.js` when Find Specs opens. `specs-data.js` is the prototype's `data/specs.js` (2026 Ecommerce Guide + Price Book MSRP) and is public like everything
+in this repository. Compare has no data file: it reads the mattress pages themselves.
 (same commit hash). `pdp.js` asks the shell for its jump offset (`window.MLILY_SHELL.jumpOffset()`), 16 px without it.
 
 Hooks: `sh-top`, `data-sh-menu`, `sh-home`, `page-crumbs__link`, `data-sh-search-box` + `sh-search__placeholder`,
