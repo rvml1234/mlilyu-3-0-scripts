@@ -95,7 +95,7 @@
   });
   var current = PRODUCTS.filter(function (p) { return p.slug === CUR; })[0] || null;
   $$(".sh-home").forEach(function (a) { a.setAttribute("href", NAV.home.href); });
-  $$(".sh-crumbs__link, .page-crumbs__link").forEach(function (a, i, list) {
+  $$(".page-crumbs__link").forEach(function (a) {
     a.setAttribute("href", byId("products").href);   // Products, and Mattresses (the Products page, mattresses first) until a type filter exists
   });
   $$(".sh-util[data-sh-link]").forEach(function (a) {

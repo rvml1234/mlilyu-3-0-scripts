@@ -64,7 +64,7 @@ prototype (mlilyu-3-0-shell: js/shell.js, js/side-index.js, data/nav.js). Webflo
 Load order on the template page: `shell/shell.css` in the head after `pdp/pdp.css`; `shell/shell.js` in the footer after `pdp/pdp.js`
 (same commit hash). `pdp.js` asks the shell for its jump offset (`window.MLILY_SHELL.jumpOffset()`), 16 px without it.
 
-Hooks: `sh-top`, `data-sh-menu`, `sh-home`, `sh-crumbs__link`, `page-crumbs__link`, `data-sh-search-box` + `sh-search__placeholder`,
+Hooks: `sh-top`, `data-sh-menu`, `sh-home`, `page-crumbs__link`, `data-sh-search-box` + `sh-search__placeholder`,
 `data-sh-search` (the icon), `sh-util` + `data-sh-link`, `data-sh-theme`, `data-sh-account`, `side-index`, `data-sh-index-search` +
 `side-index__placeholder` + `side-index__kbd`, `side-index__product` + `data-slug` / `data-sub`, `side-index__sections` /
 `side-index__section` (href `#<section id>`), `product-hero__title`, and `data-wf-item-slug` on `<html>` (Webflow's own).
