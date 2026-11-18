@@ -27,11 +27,11 @@ Pages always point at a full commit hash. Don't request a commit's files on jsDe
 (mlilyu-3-0-shell). The page reads correctly without them; they add:
 
 - ® marks at 60 %, raised (`.reg-mark`)
-- Actions row: Find Specs and Compare open their dialogs, Photos and Layers scroll to their section (keys S, C, P, L). At 1100 px and under, Compare, Photos and Layers sit in the More menu (`page-more`, `data-more-toggle`, `page-more__menu`, `page-more__item`). The Copy page menu is not built yet.
+- Actions row: Find Specs and Compare open their dialogs, Photos and Layers scroll to their section (keys S, C, P, L). At 1100 px and under, Compare, Photos and Layers sit in the More menu (`page-more`, `data-more-toggle`, `page-more__menu`, `page-more__item`). Copy page has its own menu (`page-copy__menu`, `data-copy-page`): page text, Markdown in a new tab, listing copy, and copying the page before opening a blank Claude or ChatGPT chat or the Cursor app. No AI service is called.
 - Copy page: copies the page as Markdown, built from what the page shows
 - Training: checklist collapses to two rows with a fade and "Show more"; the card fires a `video-open` event (no player yet)
 - Photos: Swiper 11 (endless, free drag with momentum, arrows, keyboard) on the Webflow list itself
-- Layers: the feel toggle swaps the first feel's rows (list filtered "First feel" on) for the other feel's (`.layers__alt`)
+- Layers: the feel toggle swaps the first feel's rows (list filtered "First feel" on) for the other feel's (`.layers__alt`). A row opens the layer drawer (`pdp/layer-drawer.js` + `.css`, loaded when first wanted); "Also in" reads the other mattress pages.
 - Common questions: "Show all N questions" swaps the first five (list limit 5) for the full list (`.faq__extra`, `data-faq-all`)
 - Pairs with: mlilyusa.com links open in a new tab; the arrow shows only on those (CSS on the link)
 

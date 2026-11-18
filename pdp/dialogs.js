@@ -60,6 +60,7 @@
       })).map(function (line) { return line.join("\t"); }).join("\n");
     }
     function load() {
+      if (!data && window.MLILY_MATTRESS_SPECS) data = window.MLILY_MATTRESS_SPECS;   // pdp.js loads them for Copy page
       if (data) return Promise.resolve();
       if (!loading) loading = new Promise(function (resolve, reject) {
         var s = document.createElement("script");

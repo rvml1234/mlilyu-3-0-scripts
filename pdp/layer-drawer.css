@@ -1,0 +1,106 @@
+/* MLILY U 3.0, the layer drawer (layer-drawer.js): the prototype's css/layer-drawer.css. A right-side panel over the dimmed page; loaded with the script. */
+.ldr {
+  --ldr-pad: 32px;
+  --ldr-ground: #faf9f6;
+  --sh-display: Graphie, Montserrat, sans-serif;
+  position: fixed; inset: 12px 12px auto auto; width: min(640px, calc(100vw - 24px)); height: calc(100dvh - 24px); max-width: none; max-height: none;
+  margin: 0; padding: 0; border: 0; border-radius: 8px; background: var(--sh-page); color: var(--sh-ink); overflow: hidden;
+  font-family: var(--sh-font); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+.ldr *, .ldr *::before, .ldr *::after { box-sizing: border-box; }
+.ldr[open] { display: flex; flex-direction: column; animation: ldr-in .34s var(--sh-ease); }
+.ldr::backdrop { background: rgba(0, 0, 0, .66); animation: ldr-fade .26s ease; }
+.ldr.is-closing { animation: ldr-out .2s ease-in forwards; }
+.ldr.is-closing::backdrop { animation: ldr-fade-out .2s ease-in forwards; }
+@keyframes ldr-in { from { translate: calc(100% + 12px) 0; } }
+@keyframes ldr-out { to { translate: calc(100% + 12px) 0; } }
+@keyframes ldr-fade { from { opacity: 0; } }
+@keyframes ldr-fade-out { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .ldr[open] { animation: ldr-fade .15s ease; }
+  .ldr.is-closing { animation: ldr-fade-out .12s ease forwards; }
+}
+
+/* the bar: where you are in the stack, previous / next, close */
+.ldr__bar { display: flex; align-items: center; gap: 4px; flex: none; height: 60px; padding: 0 10px 0 24px; border-block-end: 1px solid var(--sh-line); }
+.ldr__crumb { display: flex; align-items: baseline; gap: 10px; flex: 1; min-width: 0; margin: 0; font: 600 15px/22px var(--sh-font); color: var(--sh-ink); white-space: nowrap; }
+.ldr__ctx { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 13px; font-weight: 400; color: var(--sh-read); }
+.ldr__icon {
+  display: inline-grid; place-items: center; flex: none; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 4px;
+  background: none; color: var(--sh-ink); cursor: pointer; transition: background-color .15s ease, opacity .15s ease;
+}
+.ldr__icon:hover { background: var(--sh-hover); }
+.ldr__icon[aria-disabled="true"] { opacity: .32; cursor: default; background: none; }
+.ldr__icon svg { width: 18px; height: 18px; }
+.ldr :is(a, button):focus-visible { outline: 2px solid var(--sh-accent); outline-offset: 2px; }
+.ldr__scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-block-end: 48px; }
+
+/* the picture: this feel's stack to scale, the layer at full strength, the others faded, its thickness on a short leader line */
+.ldr__media { --mh: 320px; position: relative; display: grid; place-items: center; height: var(--mh); margin: 24px var(--ldr-pad) 0; border-radius: 8px; background: var(--ldr-ground); }
+/* More contrast (Ramir, 2026-11-13: "needs a bit more contrast"): the other layers at 50 % (was 30 %), and every band outlined at 18 % ink (was an 8 % ring that faded
+   with the band). The outline sits over the picture and doesn't fade, so the white foams and the coils keep their shape; seams stay one line (top and sides on each
+   band, the stack's own bottom line under the last). */
+.ldr__stack { --ar: 1.6; --ldr-edge: rgba(16, 24, 32, .18); position: relative; visibility: hidden; display: flex; flex-direction: column; width: min(60%, calc((var(--mh) - 64px) * var(--ar))); border-block-end: 1px solid var(--ldr-edge); }
+.ldr__band { position: relative; display: block; cursor: pointer; }
+.ldr__band::after { content: ""; position: absolute; inset: 0; border: 1px solid var(--ldr-edge); border-block-end: 0; pointer-events: none; }
+.ldr__band img { display: block; width: 100%; height: auto; opacity: .5; transition: opacity .25s var(--sh-ease); }
+.ldr__band:hover img { opacity: .8; }
+.ldr__band.is-current { cursor: default; }
+.ldr__band.is-current img { opacity: 1; }
+.ldr__tag {
+  position: absolute; left: calc(100% + 20px); top: 50%; translate: 0 -50%; font: 600 13px/18px var(--sh-font); color: #101820; white-space: nowrap;
+  transition: top .3s var(--sh-ease);
+}
+.ldr__tag::before { content: ""; position: absolute; right: calc(100% + 6px); top: 50%; width: 12px; height: 1px; background: currentColor; }
+
+/* title and meta */
+.ldr__head { padding: 28px var(--ldr-pad) 0; }
+.ldr__title { margin: 0; font: 600 28px/1.15 var(--sh-display); letter-spacing: -0.02em; color: var(--sh-ink); text-wrap: balance; }
+.ldr__title:focus { outline: none; }
+.ldr__meta { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 10px 0 0; font: 400 13px/20px var(--sh-font); color: var(--sh-read); }
+.ldr__meta span + span::before { content: "\00b7"; margin-inline-end: 10px; color: var(--sh-mute); }
+
+/* Contra's stats box: value over label, in one outlined box */
+.ldr__stats { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); margin: 24px var(--ldr-pad) 0; padding: 18px 8px; border: 1px solid var(--sh-line); border-radius: 8px; }
+.ldr__stat { display: flex; flex-direction: column-reverse; align-items: center; justify-content: flex-end; gap: 2px; padding-inline: 8px; text-align: center; }
+.ldr__stat dd { margin: 0; font: 600 22px/1.2 var(--sh-display); letter-spacing: -0.01em; color: var(--sh-ink); }
+.ldr__stat dt { font: 400 13px/18px var(--sh-font); color: var(--sh-read); text-wrap: balance; }
+
+/* sections */
+.ldr__sec { margin: 32px var(--ldr-pad) 0; padding-block-start: 28px; border-block-start: 1px solid var(--sh-line); }
+.ldr__h3 { margin: 0 0 12px; font: 600 17px/1.3 var(--sh-font); color: var(--sh-ink); }
+.ldr__text { margin: 0; max-width: 62ch; font: 400 15px/24px var(--sh-font); color: var(--sh-read); text-wrap: pretty; }
+.ldr__small { margin: 12px 0 0; font: 400 13px/20px var(--sh-font); color: var(--sh-read); }
+.ldr__small a { color: var(--sh-ink); font-weight: 600; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 3px; }
+.ldr__small a:hover { text-decoration-color: currentColor; }
+.ldr__small a svg { width: 12px; height: 12px; margin-inline-start: 3px; vertical-align: -1px; }
+
+/* Also in: Contra's "Featured work" as cards; each opens that mattress */
+.ldr__cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; margin: 4px 0 0; padding: 0; list-style: none; }
+.ldr__card { display: block; border-radius: 8px; color: inherit; text-decoration: none; }
+.ldr__pic { display: grid; place-items: center; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 8px; background: var(--ldr-ground); }
+.ldr__pic img { display: block; width: 72%; height: auto; transition: scale .3s var(--sh-ease); }
+.ldr__pic--photo img { width: 100%; height: 100%; object-fit: cover; }
+.ldr__card:hover .ldr__pic img { scale: 1.03; }
+.ldr__card-name { display: block; margin-block-start: 10px; font: 600 15px/22px var(--sh-font); color: var(--sh-ink); }
+.ldr__card:hover .ldr__card-name { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.ldr__card-line { display: block; margin-block-start: 2px; font: 400 13px/20px var(--sh-font); color: var(--sh-read); }
+
+/* phones: the drawer takes the screen; one step smaller, like the rest of the PDP on phones */
+@media (max-width: 640px) {
+  .ldr { --ldr-pad: 20px; inset: 0; width: 100vw; height: 100dvh; border-radius: 0; }
+  .ldr__bar { height: 56px; padding-inline: 16px 6px; }
+  .ldr__media { --mh: 240px; margin-block-start: 16px; }
+  .ldr__head { padding-block-start: 22px; }
+  .ldr__title { font-size: 22px; }
+  .ldr__stats { padding: 14px 4px; }
+  .ldr__stat { padding-inline: 4px; }
+  .ldr__stat dd { font-size: 19px; }
+  .ldr__sec { margin-block-start: 28px; padding-block-start: 24px; }
+  .ldr__cards { gap: 20px 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .ldr__band img, .ldr__tag, .ldr__pic img { transition: none; } }
+
+
+.ldr__stack.is-ready { visibility: visible; }
+.ldr__card:focus-visible { outline-offset: 4px; }

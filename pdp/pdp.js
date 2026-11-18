@@ -6,10 +6,10 @@
    1  ® marks: wrapped in .reg-mark (60 %, raised)
    2  "#" links that are buttons: no jump to the top; 2b empty facts and sections
    3  Actions row: Find Specs / Compare open their dialogs (dialogs.js); Photos / Layers scroll to their section; keys S, C, P and L
-   4  Copy page: copies the page as Markdown (the arrow's menu is not built yet)
+   4  Copy page: copies the page as Markdown; its menu adds View as Markdown, Copy for my listing and opening a chat (nothing is sent to any service)
    5  Training: the checklist collapses to two rows with a fade and "Show more"; the card fires a `video-open` event (no player yet)
    6  Photos: Swiper (endless, free drag with momentum, arrows, keyboard)
-   7  Layers: the feel toggle swaps the first feel's rows for the other feel's
+   7  Layers: the feel toggle swaps the first feel's rows for the other feel's; a row opens the layer drawer (layer-drawer.js)
    8  Common questions: "Show all N questions" swaps the first five for the full list
    9  Pairs with: links to mlilyusa.com open in a new tab */
 (function () {
@@ -98,16 +98,18 @@
 
   /* 3 Actions row ----------------------------------------------------------------------------------------------------------------------- */
   // Find Specs and Compare: dialogs.js + dialogs.css load the first time they're wanted, so the page itself stays light
-  var dialogs = null;
-  function loadDialogs() {
-    if (dialogs) return dialogs;
-    dialogs = new Promise(function (resolve, reject) {
+  function loadAssets(name) {
+    return new Promise(function (resolve, reject) {
       var link = document.createElement("link"), js = document.createElement("script"), waiting = 2;
       var ready = function () { if (!--waiting) resolve(); };
-      link.rel = "stylesheet"; link.href = HERE + "dialogs.css"; link.onload = ready; link.onerror = reject;
-      js.src = HERE + "dialogs.js"; js.onload = ready; js.onerror = reject;
+      link.rel = "stylesheet"; link.href = HERE + name + ".css"; link.onload = ready; link.onerror = reject;
+      js.src = HERE + name + ".js"; js.onload = ready; js.onerror = reject;
       document.head.appendChild(link); document.head.appendChild(js);
     });
+  }
+  var dialogs = null;
+  function loadDialogs() {
+    if (!dialogs) dialogs = loadAssets("dialogs");
     return dialogs;
   }
   function openDialog(kind, trigger) {
@@ -126,23 +128,54 @@
     var top = node.getBoundingClientRect().top + window.scrollY - off;
     window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion.matches ? "auto" : "smooth" });
   }
+  // A button that opens a menu: Enter, Space and the arrows open it; arrows, Home and End move; Esc and Tab close it; so does a press elsewhere
+  var menus = [];
+  function makeMenu(box, toggle, list, itemSel, active) {
+    var api = {
+      isOpen: function () { return box.classList.contains("is-open"); },
+      set: function (open) {
+        if (open) menus.forEach(function (m) { if (m !== api) m.set(false); });
+        box.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+    };
+    var items = function () { return $$(itemSel, list).filter(function (b) { return b.style.display !== "none"; }); };
+    function move(step, from) {
+      var all = items(), i = all.indexOf(from);
+      all[step === "first" ? 0 : step === "last" ? all.length - 1 : (i + step + all.length) % all.length].focus();
+    }
+    toggle.setAttribute("aria-haspopup", "menu");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-controls", list.id);
+    toggle.addEventListener("click", function (e) {
+      var open = !api.isOpen();
+      api.set(open);
+      if (open && e.detail === 0) move("first");   // opened from the keyboard
+    });
+    toggle.addEventListener("keydown", function (e) {
+      if (e.key === " ") { e.preventDefault(); toggle.click(); }
+      else if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); api.set(true); move(e.key === "ArrowDown" ? "first" : "last"); }
+      else if (e.key === "Escape") api.set(false);
+    });
+    list.addEventListener("keydown", function (e) {
+      if (!active()) return;
+      var b = e.target.closest(itemSel), step = { ArrowDown: 1, ArrowUp: -1, Home: "first", End: "last" }[e.key];
+      if (step) { e.preventDefault(); move(step, b); }
+      else if (e.key === " ") { e.preventDefault(); b.click(); }
+      else if (e.key === "Escape") { e.preventDefault(); api.set(false); toggle.focus(); }
+      else if (e.key === "Tab") api.set(false);
+    });
+    document.addEventListener("pointerdown", function (e) { if (!box.contains(e.target)) api.set(false); });
+    menus.push(api);
+    return api;
+  }
   // More (1100 px and under): Compare, Photos and Layers sit in this menu. Above that the menu's wrappers are display: contents and they are plain buttons.
-  var more = $(".page-more"), moreToggle = more && $("[data-more-toggle]", more), moreMenu = more && $(".page-more__menu", more);
+  var moreBox = $(".page-more"), moreToggle = moreBox && $("[data-more-toggle]", moreBox), moreList = moreBox && $(".page-more__menu", moreBox), more = null;
   var compact = window.matchMedia("(max-width: 1100px)");
-  var inMenu = function (el) { return !!moreMenu && compact.matches && moreMenu.contains(el); };
-  var moreItems = function () { return $$("[data-action]", moreMenu).filter(function (b) { return b.style.display !== "none"; }); };
-  function setMore(open) {
-    if (!more) return;
-    more.classList.toggle("is-open", open);
-    moreToggle.setAttribute("aria-expanded", open ? "true" : "false");
-  }
-  function moveInMore(step, from) {
-    var list = moreItems(), i = list.indexOf(from);
-    list[step === "first" ? 0 : step === "last" ? list.length - 1 : (i + step + list.length) % list.length].focus();
-  }
+  var inMenu = function (el) { return !!moreList && compact.matches && moreList.contains(el); };
   function act(action, trigger) {
     var back = inMenu(trigger) ? moreToggle : trigger;   // a closed menu's item can't take the focus back
-    setMore(false);
+    if (more) more.set(false);
     if (TARGET[action]) jump(TARGET[action]);
     else openDialog(action, back);
   }
@@ -158,48 +191,26 @@
       if (fromKeys && TARGET[a]) moreToggle.focus({ preventScroll: true });
     });
   });
-  if (more && moreToggle && moreMenu) {
+  if (moreBox && moreToggle && moreList) {
+    more = makeMenu(moreBox, moreToggle, moreList, "[data-action]", function () { return compact.matches; });
     var syncMoreRoles = function () {
-      setMore(false);
-      if (compact.matches) { moreMenu.setAttribute("role", "menu"); moreMenu.setAttribute("aria-label", "More actions"); }
-      else { moreMenu.removeAttribute("role"); moreMenu.removeAttribute("aria-label"); }
-      $$("[data-action]", moreMenu).forEach(function (b) {
+      more.set(false);
+      if (compact.matches) { moreList.setAttribute("role", "menu"); moreList.setAttribute("aria-label", "More actions"); }
+      else { moreList.removeAttribute("role"); moreList.removeAttribute("aria-label"); }
+      $$("[data-action]", moreList).forEach(function (b) {
         b.setAttribute("role", compact.matches ? "menuitem" : "button");
         if (compact.matches) b.setAttribute("tabindex", "-1"); else b.removeAttribute("tabindex");
       });
     };
     syncMoreRoles();
     compact.addEventListener("change", syncMoreRoles);
-    moreToggle.addEventListener("click", function (e) {
-      var open = !more.classList.contains("is-open");
-      setMore(open);
-      if (open && e.detail === 0) moveInMore("first");   // opened from the keyboard
-    });
-    moreToggle.addEventListener("keydown", function (e) {
-      if (e.key === " ") { e.preventDefault(); moreToggle.click(); }
-      else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-        e.preventDefault();
-        setMore(true);
-        moveInMore(e.key === "ArrowDown" ? "first" : "last");
-      }
-      else if (e.key === "Escape") setMore(false);
-    });
-    moreMenu.addEventListener("keydown", function (e) {
-      if (!compact.matches) return;
-      var b = e.target.closest("[data-action]"), step = { ArrowDown: 1, ArrowUp: -1, Home: "first", End: "last" }[e.key];
-      if (step) { e.preventDefault(); moveInMore(step, b); }
-      else if (e.key === " ") { e.preventDefault(); b.click(); }
-      else if (e.key === "Escape") { e.preventDefault(); setMore(false); moreToggle.focus(); }
-      else if (e.key === "Tab") setMore(false);
-    });
-    document.addEventListener("pointerdown", function (e) { if (!more.contains(e.target)) setMore(false); });
   }
   var KEYS = { s: "specs", c: "compare", p: "photos", l: "layers" };
   document.addEventListener("keydown", function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
     var t = e.target;
     if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-    if (document.querySelector("dialog[open]")) return;
+    if (document.querySelector("dialog[open]") || menus.some(function (m) { return m.isOpen(); })) return;
     var action = KEYS[(e.key || "").toLowerCase()];
     if (!action) return;
     var b = $('[data-action="' + action + '"]');
@@ -224,13 +235,34 @@
     });
     return out.replace(/[ \t]+/g, " ").trim();
   }
+  // The mattress's sizes and specs (a small file, shared with the Find Specs modal): loaded after the page so every copy option can use them at once
+  var slug = document.documentElement.getAttribute("data-wf-item-slug") || location.pathname.split("/").pop();
+  function loadSpecs() {
+    if (window.MLILY_MATTRESS_SPECS) return;
+    var js = document.createElement("script");
+    js.src = HERE + "../find-specs/mattress/" + slug + ".js";
+    document.head.appendChild(js);
+  }
+  if (document.readyState === "complete") loadSpecs(); else window.addEventListener("load", loadSpecs);
+  function trio(a) { return a && a.length === 3 ? a.join(" × ") + " in" : ""; }
+  function layerStacks() {
+    var feelNames = $$(".layers__feel").map(text);
+    return [$(".layers__lists .w-dyn-list:not(.layers__alt)"), $(".layers__alt")].map(function (l, i) {
+      var rows = l ? $$(".layers__row", l).map(function (r) { return [text($(".layers__name", r)), text($(".layers__desc", r))]; }).filter(function (r) { return r[0]; }) : [];
+      return { label: feelNames[i] || "", rows: rows };
+    }).filter(function (s) { return s.rows.length; });
+  }
+  function filledFacts() {
+    return $$(".facts__cell").filter(function (c) { return !$(".w-dyn-bind-empty", c); }).map(function (c) { return [text($(".facts__label", c)), text($(".facts__value", c))]; }).filter(function (r) { return r[1]; });
+  }
   function pageMarkdown() {
-    var out = [], name = text($(".product-hero__title"));
+    var out = [], name = text($(".product-hero__title")), specs = window.MLILY_MATTRESS_SPECS;
     out.push("# " + name);
     var lead = [text($(".product-hero__kicker")), text($(".rail__tagline"))].filter(Boolean).join(" · ");
     if (lead) out.push(lead);
     if (filled($(".rail__description"))) out.push(text($(".rail__description")));
     if (filled($(".rail__best-for-text"))) out.push("**Best for:** " + text($(".rail__best-for-text")));
+    if (shown($(".rail__step-up"))) out.push(text($(".rail__step-up-lead")) + " " + text($(".rail__step-up-name")) + ".");
     var chips = $$(".icon-set__caption").map(text).filter(Boolean);
     if (chips.length) out.push("**Highlights:** " + chips.join(", "));
     var feels = $$(".variant-card").map(function (c) { return { label: text($(".variant-card__title", c)), line: text($(".variant-card__desc", c)) }; }).filter(function (f) { return f.label; });
@@ -239,12 +271,14 @@
     if (sizes.length) out.push("**Sizes:** " + sizes.join(", "));
     var facts = $$(".facts__cell").filter(shown).map(function (c) { return [text($(".facts__label", c)), text($(".facts__value", c))]; }).filter(function (r) { return r[1]; });
     if (facts.length) { out.push("## At a glance"); out.push(facts.map(function (r) { return "- " + r[0] + ": " + r[1]; }).join("\n")); }
-    var feelNames = $$(".layers__feel").map(text);
-    var lists = [$(".layers__lists .w-dyn-list:not(.layers__alt)"), $(".layers__alt")].filter(Boolean);
-    var stacks = lists.map(function (l, i) {
-      var rows = $$(".layers__row", l).map(function (r) { return [text($(".layers__name", r)), text($(".layers__desc", r))]; }).filter(function (r) { return r[0]; });
-      return { label: feelNames[i] || "", rows: rows };
-    }).filter(function (s) { return s.rows.length; });
+    if (specs) {
+      var multi = specs.rows.some(function (r) { return r.feel; });
+      out.push("## Sizes and specs");
+      out.push(mdTable((multi ? ["Feel"] : []).concat(["Size", "MSRP", "SKU", "UPC", "Mattress", "Box", "Box weight"]), specs.rows.map(function (r) {
+        return (multi ? [r.feel || ""] : []).concat([r.size || "One size", r.msrp != null ? "$" + Number(r.msrp).toLocaleString("en-US") : "", r.sku, r.upc || "", trio(r.dims), trio(r.box), r.weight != null ? r.weight + " lb" : ""]);
+      })));
+    }
+    var stacks = layerStacks();
     if (stacks.length) {
       out.push("## Layers");
       stacks.forEach(function (s) {
@@ -274,24 +308,78 @@
     }
     out.push("---");
     out.push("From the MLILY U product page for " + name + " (" + location.origin + location.pathname + "), copied " +
-      new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) + ".");
+      new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) + "." +
+      (specs ? " MSRP from the " + specs.msrpSource + "; UPC, dimensions and box sizes from the " + specs.source + "." : ""));
     return out.join("\n\n") + "\n";
   }
-  function copyNow(str) {   // fallback for browsers without the async clipboard
+  // What a store listing needs and nothing internal: no prices, SKUs, UPCs, training, questions or pairings. As HTML (pastes formatted into a store's editor) and plain text.
+  function listingCopy() {
+    var blocks = [], specs = window.MLILY_MATTRESS_SPECS;
+    function para(t, opt) { if (t) blocks.push({ type: "p", text: t, strong: !!(opt && opt.strong), label: opt && opt.label }); }
+    function head(t) { blocks.push({ type: "h", text: t }); }
+    function list(items) { if (items.length) blocks.push({ type: "ul", items: items }); }
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    para(text($(".rail__tagline")), { strong: true });
+    para(text($(".rail__description")));
+    if (filled($(".rail__best-for-text"))) para(text($(".rail__best-for-text")), { label: "Best for" });
+    var caps = $$(".icon-set__caption").map(text).filter(Boolean);
+    if (caps.length) { head("Highlights"); list(caps); }
+    var cols = $$(".feels__cells");
+    if (cols.length > 1) {
+      var labels = $$(".feels__label").map(text), feelAt = labels.indexOf("Feel"), sleepAt = labels.indexOf("Sleepers");
+      head("Comfort options");
+      list(cols.map(function (c) {
+        var cells = $$(".feels__cell", c).map(text), feel = cells[feelAt] || "", sleep = (cells[sleepAt] || "").toLowerCase();
+        if (sleep && !/sleepers$/.test(sleep)) sleep += " sleepers";
+        return { label: text($(".feels__head", c)), text: (feel ? feel + " feel" : "") + (sleep ? (feel ? ", for " : "For ") + sleep : "") };
+      }));
+    }
+    var stacks = layerStacks();
+    if (stacks.length) {
+      head("What’s inside");
+      if (stacks.length > 1) stacks.forEach(function (st) { para(st.label, { strong: true }); list(st.rows.map(function (r) { return r[0]; })); });
+      else list(stacks[0].rows.map(function (r) { return r[0]; }));
+    }
+    var sizes = [], seen = {};
+    (specs ? specs.rows : []).forEach(function (r) { if (r.size && !seen[r.size]) { seen[r.size] = 1; sizes.push(r.size + (trio(r.dims) ? ": " + trio(r.dims) : "")); } });
+    if (!sizes.length) sizes = $$(".facts__size").map(text).filter(Boolean);
+    if (sizes.length) { head("Sizes and dimensions"); list(sizes); }
+    var facts = filledFacts().filter(function (r) { return r[0] !== "Ships"; });   // Ships is how MLILY ships to the store, not to the shopper
+    if (facts.length) { head("Details"); list(facts.map(function (r) { return { label: r[0], text: r[1] }; })); }
+    var html = "", plain = [];
+    blocks.forEach(function (b) {
+      if (b.type === "h") { html += "<h3>" + esc(b.text) + "</h3>"; plain.push("", b.text); }
+      else if (b.type === "p") {
+        html += "<p>" + (b.label ? "<strong>" + esc(b.label) + ":</strong> " : "") + (b.strong ? "<strong>" + esc(b.text) + "</strong>" : esc(b.text)) + "</p>";
+        plain.push("", (b.label ? b.label + ": " : "") + b.text);
+      } else {
+        html += "<ul>" + b.items.map(function (it) { return "<li>" + (typeof it === "string" ? esc(it) : "<strong>" + esc(it.label) + "</strong>" + (it.text ? ": " + esc(it.text) : "")) + "</li>"; }).join("") + "</ul>";
+        plain.push(b.items.map(function (it) { return "- " + (typeof it === "string" ? it : it.label + (it.text ? ": " + it.text : "")); }).join("\n"));
+      }
+    });
+    return { html: html, text: plain.join("\n").replace(/^\n+/, "") + "\n" };
+  }
+  function copyNow(str, back) {   // synchronous: used before a new tab takes the focus, and where the async clipboard is missing
     var ta = document.createElement("textarea");
-    ta.value = str; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    ta.value = str; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.top = "0"; ta.style.opacity = "0";
     document.body.appendChild(ta); ta.select();
     var ok = false; try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
     ta.remove();
+    if (back) back.focus();
     return ok;
   }
-  var copyMain = $(".page-copy__main"), copyLabel = copyMain && $(".page-action__label", copyMain), copyTimer;
-  if (copyMain) copyMain.addEventListener("click", function () {
-    var md = pageMarkdown(), name = text($(".product-hero__title"));
-    var job = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(md).catch(function () { return copyNow(md) ? null : Promise.reject(); })
-      : (copyNow(md) ? Promise.resolve() : Promise.reject());
-    job.then(function () { done(true, "Copied the page text for " + name); }, function () { done(false, "Couldn't copy: the browser blocked the clipboard."); });
-  });
+  function copyAsync(str, html) {
+    if (html && navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) {
+      return navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([str], { type: "text/plain" }) })])
+        .catch(function () { return copyAsync(str); });
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(str).catch(function () { return copyNow(str) ? null : Promise.reject(); });
+    return copyNow(str) ? Promise.resolve() : Promise.reject();
+  }
+  var copyBox = $(".page-copy"), copyMain = $(".page-copy__main"), copyArrow = $(".page-copy__more"), copyList = $(".page-copy__menu");
+  var copyLabel = copyMain && $(".page-action__label", copyMain), copyTimer;
+  var CHATS = { claude: { name: "Claude", url: "https://claude.ai/new" }, chatgpt: { name: "ChatGPT", url: "https://chatgpt.com/" } };   // blank new chats: nothing goes in the address
+  function aiIntro(name) { return "I sell MLILY mattresses. Below is MLILY's product page for " + name + ". Answer my questions using only these facts, and tell me when something isn't covered.\n\n"; }
   function done(ok, msg) {
     copyMain.classList.toggle("is-copied", ok);
     if (copyLabel) copyLabel.textContent = ok ? "Copied" : "Copy page";
@@ -299,6 +387,37 @@
     clearTimeout(copyTimer);
     copyTimer = setTimeout(function () { copyMain.classList.remove("is-copied"); if (copyLabel) copyLabel.textContent = "Copy page"; say(""); }, 1800);
   }
+  // Nothing here talks to an AI or any other service. The chat options copy the page, then open a blank chat for the person to paste into from their own account.
+  function runCopy(kind) {
+    var name = text($(".product-hero__title")), chat = CHATS[kind];
+    if (kind === "markdown") {
+      var url = URL.createObjectURL(new Blob([pageMarkdown()], { type: "text/plain;charset=utf-8" })), tab = window.open(url, "_blank");
+      if (tab) tab.opener = null;
+      setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+      say(tab ? "Opened the page text for " + name + " in a new tab" : "The browser blocked the new tab");
+      return;
+    }
+    if (kind === "cursor" || chat) {
+      var ok = copyNow(aiIntro(name) + pageMarkdown(), copyArrow), app = chat ? chat.name : "Cursor";
+      done(ok, ok ? "Copied the page for " + name + ". Paste it into " + (chat ? "the new " + app + " chat." : "a Cursor chat.") : "Couldn't copy the page. Use Copy page text, then open " + app + ".");
+      if (ok && chat) window.open(chat.url, "_blank", "noopener");
+      if (ok && !chat) { var link = document.createElement("a"); link.href = "cursor://"; link.click(); }   // the page stays put if Cursor isn't installed
+      return;
+    }
+    var listing = kind === "listing" ? listingCopy() : null;
+    (listing ? copyAsync(listing.text, listing.html) : copyAsync(pageMarkdown())).then(function () {
+      done(true, listing ? "Copied the listing for " + name : "Copied the page text for " + name);
+    }, function () { done(false, "Couldn't copy: the browser blocked the clipboard."); });
+  }
+  if (copyMain) copyMain.addEventListener("click", function () { if (copyMenu) copyMenu.set(false); runCopy("page"); });
+  var copyMenu = copyBox && copyArrow && copyList ? makeMenu(copyBox, copyArrow, copyList, "[data-copy-page]", function () { return true; }) : null;
+  if (copyMenu) copyList.addEventListener("click", function (e) {
+    var item = e.target.closest("[data-copy-page]");
+    if (!item) return;
+    copyMenu.set(false);
+    if (e.detail === 0) copyArrow.focus();
+    runCopy(item.getAttribute("data-copy-page"));
+  });
 
   /* 5 Training: checklist and card ------------------------------------------------------------------------------------------------------ */
   var checks = $(".overview-checks"), checksList = checks && $(".overview-checks__list", checks), checksMore = $("[data-checks-more]");
@@ -388,6 +507,31 @@
     if (feelBtns.length < 2 || !altList) feelBtns.forEach(function (b) { b.style.display = feelBtns.length < 2 ? "none" : ""; });
     feelBtns.forEach(function (b, i) { b.addEventListener("click", function () { pick(i); }); });
     pick(0);
+  }
+
+  // Each row opens the layer drawer: the name becomes the button, and its ::after covers the row (pdp.css). The drawer loads the first time it's wanted.
+  var drawer = null, layerLists = $(".layers__lists");
+  function loadDrawer() {
+    if (!drawer) drawer = loadAssets("layer-drawer");
+    return drawer;
+  }
+  if (layerLists) {
+    $$(".layers__name", layerLists).forEach(function (h) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "layers__open"; b.setAttribute("aria-haspopup", "dialog");
+      while (h.firstChild) b.appendChild(h.firstChild);
+      h.appendChild(b);
+    });
+    ["pointerover", "focusin"].forEach(function (type) { layerLists.addEventListener(type, loadDrawer, { once: true }); });
+    layerLists.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest(".layers__open");
+      if (!b) return;
+      var list = b.closest(".w-dyn-list");
+      loadDrawer().then(function () { window.MLILY_LAYER_DRAWER.open(list, $$(".layers__open", list).indexOf(b)); }, function () {
+        drawer = null;
+        say("That couldn't be opened. Please try again.");
+      });
+    });
   }
 
   /* 8 Common questions -------------------------------------------------------------------------------------------------------------- */

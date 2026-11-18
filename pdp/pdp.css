@@ -78,6 +78,14 @@
 .overview-checks__item[hidden] { display: none; }
 .overview-video { cursor: pointer; }
 
+/* Layers: each row opens the layer drawer. The name is the button, and it covers the row */
+.layers__item { position: relative; }
+.layers__open { margin: 0; padding: 0; border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-align: start; cursor: pointer; }
+.layers__open::after { content: ""; position: absolute; inset: 0; }
+.layers__item:hover .layers__open { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.layers__open:focus-visible { outline: none; }
+.layers__item:has(.layers__open:focus-visible) { outline: 2px solid #a2c2fa; outline-offset: 2px; }
+
 /* Layers: the feel toggle (Webflow styles the first one as chosen; once pdp.js runs, these follow the click) */
 .layers__feel.is-active { color: #fff; border-color: #fff; }
 .layers__feel.is-inactive { color: #c4c4c5; border-color: transparent; }
@@ -104,13 +112,19 @@
 .page-more__toggle[aria-expanded="true"] .page-more__chevron { transform: rotate(180deg); }
 .page-more__menu .page-action:focus-visible { outline: 2px solid #a2c2fa; outline-offset: -2px; }
 
-/* Copy page: a short "Copied" state */
+/* Copy page: its menu (Webflow styles it; pdp.js opens it) and a short "Copied" state */
+.page-copy.is-open .page-copy__menu { display: block; }
+.page-copy__more svg { transition: transform .2s cubic-bezier(.215, .61, .355, 1); }
+.page-copy__more[aria-expanded="true"] svg { transform: rotate(180deg); }
+.page-copy__item:hover, .page-copy__item:focus { background-color: rgba(255, 255, 255, .06); outline: none; }
+.page-copy__item:focus-visible { outline: 2px solid #a2c2fa; outline-offset: -2px; }
+.page-copy__item:hover .page-copy__icon, .page-copy__item:focus .page-copy__icon { color: #fff; }
 .page-copy__main.is-copied { border-color: rgba(255, 255, 255, .4); }
 
 /* Screen-reader-only status line pdp.js adds */
 .pdp-status { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 @media (prefers-reduced-motion: reduce) {
-  .photo-strip__img, .photo-strip__nav, .page-more__chevron { transition: none; }
+  .photo-strip__img, .photo-strip__nav, .page-more__chevron, .page-copy__more svg { transition: none; }
   .photo-strip__img:hover, .photo-strip.is-pressed .photo-strip__img { transform: none; }
 }
