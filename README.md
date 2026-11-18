@@ -66,11 +66,11 @@ Load order on the template page: `pdp/pdp.css`, `pdp/pdp-laptop.css`, then `shel
 (`pdp-laptop.css` is generated: after changing tablet styles in Webflow and publishing, run `python3 tools/build-laptop-css.py`)
 
 Find Specs and Compare on a mattress page: `pdp.js` loads `pdp/dialogs.css` + `pdp/dialogs.js` from its own folder the first time either is wanted. Find Specs there is a
-quick lookup for that mattress and loads `find-specs/mattress/<slug>.js`. Compare has no data file: it reads the mattress pages themselves.
+quick lookup for that mattress and reads the page's SKU list from the CMS. Compare has no data file: it reads the mattress pages themselves.
 
 Find Specs page (`/find-specs`): built in Webflow on `specs-*` classes. The header, tabs, filters, column headers, rows, details panel and footer are native elements. Each tab is a `[data-specs-panel]` with its own filters, `.specs-grid` table and SKU Collection List, and all five stay visible on the Designer canvas. `find-specs/find-specs.js` adds behaviour only (search, filters, sorting, grouping, columns, selection, details, copy and CSV) and `find-specs/find-specs.css` holds the states it switches, including showing one tab at a time. Load `shell/shell.css` + `find-specs/find-specs.css` in the head and `shell/shell.js` + `find-specs/find-specs.js` in the footer (same commit hash). Filters are kept in the address (`?type=&product=&feel=&build=&size=&q=`). Webflow classes are site-wide, so these names must stay different from the mattress modal's `specs-table`, `specs-row`, `specs-copy`, `specs-more` and `specs-toggle`.
 
-The Find Specs modal on mattress pages still reads `find-specs/mattress/<slug>.js`, built from `find-specs/specs-data.js` by `python3 tools/build-specs-data.py`, until it moves to the CMS.
+The Find Specs modal and Copy page on mattress pages read the template's hidden SKU list (`[data-pdp-skus]`, one `[data-product]` row per SKU with `[data-sku-field]` values). In Webflow that Collection List is filtered by Category = Mattress and Mattress = Current Mattress.
 (same commit hash). `pdp.js` asks the shell for its jump offset (`window.MLILY_SHELL.jumpOffset()`), 16 px without it.
 
 Hooks: `sh-top`, `data-sh-menu`, `sh-home`, `page-crumbs__link`, `data-sh-search-box` + `sh-search__placeholder`,

@@ -235,15 +235,25 @@
     });
     return out.replace(/[ \t]+/g, " ").trim();
   }
-  // The mattress's sizes and specs (a small file, shared with the Find Specs modal): loaded after the page so every copy option can use them at once
+  // The mattress's sizes and specs come from the page's SKU list in the CMS; Copy page and the Find Specs modal share them
   var slug = document.documentElement.getAttribute("data-wf-item-slug") || location.pathname.split("/").pop();
-  function loadSpecs() {
-    if (window.MLILY_MATTRESS_SPECS) return;
-    var js = document.createElement("script");
-    js.src = HERE + "../find-specs/mattress/" + slug + ".js";
-    document.head.appendChild(js);
+  var SIZE_ORDER = ["Twin", "Twin XL", "Full", "Queen", "King", "Cal King", "Split Head King", "Split King", "Split Cal King"];
+  function readSpecs() {
+    function raw(row, key) { var el = $('[data-sku-field="' + key + '"]', row); return el && !el.classList.contains("w-dyn-bind-empty") ? el.textContent : ""; }
+    function field(row, key) { return raw(row, key).replace(/\s+/g, " ").trim(); }
+    function number(v) { return v === "" || isNaN(v) ? null : Number(v); }
+    function triple(v) { var a = v ? v.split(/\s*x\s*/i).map(Number) : []; return a.length === 3 && a.every(isFinite) ? a : null; }
+    function sizeAt(r) { var i = SIZE_ORDER.indexOf(r.size); return i < 0 ? 99 : i; }
+    var rows = $$("[data-pdp-skus] [data-product]").filter(function (row) { return row.getAttribute("data-product") === slug; }).map(function (row, i) {
+      return {
+        at: i, feel: field(row, "feel"), size: field(row, "size"), sku: field(row, "sku"), upc: field(row, "upc"), part: field(row, "part"),
+        msrp: number(field(row, "msrp")), dims: triple(field(row, "dims")), box: triple(field(row, "box")), weight: number(field(row, "weight")),
+        notes: raw(row, "notes").split(/\n+/).map(function (n) { return n.trim(); }).filter(Boolean)
+      };
+    }).sort(function (a, b) { return sizeAt(a) - sizeAt(b) || a.at - b.at; });
+    return rows.length ? { name: text($(".product-hero__title")), slug: slug, source: "MLILY 2026 Ecommerce Guide (Universal), Oct 26", msrpSource: "MLILY Price Book 2026", rows: rows } : null;
   }
-  if (document.readyState === "complete") loadSpecs(); else window.addEventListener("load", loadSpecs);
+  window.MLILY_MATTRESS_SPECS = readSpecs();
   function trio(a) { return a && a.length === 3 ? a.join(" × ") + " in" : ""; }
   function layerStacks() {
     var feelNames = $$(".layers__feel").map(text);

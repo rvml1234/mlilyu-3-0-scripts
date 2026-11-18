@@ -655,7 +655,7 @@
   [menuBtn, acctBtn].forEach(function (b) { if (b) b.addEventListener("click", hideTip); });
 
   syncTheme();
-  // a page without the Mattress index can hand the top bar's search its mattresses (find-specs/specs-table.js does)
+  // a page without the Mattress index can hand the top bar's search its mattresses (find-specs/find-specs.js does)
   function addProducts(list) {
     list.slice().reverse().forEach(function (p) {
       INDEX.unshift({ kind: "product", label: p.name, sub: p.sub || "Mattress", href: productHref(p.slug), icon: "products", words: ((p.sub || "") + " mattress").toLowerCase() });

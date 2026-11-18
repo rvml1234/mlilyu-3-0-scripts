@@ -1,8 +1,7 @@
 /* MLILY U 3.0, product page dialogs (Find Specs for this mattress, Compare). Loaded by pdp.js the first time one opens.
-   Find Specs loads find-specs/mattress/<slug>.js; the whole catalog lives on the Find Specs page. Compare reads the mattress pages. */
+   Find Specs reads this page's SKU list (the CMS, through pdp.js); the whole catalog lives on the Find Specs page. Compare reads the mattress pages. */
 (function () {
   "use strict";
-  var BASE = document.currentScript.src.replace(/[^/]*$/, "");
   var compareOpen = null, specsOpen = null;
   function pageSlug() { return document.documentElement.getAttribute("data-wf-item-slug") || location.pathname.split("/").pop(); }
   function pageName() { var t = document.querySelector(".product-hero__title"); return t ? t.textContent.replace(/\s+/g, " ").trim() : ""; }
@@ -18,7 +17,7 @@
     var COPY = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="12" height="12"/><path d="M15.5 8.5v-5h-12v12h5"/></svg>';
     var DONE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
     var CHEV = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>';
-    var data = null, feel = "", opener = null, loading = null;
+    var data = null, feel = "", opener = null;
     function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
     function money(n) { return n == null ? "" : "$" + Number(n).toLocaleString("en-US"); }
     function trio(a) { return a && a.length === 3 ? a.join(" × ") : ""; }
@@ -60,16 +59,8 @@
       })).map(function (line) { return line.join("\t"); }).join("\n");
     }
     function load() {
-      if (!data && window.MLILY_MATTRESS_SPECS) data = window.MLILY_MATTRESS_SPECS;   // pdp.js loads them for Copy page
-      if (data) return Promise.resolve();
-      if (!loading) loading = new Promise(function (resolve, reject) {
-        var s = document.createElement("script");
-        s.src = BASE + "../find-specs/mattress/" + pageSlug() + ".js";
-        s.onload = function () { data = window.MLILY_MATTRESS_SPECS; resolve(); };
-        s.onerror = function () { loading = null; s.remove(); reject(); };
-        document.head.appendChild(s);
-      });
-      return loading;
+      data = window.MLILY_MATTRESS_SPECS || null;
+      return data ? Promise.resolve() : Promise.reject(new Error("This page has no SKUs"));
     }
     box.addEventListener("click", function (e) {
       var t = e.target, b;
