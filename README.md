@@ -26,7 +26,7 @@ Pages always point at a full commit hash. Don't request a commit's files on jsDe
 (mlilyu-3-0-shell). The page reads correctly without them; they add:
 
 - ® marks at 60 %, raised (`.reg-mark`)
-- Actions row: Photos and Layers scroll to their section, keys P and L. Find Specs, Compare and the Copy page menu wait for their dialogs.
+- Actions row: Find Specs and Compare open their dialogs, Photos and Layers scroll to their section (keys S, C, P, L). At 1100 px and under, Compare, Photos and Layers sit in the More menu (`page-more`, `data-more-toggle`, `page-more__menu`, `page-more__item`). The Copy page menu is not built yet.
 - Copy page: copies the page as Markdown, built from what the page shows
 - Training: checklist collapses to two rows with a fade and "Show more"; the card fires a `video-open` event (no player yet)
 - Photos: Swiper 11 (endless, free drag with momentum, arrows, keyboard) on the Webflow list itself

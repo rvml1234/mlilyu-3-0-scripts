@@ -126,16 +126,74 @@
     var top = node.getBoundingClientRect().top + window.scrollY - off;
     window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion.matches ? "auto" : "smooth" });
   }
-  function act(action, trigger) {
-    if (TARGET[action]) jump(TARGET[action]);
-    else openDialog(action, trigger);
+  // More (1100 px and under): Compare, Photos and Layers sit in this menu. Above that the menu's wrappers are display: contents and they are plain buttons.
+  var more = $(".page-more"), moreToggle = more && $("[data-more-toggle]", more), moreMenu = more && $(".page-more__menu", more);
+  var compact = window.matchMedia("(max-width: 1100px)");
+  var inMenu = function (el) { return !!moreMenu && compact.matches && moreMenu.contains(el); };
+  var moreItems = function () { return $$("[data-action]", moreMenu).filter(function (b) { return b.style.display !== "none"; }); };
+  function setMore(open) {
+    if (!more) return;
+    more.classList.toggle("is-open", open);
+    moreToggle.setAttribute("aria-expanded", open ? "true" : "false");
   }
+  function moveInMore(step, from) {
+    var list = moreItems(), i = list.indexOf(from);
+    list[step === "first" ? 0 : step === "last" ? list.length - 1 : (i + step + list.length) % list.length].focus();
+  }
+  function act(action, trigger) {
+    var back = inMenu(trigger) ? moreToggle : trigger;   // a closed menu's item can't take the focus back
+    setMore(false);
+    if (TARGET[action]) jump(TARGET[action]);
+    else openDialog(action, back);
+  }
+  var ACTIONS = { specs: 1, compare: 1, photos: 1, layers: 1 };   // the Copy page pair has its own handlers (section 4)
   $$("[data-action]").forEach(function (b) {
     var a = b.getAttribute("data-action");
+    if (!ACTIONS[a]) return;
     if (TARGET[a] && !shown($(TARGET[a]))) b.style.display = "none";   // Photos and Layers only where the page has them
     if (!TARGET[a]) ["pointerenter", "focus"].forEach(function (type) { b.addEventListener(type, loadDialogs, { once: true }); });
-    b.addEventListener("click", function () { act(a, b); });
+    b.addEventListener("click", function (e) {
+      var fromKeys = inMenu(b) && e.detail === 0;
+      act(a, b);
+      if (fromKeys && TARGET[a]) moreToggle.focus({ preventScroll: true });
+    });
   });
+  if (more && moreToggle && moreMenu) {
+    var syncMoreRoles = function () {
+      setMore(false);
+      if (compact.matches) { moreMenu.setAttribute("role", "menu"); moreMenu.setAttribute("aria-label", "More actions"); }
+      else { moreMenu.removeAttribute("role"); moreMenu.removeAttribute("aria-label"); }
+      $$("[data-action]", moreMenu).forEach(function (b) {
+        b.setAttribute("role", compact.matches ? "menuitem" : "button");
+        if (compact.matches) b.setAttribute("tabindex", "-1"); else b.removeAttribute("tabindex");
+      });
+    };
+    syncMoreRoles();
+    compact.addEventListener("change", syncMoreRoles);
+    moreToggle.addEventListener("click", function (e) {
+      var open = !more.classList.contains("is-open");
+      setMore(open);
+      if (open && e.detail === 0) moveInMore("first");   // opened from the keyboard
+    });
+    moreToggle.addEventListener("keydown", function (e) {
+      if (e.key === " ") { e.preventDefault(); moreToggle.click(); }
+      else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        setMore(true);
+        moveInMore(e.key === "ArrowDown" ? "first" : "last");
+      }
+      else if (e.key === "Escape") setMore(false);
+    });
+    moreMenu.addEventListener("keydown", function (e) {
+      if (!compact.matches) return;
+      var b = e.target.closest("[data-action]"), step = { ArrowDown: 1, ArrowUp: -1, Home: "first", End: "last" }[e.key];
+      if (step) { e.preventDefault(); moveInMore(step, b); }
+      else if (e.key === " ") { e.preventDefault(); b.click(); }
+      else if (e.key === "Escape") { e.preventDefault(); setMore(false); moreToggle.focus(); }
+      else if (e.key === "Tab") setMore(false);
+    });
+    document.addEventListener("pointerdown", function (e) { if (!more.contains(e.target)) setMore(false); });
+  }
   var KEYS = { s: "specs", c: "compare", p: "photos", l: "layers" };
   document.addEventListener("keydown", function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
@@ -145,7 +203,7 @@
     var action = KEYS[(e.key || "").toLowerCase()];
     if (!action) return;
     var b = $('[data-action="' + action + '"]');
-    if (!shown(b)) return;
+    if (!b || b.style.display === "none") return;   // hidden only because the More menu is closed still counts as available
     e.preventDefault();
     act(action, b);
   });

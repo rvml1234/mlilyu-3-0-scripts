@@ -23,6 +23,11 @@
   .variant-card__picture { width:80px;height:80px; }
   .photo-strip, .layers, .feels, .pairs, .faq { padding-top:40px; }
   .side-index { display:none; }
+  .page-more { display:block;position:relative; }
+  .page-more__toggle { display:flex; }
+  .page-more__menu { z-index:40;border-top-style:solid;border-top-width:1px;border-top-color:var(--color--line-strong-dark);border-right-style:solid;border-right-width:1px;border-right-color:var(--color--line-strong-dark);border-bottom-style:solid;border-bottom-width:1px;border-bottom-color:var(--color--line-strong-dark);border-left-style:solid;border-left-width:1px;border-left-color:var(--color--line-strong-dark);background-color:var(--color--frame-dark);border-radius:8px;flex-direction:column;width:200px;padding:6px;display:none;position:absolute;top:calc(100% + 6px);left:0; }
+  .page-more__item { border-width:0;gap:10px;width:100%;height:44px;padding-left:10px;padding-right:10px; }
+  .page-more__item:hover { background-color:#ffffff1a; }
 }
 
 /* The prototype's wider margins from 1024 px */
