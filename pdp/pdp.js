@@ -4,7 +4,7 @@
    page that already reads correctly without JavaScript.
 
    1  ® marks: wrapped in .reg-mark (60 %, raised)
-   2  "#" links that are buttons: no jump to the top
+   2  "#" links that are buttons: no jump to the top; 2b empty facts and sections
    3  Actions row: Photos / Layers scroll to their section; keys P and L (S and C wait for the Find Specs and Compare dialogs)
    4  Copy page: copies the page as Markdown (the arrow's menu is not built yet)
    5  Training: the checklist collapses to two rows with a fade and "Show more"; the card fires a `video-open` event (no player yet)
@@ -70,7 +70,14 @@
     b.click();
   });
 
-  /* 2b Sections a mattress doesn't have (The Dream: one feel, so no Firmness cards and no Compare the feels, as in the prototype) ---- */
+  /* 2b What a mattress doesn't have -------------------------------------------------------------------------------------------------- */
+  // An empty CMS field can name its replacement in Webflow (At a glance, Made in: data-empty="Ask your rep")
+  $$("[data-empty]").forEach(function (el) {
+    if (filled(el)) return;
+    el.classList.remove("w-dyn-bind-empty");
+    el.textContent = el.getAttribute("data-empty");
+  });
+  // No feels: no Firmness section. One feel (The Dream): nothing to compare.
   var countItems = function (el) { return el ? $$(".w-dyn-item", el).length : 0; };
   var firmness = $(".variant-group");
   if (firmness && !countItems(firmness)) firmness.style.display = "none";
