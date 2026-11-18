@@ -68,10 +68,9 @@ Load order on the template page: `pdp/pdp.css`, `pdp/pdp-laptop.css`, then `shel
 Find Specs and Compare on a mattress page: `pdp.js` loads `pdp/dialogs.css` + `pdp/dialogs.js` from its own folder the first time either is wanted. Find Specs there is a
 quick lookup for that mattress and loads `find-specs/mattress/<slug>.js`. Compare has no data file: it reads the mattress pages themselves.
 
-Find Specs page (`/find-specs`): the Shell top bar component, a banner slot, and `[data-find-specs]`, which `find-specs/specs-table.js` fills. Load `shell/shell.css` +
-`find-specs/specs-table.css` in the head and `shell/shell.js` + `find-specs/specs-table.js` in the footer (same commit hash). Filters are kept in the address
-(`?type=&product=&feel=&build=&size=&q=`). `find-specs/specs-data.js` is the prototype's `data/specs.js` (2026 Ecommerce Guide + Price Book MSRP), public like everything in this
-repository. After changing it, run `python3 tools/build-specs-data.py` to rebuild the per-mattress files.
+Find Specs page (`/find-specs`): the Shell top bar component, a banner slot, and native Collection Lists in `[data-find-specs]`: one per tab (`[data-spec-list]`, SKUs filtered by Category, sorted by Table order) plus `[data-spec-sheets]` (the shared Spec Sheets). `find-specs/specs-table.js` reads those rows and arranges them in the table with search, filters, sorting, columns, details, copy and CSV. Each list holds up to 100 rows. Load `shell/shell.css` + `find-specs/specs-table.css` in the head and `shell/shell.js` + `find-specs/specs-table.js` in the footer (same commit hash). Filters are kept in the address (`?type=&product=&feel=&build=&size=&q=`).
+
+The Find Specs modal on mattress pages still reads `find-specs/mattress/<slug>.js`, built from `find-specs/specs-data.js` by `python3 tools/build-specs-data.py`, until it moves to the CMS.
 (same commit hash). `pdp.js` asks the shell for its jump offset (`window.MLILY_SHELL.jumpOffset()`), 16 px without it.
 
 Hooks: `sh-top`, `data-sh-menu`, `sh-home`, `page-crumbs__link`, `data-sh-search-box` + `sh-search__placeholder`,

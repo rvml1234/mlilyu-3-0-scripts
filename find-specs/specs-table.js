@@ -1,17 +1,17 @@
-/* MLILY U 3.0, the Find Specs page (/find-specs): every SKU, with tabs, filters, columns, details, copy and CSV.
-   The prototype's js/spec-table.js, drawn into the page's [data-find-specs] element. Its filters live in the address, so a view can be shared.
-   Data: specs-data.js in this folder (2026 Ecommerce Guide + Price Book MSRP). */
+/* MLILY U 3.0, the Find Specs page (/find-specs): tabs, search, filters, sorting, columns, details, copy and CSV around the page's native rows.
+   The rows are Webflow Collection Lists bound to the SKUs and Spec Sheets collections ([data-spec-list], [data-spec-sheets]); this script reads them and
+   arranges them in the table. Filters live in the address, so a view can be shared. */
 (function () {
   "use strict";
-  var BASE = document.currentScript.src.replace(/[^/]*$/, "");
   var SLUGS = { powercool: "powercool-pro" };
   function slugOf(id) { return SLUGS[id] || id; }
   function idOf(slug) { for (var id in SLUGS) if (SLUGS[id] === slug) return id; return slug; }
-  var MARKUP = "<div class=\"mdl spec-modal spec-page\" data-spec-modal><div class=\"spec-modal__frame\"><header class=\"spec-modal__head\"><div class=\"spec-modal__heading\"><h2 class=\"spec-modal__title\" id=\"spec-modal-title\">All product specs</h2></div><div class=\"spec-modal__actions\"><button type=\"button\" class=\"page-action spec-modal__action\" data-spec-export=\"copy\"><svg class=\"page-action__icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"8.5\" y=\"8.5\" width=\"12\" height=\"12\"/><path d=\"M15.5 4.5h-11v11\"/></svg><span class=\"page-action__label\" data-spec-export-label=\"copy\">Copy table</span></button><button type=\"button\" class=\"page-action spec-modal__action\" data-spec-export=\"csv\"><svg class=\"page-action__icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14\"/></svg><span class=\"page-action__label\" data-spec-export-label=\"csv\">Download CSV</span></button></div></header><div class=\"spec-tabs\" role=\"tablist\" aria-label=\"Product type\" data-spec-tabs></div><div class=\"spec-filters\" data-spec-filters></div><div class=\"spec-modal__body\"><div class=\"spec-wrap\" role=\"region\" aria-labelledby=\"spec-modal-title\" tabindex=\"0\" data-spec-wrap><table class=\"spec-table\" data-spec-table></table><div class=\"spec-empty\" data-spec-empty hidden><p class=\"spec-empty__title\">No SKUs match</p><p class=\"spec-empty__text\">Try another size or feel, or clear the filters.</p><button type=\"button\" class=\"page-action\" data-spec-clear>Clear filters</button></div></div><aside class=\"spec-drawer\" aria-labelledby=\"spec-drawer-title\" data-spec-drawer hidden></aside></div><footer class=\"spec-modal__foot\"><div class=\"spec-select-bar\" data-spec-selbar hidden><span class=\"spec-select-bar__count\" data-spec-selcount></span><button type=\"button\" class=\"spec-link\" data-spec-export=\"copy-selected\">Copy rows</button><button type=\"button\" class=\"spec-link\" data-spec-export=\"csv-selected\">Download CSV</button><button type=\"button\" class=\"spec-link\" data-spec-select-clear>Clear selection</button></div><p class=\"spec-modal__source\" data-spec-source></p></footer><p class=\"visually-hidden\" role=\"status\" aria-live=\"polite\" data-spec-status></p></div></div>";
+  var MARKUP = "<div class=\"mdl spec-modal spec-page\" data-spec-modal><div class=\"spec-modal__frame\"><header class=\"spec-modal__head\"><div class=\"spec-modal__heading\"><h2 class=\"spec-modal__title\" id=\"spec-modal-title\">All product specs</h2></div><div class=\"spec-modal__actions\"><button type=\"button\" class=\"page-action spec-modal__action\" data-spec-export=\"copy\"><svg class=\"page-action__icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"8.5\" y=\"8.5\" width=\"12\" height=\"12\"/><path d=\"M15.5 4.5h-11v11\"/></svg><span class=\"page-action__label\" data-spec-export-label=\"copy\">Copy table</span></button><button type=\"button\" class=\"page-action spec-modal__action\" data-spec-export=\"csv\"><svg class=\"page-action__icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14\"/></svg><span class=\"page-action__label\" data-spec-export-label=\"csv\">Download CSV</span></button></div></header><div class=\"spec-tabs\" role=\"tablist\" aria-label=\"Product type\" data-spec-tabs></div><div class=\"spec-filters\" data-spec-filters></div><div class=\"spec-modal__body\"><div class=\"spec-wrap\" role=\"region\" aria-labelledby=\"spec-modal-title\" tabindex=\"0\" data-spec-wrap><div class=\"spec-table\" role=\"table\" data-spec-table></div><div class=\"spec-empty\" data-spec-empty hidden><p class=\"spec-empty__title\">No SKUs match</p><p class=\"spec-empty__text\">Try another size or feel, or clear the filters.</p><button type=\"button\" class=\"page-action\" data-spec-clear>Clear filters</button></div></div><aside class=\"spec-drawer\" aria-labelledby=\"spec-drawer-title\" data-spec-drawer hidden></aside></div><footer class=\"spec-modal__foot\"><div class=\"spec-select-bar\" data-spec-selbar hidden><span class=\"spec-select-bar__count\" data-spec-selcount></span><button type=\"button\" class=\"spec-link\" data-spec-export=\"copy-selected\">Copy rows</button><button type=\"button\" class=\"spec-link\" data-spec-export=\"csv-selected\">Download CSV</button><button type=\"button\" class=\"spec-link\" data-spec-select-clear>Clear selection</button></div><p class=\"spec-modal__source\" data-spec-source></p></footer><p class=\"visually-hidden\" role=\"status\" aria-live=\"polite\" data-spec-status></p></div></div>";
 
   var mount = document.querySelector("[data-find-specs]");
   if (!mount) return;
-  mount.innerHTML = MARKUP;
+  var source = mount.querySelector("[data-spec-lists]");
+  mount.insertAdjacentHTML("afterbegin", MARKUP);
   var dlg = mount.firstElementChild;
   function q(sel) { return dlg.querySelector(sel); }
   var tabsEl = q("[data-spec-tabs]"), filtersEl = q("[data-spec-filters]"), tableEl = q("[data-spec-table]"), wrapEl = q("[data-spec-wrap]");
@@ -189,52 +189,91 @@
 
   /* ------------------------------------------------------------------ table */
   function groupRow(name, rows, span) {
-    var r = rows[0], img = r.img || ((DATA.fallbackImg || {})[r.product] || ""), meta = [];
+    var r = rows[0], meta = [], row = document.createElement("div");
     if (isMattress() && r.dims && r.dims[2]) meta.push(r.dims[2] + "″" + (r.construction ? " " + r.construction : ""));
     meta.push(rows.length + (rows.length === 1 ? " SKU" : " SKUs"));
-    return '<tr class="spec-group"><th class="spec-group__cell" colspan="' + span + '" scope="rowgroup"><span class="spec-group__in">' +
-      (img ? '<img class="spec-group__img" src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : '<span class="spec-group__img" aria-hidden="true"></span>') +
-      '<span class="spec-group__name">' + esc(name) + "</span>" + '<span class="spec-group__meta">' + esc(meta.join(" · ")) + "</span></span></th></tr>";
+    row.className = "spec-group"; row.setAttribute("role", "row");
+    // table rows can't span columns, so the title overflows from the first cell across empty ones
+    row.innerHTML = '<div class="spec-group__cell" role="rowheader"><span class="spec-group__in">' +
+      (r.img ? '<img class="spec-group__img" src="' + esc(r.img) + '" alt="" loading="lazy" decoding="async">' : '<span class="spec-group__img" aria-hidden="true"></span>') +
+      '<span class="spec-group__name">' + esc(name) + "</span>" + '<span class="spec-group__meta">' + esc(meta.join(" · ")) + "</span></span></div>" +
+      new Array(span).join('<div class="spec-group__rest" aria-hidden="true"></div>');
+    return row;
   }
-  function rowHtml(r, cols, grouped) {
-    var sel = !!state.selected[r.sku], m = isMattress();
-    var h = '<tr class="spec-row' + (sel ? " is-selected" : "") + (state.drawer === r.sku ? " is-open" : "") + '" data-spec-row="' + esc(r.sku) + '">' +
-      '<td class="spec-td spec-td--check"><input type="checkbox" class="spec-check" data-spec-check="' + esc(r.sku) + '"' + (sel ? " checked" : "") + ' aria-label="Select ' + esc(r.sku) + '"></td>';
-    cols.forEach(function (c) {
-      if (c.key === "product") {
-        // two lines at most: the name, then the feel with the "Check" tag (ungrouped); grouped rows show the feel with the tag on one line
-        var main = m && grouped ? (r.feel || "One feel") : r.name, sub = m && !grouped ? (r.feel || "One feel") : "";
-        var tag = r.notes && r.notes.length ? '<span class="spec-tag spec-tag--note" title="' + esc(r.notes.join(" ")) + '">Check</span>' : "";
-        h += '<th class="spec-td spec-td--product" scope="row"><span class="spec-product"><span class="spec-product__line"><span class="spec-product__name">' + esc(main) + "</span>" + (sub ? "" : tag) + "</span>" +
-          (sub ? '<span class="spec-product__line spec-product__line--sub"><span class="spec-product__sub">' + esc(sub) + "</span>" + tag + "</span>" : "") + "</span></th>";
-        return;
-      }
+  function makeCell(cls, role, html) {
+    var el = document.createElement("div");
+    el.className = "spec-td " + cls;
+    if (role) el.setAttribute("role", role);
+    el.innerHTML = html;
+    return el;
+  }
+  // Once per row: the native cells become the table's cells; the checkbox, product and details cells are added around them
+  function prepareRow(r) {
+    var el = r._el;
+    r._cells = {};
+    [].slice.call(el.querySelectorAll("[data-col]")).forEach(function (td) {
+      var key = td.getAttribute("data-col"), c = C[key];
+      td.remove();
+      if (!c || key === "product") return;
       var v = show(c, r);
-      h += '<td class="spec-td' + (c.num ? " is-num" : "") + (c.mono ? " is-mono" : "") + (c.key ? " is-key" : "") + (c.strong ? " is-strong" : "") + '" data-label="' + esc(c.label + (c.unit ? " (" + c.unit + ")" : "")) + '">' +
-        (v ? (c.copy ? '<span class="spec-copyable"><span class="spec-val">' + esc(v) + '</span><button type="button" class="spec-copy" data-spec-copy="' + esc(v) + '" data-spec-copy-what="' + esc(c.label) + '" aria-label="Copy ' + esc(c.label) + " " + esc(v) + '">' + ICON.copy + "</button></span>" : esc(v))
-          : '<span class="spec-none" title="Not in the ecommerce guide">—</span><span class="visually-hidden">Not in the guide</span>') + "</td>";
+      r._cells[key] = td;
+      td.classList.remove("w-dyn-bind-empty");
+      if (c.num) td.classList.add("is-num");
+      if (c.mono) td.classList.add("is-mono");
+      td.classList.add("is-key");
+      if (c.strong) td.classList.add("is-strong");
+      td.setAttribute("role", "cell");
+      td.setAttribute("data-label", c.label + (c.unit ? " (" + c.unit + ")" : ""));
+      td.innerHTML = v ? (c.copy ? '<span class="spec-copyable"><span class="spec-val">' + esc(v) + '</span><button type="button" class="spec-copy" data-spec-copy="' + esc(v) + '" data-spec-copy-what="' + esc(c.label) + '" aria-label="Copy ' + esc(c.label) + " " + esc(v) + '">' + ICON.copy + "</button></span>" : esc(v))
+        : '<span class="spec-none" title="Not in the ecommerce guide">—</span><span class="visually-hidden">Not in the guide</span>';
     });
-    return h + '<td class="spec-td spec-td--fill" aria-hidden="true"></td><td class="spec-td spec-td--more"><button type="button" class="spec-more" data-spec-open="' + esc(r.sku) + '" aria-label="Details for ' + esc(r.name + " " + (r.feel || "") + " " + (r.size || "")) + '">' + ICON.more + "</button></td></tr>";
+    el.setAttribute("role", "row");
+    el.setAttribute("data-spec-row", r.sku);
+    r._check = makeCell("spec-td--check", "cell", '<input type="checkbox" class="spec-check" data-spec-check="' + esc(r.sku) + '" aria-label="Select ' + esc(r.sku) + '">');
+    r._product = makeCell("spec-td--product", "rowheader", "");
+    r._fill = makeCell("spec-td--fill", "", ""); r._fill.setAttribute("aria-hidden", "true");
+    r._more = makeCell("spec-td--more", "cell", '<button type="button" class="spec-more" data-spec-open="' + esc(r.sku) + '" aria-label="Details for ' + esc(r.name + " " + (r.feel || "") + " " + (r.size || "")) + '">' + ICON.more + "</button>");
+  }
+  function placeRow(r, cols, grouped) {
+    var el = r._el, sel = !!state.selected[r.sku], m = isMattress();
+    el.className = "spec-row" + (sel ? " is-selected" : "") + (state.drawer === r.sku ? " is-open" : "");
+    r._check.firstChild.checked = sel;
+    el.textContent = "";
+    el.appendChild(r._check);
+    cols.forEach(function (c) {
+      if (c.key !== "product") { if (r._cells[c.key]) el.appendChild(r._cells[c.key]); return; }
+      // two lines at most: the name, then the feel with the "Check" tag (ungrouped); grouped rows show the feel with the tag on one line
+      var main = m && grouped ? (r.feel || "One feel") : r.name, sub = m && !grouped ? (r.feel || "One feel") : "";
+      var tag = r.notes && r.notes.length ? '<span class="spec-tag spec-tag--note" title="' + esc(r.notes.join(" ")) + '">Check</span>' : "";
+      r._product.innerHTML = '<span class="spec-product"><span class="spec-product__line"><span class="spec-product__name">' + esc(main) + "</span>" + (sub ? "" : tag) + "</span>" +
+        (sub ? '<span class="spec-product__line spec-product__line--sub"><span class="spec-product__sub">' + esc(sub) + "</span>" + tag + "</span>" : "") + "</span>";
+      el.appendChild(r._product);
+    });
+    el.appendChild(r._fill);
+    el.appendChild(r._more);
+    return el;
   }
   function renderTable() {
-    var c = cat(), cols = visibleCols(), rows = filtered(), body = "";
+    var c = cat(), cols = visibleCols(), rows = filtered(), body = document.createDocumentFragment();
     var all = rows.length && rows.every(function (r) { return state.selected[r.sku]; }), some = rows.some(function (r) { return state.selected[r.sku]; });
-    var head = '<caption class="visually-hidden">' + esc(c.label) + " specs, " + rows.length + " rows</caption><thead><tr>" +
-      '<th class="spec-th spec-th--check" scope="col"><input type="checkbox" class="spec-check" data-spec-all aria-label="Select all ' + rows.length + ' rows shown"' + (all ? " checked" : "") + "></th>" +
+    tableEl.setAttribute("aria-label", c.label + " specs, " + rows.length + " rows");
+    var head = '<div class="spec-thead" role="rowgroup"><div class="spec-tr" role="row">' +
+      '<div class="spec-th spec-th--check" role="columnheader"><input type="checkbox" class="spec-check" data-spec-all aria-label="Select all ' + rows.length + ' rows shown"' + (all ? " checked" : "") + "></div>" +
       cols.map(function (cc) {
         var dir = state.sort && state.sort.key === cc.key ? state.sort.dir : 0;
         var label = cc.key === "product" ? (isMattress() ? (state.group ? "Feel" : "Mattress") : "Product") : cc.label;
-        return '<th class="spec-th' + (cc.key === "product" ? " spec-th--product" : "") + (cc.num ? " is-num" : "") + '" scope="col" aria-sort="' + (dir > 0 ? "ascending" : dir < 0 ? "descending" : "none") + '">' +
+        return '<div class="spec-th' + (cc.key === "product" ? " spec-th--product" : "") + (cc.num ? " is-num" : "") + '" role="columnheader" aria-sort="' + (dir > 0 ? "ascending" : dir < 0 ? "descending" : "none") + '">' +
           '<button type="button" class="spec-sort' + (dir ? " is-sorted" : "") + '" data-spec-sort="' + cc.key + '"><span class="spec-sort__text"><span' + (cc.wrapLabel ? ' class="spec-th__label--wrap"' : "") + ">" + esc(label) + "</span>" +
-          (cc.unit ? '<span class="spec-th__unit">' + esc(cc.unit) + "</span>" : "") + "</span>" + sortIcon(dir) + "</button></th>";
-      }).join("") + '<th class="spec-th spec-th--fill" aria-hidden="true"></th><th class="spec-th spec-th--more" scope="col"><span class="visually-hidden">Details</span></th></tr></thead>';
+          (cc.unit ? '<span class="spec-th__unit">' + esc(cc.unit) + "</span>" : "") + "</span>" + sortIcon(dir) + "</button></div>";
+      }).join("") + '<div class="spec-th spec-th--fill" aria-hidden="true"></div><div class="spec-th spec-th--more" role="columnheader"><span class="visually-hidden">Details</span></div></div></div>';
     if (state.group) {
       var order = [], groups = {};
       c.rows.forEach(function (r) { if (!groups[r.name]) { groups[r.name] = []; order.push(r.name); } });
       rows.forEach(function (r) { groups[r.name].push(r); });
-      order.forEach(function (name) { var g = groups[name]; if (!g.length) return; body += groupRow(name, g, cols.length + 3); g.forEach(function (r) { body += rowHtml(r, cols, true); }); });
-    } else rows.forEach(function (r) { body += rowHtml(r, cols, false); });
-    tableEl.innerHTML = head + "<tbody>" + body + "</tbody>";
+      order.forEach(function (name) { var g = groups[name]; if (!g.length) return; body.appendChild(groupRow(name, g, cols.length + 3)); g.forEach(function (r) { body.appendChild(placeRow(r, cols, true)); }); });
+    } else rows.forEach(function (r) { body.appendChild(placeRow(r, cols, false)); });
+    tableEl.innerHTML = head + '<div class="spec-tbody" role="rowgroup"></div>';
+    tableEl.lastChild.appendChild(body);
     var allBox = tableEl.querySelector("[data-spec-all]"); if (allBox) allBox.indeterminate = !all && some;
     tableEl.hidden = !rows.length; emptyEl.hidden = !!rows.length;
     var count = rows.length + " of " + c.rows.length + " SKUs", el = filtersEl.querySelector("[data-spec-count]");
@@ -288,7 +327,7 @@
     return [r.title, (r.bullets || []).map(function (b) { return "- " + b; }).join("\n"), r.description].filter(Boolean).join("\n\n");
   }
   function drawerHtml(r) {
-    var m = isMattress(), img = r.img || ((DATA.fallbackImg || {})[r.product] || "");
+    var m = isMattress(), img = r.img || "";
     var title = r.name + (m && r.feel ? " " + r.feel : ""), sub = [r.size || "One size", r.color].filter(Boolean).join(" · ");
     var h = '<div class="spec-drawer__head"><div class="spec-drawer__heading"><p class="spec-drawer__eyebrow">' + esc(cat().label) + "</p>" +
       '<h3 class="spec-drawer__title" id="spec-drawer-title" tabindex="-1" data-spec-drawer-title>' + esc(title) + '</h3><p class="spec-drawer__sub">' + esc(sub) + "</p></div>" +
@@ -397,14 +436,54 @@
     emptyEl.querySelector("[data-spec-clear]").hidden = true;
     say("The specs could not be loaded", true);
   }
-  function ensureData(cb) {
-    tableEl.hidden = true; emptyEl.hidden = true;
-    say("Loading specs", true);
-    var s = document.createElement("script");
-    s.src = BASE + "specs-data.js";
-    s.onload = function () { DATA = window.MLILY_SPECS; SIZE_ORDER = DATA.sizeOrder || []; cb(); };
-    s.onerror = loadFailed;
-    document.head.appendChild(s);
+  /* The data comes from the page's Collection Lists: one per tab, plus the shared spec sheets */
+  var CATEGORIES = [["mattress", "Mattresses"], ["base", "Adjustable bases"], ["pillow", "Pillows"], ["bedding", "Bedding"], ["protector", "Protectors"]];
+  var SIZES = ["Twin", "Twin XL", "Full", "Queen", "King", "Cal King", "Split Head King", "Split King", "Split Cal King", "Standard", "Standard/Queen", "One size"];
+  function value(root, key) {
+    var el = root.querySelector('[data-col="' + key + '"]');
+    return el && !el.classList.contains("w-dyn-bind-empty") ? el.textContent.trim() : "";
+  }
+  function lines(v) { return v.split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean); }
+  function maybeNumber(v) { return v !== "" && !isNaN(v) ? Number(v) : v; }
+  function triple(v) { var a = v ? v.split(/\s*x\s*/i).map(Number) : []; return a.length === 3 && a.every(isFinite) ? a : null; }
+  function readSheets() {
+    var out = {};
+    [].forEach.call(source.querySelectorAll("[data-spec-sheets] [data-sheet]"), function (el) {
+      var img = el.querySelector("img");
+      out[el.getAttribute("data-sheet")] = {
+        name: value(el, "name"), feel: value(el, "feel"), color: value(el, "color"), model: value(el, "model"), topMaterial: value(el, "topMaterial"),
+        includes: lines(value(el, "includes")), bullets: lines(value(el, "bullets")), features: lines(value(el, "features")),
+        description: value(el, "description"), keywords: value(el, "keywords"), img: img && !img.classList.contains("w-dyn-bind-empty") ? img.getAttribute("src") : ""
+      };
+    });
+    return out;
+  }
+  function readRow(el, sheets) {
+    var sheet = sheets[el.getAttribute("data-sheet")] || {}, slug = el.getAttribute("data-product") || "", r = {};
+    Object.keys(sheet).forEach(function (k) { r[k] = sheet[k]; });
+    ["sku", "upc", "title", "part", "origin", "warranty", "size", "construction", "coil", "cover", "top", "closure", "water"].forEach(function (k) { var v = value(el, k); if (v || !(k in r)) r[k] = v; });
+    ["color", "feel", "name"].forEach(function (k) { var v = value(el, k); if (v) r[k] = v; });
+    r.msrp = maybeNumber(value(el, "msrp")); if (r.msrp === "") r.msrp = null;
+    r.weight = maybeNumber(value(el, "weight")); if (r.weight === "") r.weight = null;
+    r.layers = maybeNumber(value(el, "layers")); r.pieces = maybeNumber(value(el, "pieces"));
+    r.dims = triple(value(el, "dims")); r.box = triple(value(el, "box"));
+    r.notes = lines(value(el, "notes"));
+    if (slug) r.product = idOf(slug);
+    r._el = el;
+    return r;
+  }
+  function readData() {
+    var sheets = readSheets();
+    DATA = { source: "MLILY 2026 Ecommerce Guide (Universal), Oct 26", msrpSource: "MLILY Price Book 2026", sizeOrder: SIZES };
+    SIZE_ORDER = SIZES;
+    DATA.categories = CATEGORIES.map(function (c) {
+      var rows = [].map.call(source.querySelectorAll('[data-spec-list="' + c[0] + '"] [data-sheet]'), function (el) { return readRow(el, sheets); });
+      return { id: c[0], label: c[1], rows: rows };
+    });
+    DATA.categories.forEach(function (c) { state.cat = c.id; c.rows.forEach(prepareRow); });
+    state.cat = "mattress";
+    source.remove();
+    return DATA.categories.some(function (c) { return c.rows.length; });
   }
   // Mattress links use the page's slug, other products their name: /find-specs?type=pillow&product=…&size=King,Queen
   function readUrl() {
@@ -438,11 +517,10 @@
     window.MLILY_SHELL.addProducts(list);
   }
   function start() {
-    ensureData(function () {
-      readUrl();
-      renderAll();
-      tellShell();
-    });
+    if (!source || !readData()) { loadFailed(); return; }
+    readUrl();
+    renderAll();
+    tellShell();
   }
 
   function toggleCols(open, focusBtn) {
@@ -546,4 +624,5 @@
   wrapEl.addEventListener("scroll", function () { wrapEl.classList.toggle("is-scrolled-x", wrapEl.scrollLeft > 0); }, { passive: true });
 
   start();
+  window.MLILY_SPEC_TABLE = { data: function () { return DATA; } };
 })();
