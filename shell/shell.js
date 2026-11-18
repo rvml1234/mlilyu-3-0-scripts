@@ -553,6 +553,17 @@
   sheet.innerHTML = '<div class="sh-sheet__scrim" data-sh-close></div><div class="sh-sheet__panel"><h2 class="sh-vh" id="sh-sheet-title">Mattresses</h2><div class="sh-sheet__body"></div></div>';
   document.body.appendChild(bar);
   document.body.appendChild(sheet);
+  // Before the bar appears, the breadcrumb's current mattress opens the same list (shell.css shows this button at 1100 px and under)
+  var crumbNow = $(".page-crumbs__current");
+  if (crumbNow && current) {
+    var crumbSwitch = document.createElement("button");
+    crumbSwitch.type = "button"; crumbSwitch.className = "sh-crumb-switch";
+    crumbSwitch.setAttribute("aria-haspopup", "dialog"); crumbSwitch.setAttribute("aria-expanded", "false"); crumbSwitch.setAttribute("aria-controls", "sh-sheet");
+    crumbSwitch.setAttribute("aria-label", "Switch mattress. Current: " + current.name);
+    crumbSwitch.setAttribute("data-sh-sheet-open", "mattresses");
+    crumbSwitch.innerHTML = "<span>" + esc(current.name) + "</span>" + icon("selector", "sh-switch-icon");
+    crumbNow.parentNode.insertBefore(crumbSwitch, crumbNow.nextSibling);
+  }
   var sheetBody = $(".sh-sheet__body", sheet), sheetSecs = [];
   function sectionAt(secs) {   // the last section whose top has reached the landing line
     var line = jumpOffset() + 24, at = -1;
@@ -581,7 +592,7 @@
   document.addEventListener("click", function (e) {
     var o = e.target.closest && e.target.closest("[data-sh-sheet-open]");
     if (o) {
-      if (openLayerEl === sheet && opener === o) { closeLayer(true); return; }   // the same button again closes its list
+      if (openLayerEl === sheet && sheet.getAttribute("data-kind") === o.getAttribute("data-sh-sheet-open")) { closeLayer(true); return; }   // its button again closes the list
       var f = fillSheet(o.getAttribute("data-sh-sheet-open"));
       openLayer(sheet, o, f);
       if (f) f.scrollIntoView({ block: "nearest" });
