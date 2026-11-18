@@ -10,8 +10,8 @@
    3  Menu drawer (☰): the library nav, utilities, language, sign out; Esc, Tab stays inside, focus returns
    4  Account menu: arrows, Home / End, Esc
    5  Theme button: pressed state and saved choice (the light theme isn't built in Webflow yet)
-   6  Mattress index (992 px and up): the current mattress lists this page's sections; jump + scroll spy; search filters; ⌘K / Ctrl K
-   7  Tablet and phone (under 992 px): a bar under the top bar once the title has scrolled past: switch mattress, jump to a section
+   6  Mattress index (1101 px and up): the current mattress lists this page's sections; jump + scroll spy; search filters; ⌘K / Ctrl K
+   7  1100 px and under: a bar under the top bar once the title has scrolled past: switch mattress, jump to a section
    8  Tooltips on the icon buttons */
 (function () {
   "use strict";
@@ -22,6 +22,7 @@
   var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
   var mqDesk = window.matchMedia("(min-width: 992px)");
+  var mqIndex = window.matchMedia("(min-width: 1101px)");
   var isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent || "");
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function shown(n) { return !!n && n.getClientRects().length > 0; }
@@ -116,7 +117,7 @@
 
   /* ---- jumps land under the bars ------------------------------------------------------------------------------------------------------ */
   function topH() { return top.getBoundingClientRect().height || 64; }
-  function jumpOffset() { return mqDesk.matches ? topH() : topH() + 48 + 16; }   // under 992 px: the 56 px bar + the 48 px PDP bar + 16
+  function jumpOffset() { return mqIndex.matches ? topH() : topH() + 48 + 16; }   // 1100 px and under: the top bar + the 48 px PDP bar + 16
   function jumpTo(node) {
     if (!node) return;
     window.scrollTo({ top: Math.max(0, node.getBoundingClientRect().top + window.scrollY - jumpOffset()), behavior: smooth() });

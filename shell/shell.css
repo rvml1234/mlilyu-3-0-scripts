@@ -100,7 +100,7 @@ html[data-theme="dark"] [data-sh-theme] .is-sun { display: block; }
 .sh-item__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .sh-drawer__note { margin: 6px 12px 0; color: var(--sh-mute-frame); font: 400 13px/21px var(--sh-font); }
 
-/* ---- Mattress index (992 px and up) ---------------------------------------------------------------------------------------------------- */
+/* ---- Mattress index (1101 px and up) --------------------------------------------------------------------------------------------------- */
 .side-index__group { display: flex; flex-direction: column; gap: 4px; }
 .side-index__group[hidden], .side-index__sections li[hidden] { display: none; }
 .side-index__group > .side-index__sections { margin-top: 0; }
@@ -116,9 +116,9 @@ html[data-theme="dark"] [data-sh-theme] .is-sun { display: block; }
 .side-index__empty { margin: 0; padding: 4px 11px 0; color: var(--sh-mute-frame); font: 400 13px/18.85px var(--sh-font); }
 .side-index__empty[hidden] { display: none; }
 
-/* ---- tablet and phone: the bar under the top bar, shown once the title has scrolled past --------------------------------------------- */
+/* ---- 1100 px and under: the bar under the top bar, shown once the title has scrolled past --------------------------------------------- */
 .sh-pdpbar { display: none; }
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1100px) {
   .sh-pdpbar { position: fixed; z-index: 69; top: var(--sh-top); left: 0; right: 0; height: var(--sh-pdpbar); display: flex; align-items: center; gap: 4px; padding: 0 8px 0 12px;
     background: var(--sh-frame); color: var(--sh-ink); transform: translateY(-100%); visibility: hidden; transition: transform .24s var(--sh-ease), visibility 0s linear .24s; }
   html.sh-pdpbar-on .sh-pdpbar { transform: none; visibility: visible; transition: transform .24s var(--sh-ease), visibility 0s; }

@@ -83,6 +83,11 @@
   });
 
   /* 2b What a mattress doesn't have -------------------------------------------------------------------------------------------------- */
+  // "For maximum cooling, see …": the CMS gives the mattress, its page comes from the slug (the API can't link an item page)
+  $$(".rail__step-up-link[data-slug]").forEach(function (a) {
+    var slug = a.getAttribute("data-slug");
+    if (slug) a.setAttribute("href", "/mattresses/" + slug);
+  });
   // No feels: no Firmness section. One feel (The Dream): nothing to compare.
   var countItems = function (el) { return el ? $$(".w-dyn-item", el).length : 0; };
   var firmness = $(".variant-group");

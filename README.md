@@ -61,7 +61,8 @@ prototype (mlilyu-3-0-shell: js/shell.js, js/side-index.js, data/nav.js). Webflo
   filters mattresses and sections; ⌘K / Ctrl K focuses it
 - Tablet and phone: a bar under the top bar once the title has scrolled past, with two dropdowns (switch mattress, jump to a section)
 
-Load order on the template page: `shell/shell.css` in the head after `pdp/pdp.css`; `shell/shell.js` in the footer after `pdp/pdp.js`
+Load order on the template page: `pdp/pdp.css`, `pdp/pdp-laptop.css`, then `shell/shell.css` in the head; `shell/shell.js` in the footer after `pdp/pdp.js`
+(`pdp-laptop.css` is generated: after changing tablet styles in Webflow and publishing, run `python3 tools/build-laptop-css.py`)
 (same commit hash). `pdp.js` asks the shell for its jump offset (`window.MLILY_SHELL.jumpOffset()`), 16 px without it.
 
 Hooks: `sh-top`, `data-sh-menu`, `sh-home`, `page-crumbs__link`, `data-sh-search-box` + `sh-search__placeholder`,

@@ -11,6 +11,17 @@
 /* Best for: no label without its text */
 .rail__best-for:has(.w-dyn-bind-empty) { display: none; }
 
+/* "For maximum cooling, see …": only where the mattress names one */
+.rail__step-up:has(.w-dyn-bind-empty) { display: none; }
+.rail__step-up-link::after { content: " \2192"; }
+.rail__step-up-link:hover, .rail__step-up-link:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Pairs with: columns follow the section's own width, as in the prototype */
+.pairs { container-type: inline-size; }
+@container (min-width: 700px) { .pairs__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@container (min-width: 440px) and (max-width: 699.98px) { .pairs__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container (max-width: 439.98px) { .pairs__grid { grid-template-columns: minmax(0, 1fr); } }
+
 /* At a glance: one row, the first four facts that have a value (Build, Thickness, Certified, Warranty, Made in, Ships) */
 .facts__cell:has(.w-dyn-bind-empty),
 .facts__cell:nth-child(n+5 of .facts__cell:not(:has(.w-dyn-bind-empty))) { display: none; }
