@@ -8,6 +8,12 @@
 /* Webflow's "No items found." under an empty list: never shown on the product page (a mattress without a section simply has none) */
 .pdp-page .w-dyn-empty { display: none; }
 
+/* Banner: 1100 px and under use the 5:4 image where the mattress has one, otherwise the wide banner stays */
+@media (max-width: 1100px) {
+  .product-hero__front:has(.product-hero__image-compact:not(.w-dyn-bind-empty)) .product-hero__image { display: none; }
+  .product-hero__image-compact:not(.w-dyn-bind-empty) { display: block; }
+}
+
 /* Best for: no label without its text */
 .rail__best-for:has(.w-dyn-bind-empty) { display: none; }
 
