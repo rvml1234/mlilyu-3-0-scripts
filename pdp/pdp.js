@@ -1,4 +1,4 @@
-/* MLILY U 3.0, product page template (Mattresses): the behaviour the Webflow build can't do on its own. Same behaviour as the prototype
+/* MLILY U 3.0, product page templates (Mattresses and Pillows): the behaviour the Webflow build can't do on its own. Same behaviour as the prototype
    (mlilyu-3-0-shell: js/product-page.js, js/page-actions.js, js/type-marks.js), rewritten for the Webflow markup (README "Product page").
    Needs Swiper 11 (cdnjs) for the photo strip; without it the strip stays a native scroller. Everything here is optional on top of a
    page that already reads correctly without JavaScript.
@@ -16,6 +16,9 @@
   "use strict";
   var main = document.querySelector(".pdp-page");
   if (!main) return;
+  var KIND = main.getAttribute("data-product-kind") === "pillow" ? "pillow" : "mattress";   // set on main.pdp-page in the Pillows template
+  var PRODUCT_BASE = KIND === "pillow" ? "/pillows/" : "/mattresses/";
+  window.MLILY_PRODUCT = { kind: KIND, base: PRODUCT_BASE };
   var HERE = document.currentScript ? document.currentScript.src.replace(/[^/]*$/, "") : "";   // where this file (and its dialogs) is served from
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
@@ -87,14 +90,31 @@
   // "For maximum cooling, see …": the CMS gives the mattress, its page comes from the slug (the API can't link an item page)
   $$(".rail__step-up-link[data-slug]").forEach(function (a) {
     var slug = a.getAttribute("data-slug");
-    if (slug) a.setAttribute("href", "/mattresses/" + slug);
+    if (slug) a.setAttribute("href", PRODUCT_BASE + slug);
   });
   // No feels: no Firmness section. One feel (The Dream): nothing to compare.
   var countItems = function (el) { return el ? $$(".w-dyn-item", el).length : 0; };
   var firmness = $(".variant-group");
-  if (firmness && !countItems(firmness)) firmness.style.display = "none";
+  if (firmness && !$(".variant-card", firmness)) firmness.style.display = "none";
   var feelsSec = $(".feels");
   if (feelsSec && $$(".feels__cells", feelsSec).length < 2) feelsSec.style.display = "none";
+  var faqSec = $(".faq");
+  if (faqSec && !countItems(faqSec)) faqSec.style.display = "none";
+  // Pillows: the collection's two pillows link to each other and keep the catalog order on both pages; What's inside markers sit where the CMS puts them
+  var pillowCards = $(".variant-cards");
+  if (KIND === "pillow" && pillowCards) {
+    var cardOrder = function (card) { return Number($("[data-pillow-card]", card).getAttribute("data-order")) || 0; };
+    $$(".variant-card", pillowCards).sort(function (a, b) { return cardOrder(a) - cardOrder(b); }).forEach(function (card) {
+      var link = $("[data-pillow-card]", card), to = link.getAttribute("data-slug");
+      if (to) link.setAttribute("href", PRODUCT_BASE + to);
+      pillowCards.appendChild(card);
+    });
+  }
+  $$("[data-inside-mark]").forEach(function (m) {
+    if (!m.getAttribute("data-x")) { m.style.display = "none"; return; }   // Essential: the picture is already a labelled drawing
+    m.style.left = m.getAttribute("data-x") + "%";
+    m.style.top = m.getAttribute("data-y") + "%";
+  });
 
   /* 3 Actions row ----------------------------------------------------------------------------------------------------------------------- */
   // Find Specs and Compare: dialogs.js + dialogs.css load the first time they're wanted, so the page itself stays light
@@ -235,7 +255,7 @@
     });
     return out.replace(/[ \t]+/g, " ").trim();
   }
-  // The mattress's sizes and specs come from the page's SKU list in the CMS; Copy page and the Find Specs modal share them
+  // The product's sizes and specs come from the page's SKU list in the CMS; Copy page and the Find Specs modal share them
   var slug = document.documentElement.getAttribute("data-wf-item-slug") || location.pathname.split("/").pop();
   var SIZE_ORDER = ["Twin", "Twin XL", "Full", "Queen", "King", "Cal King", "Split Head King", "Split King", "Split Cal King"];
   function readSpecs() {
@@ -247,14 +267,19 @@
     var rows = $$("[data-pdp-skus] [data-product]").filter(function (row) { return row.getAttribute("data-product") === slug; }).map(function (row, i) {
       return {
         at: i, feel: field(row, "feel"), size: field(row, "size"), sku: field(row, "sku"), upc: field(row, "upc"), part: field(row, "part"),
-        msrp: number(field(row, "msrp")), dims: triple(field(row, "dims")), box: triple(field(row, "box")), weight: number(field(row, "weight")),
+        msrp: number(field(row, "msrp")), note: field(row, "msrp-note"), printed: field(row, "printed"), dims: triple(field(row, "dims")), box: triple(field(row, "box")), weight: number(field(row, "weight")),
         notes: raw(row, "notes").split(/\n+/).map(function (n) { return n.trim(); }).filter(Boolean)
       };
     }).sort(function (a, b) { return sizeAt(a) - sizeAt(b) || a.at - b.at; });
-    return rows.length ? { name: text($(".product-hero__title")), slug: slug, source: "MLILY 2026 Ecommerce Guide (Universal), Oct 26", msrpSource: "MLILY Price Book 2026", rows: rows } : null;
+    return rows.length ? { name: text($(".product-hero__title")), slug: slug, source: "MLILY 2026 Ecommerce Guide (Universal), Oct 26" + (KIND === "pillow" ? "; dimensions from the Pocket Catalog 2026" : ""), msrpSource: "MLILY Price Book 2026", rows: rows } : null;
   }
   window.MLILY_MATTRESS_SPECS = readSpecs();
   function trio(a) { return a && a.length === 3 ? a.join(" × ") + " in" : ""; }
+  function dimsOf(r) { return r.printed || trio(r.dims); }
+  function sizeLabels() {   // pillow chips hold the size and its dimensions as two lines of text
+    return $$(".facts__size").map(function (el) { var parts = $$("p", el).map(text).filter(Boolean); return parts.length ? parts.join(" ") : text(el); }).filter(Boolean);
+  }
+  function insideRows() { return $$(".inside__item").map(function (li) { return [text($(".inside__name", li)), filled($(".inside__desc", li)) ? text($(".inside__desc", li)) : ""]; }).filter(function (r) { return r[0]; }); }
   function layerStacks() {
     var feelNames = $$(".layers__feel").map(text);
     return [$(".layers__lists .w-dyn-list:not(.layers__alt)"), $(".layers__alt")].map(function (l, i) {
@@ -276,16 +301,16 @@
     var chips = $$(".icon-set__caption").map(text).filter(Boolean);
     if (chips.length) out.push("**Highlights:** " + chips.join(", "));
     var feels = $$(".variant-card").map(function (c) { return { label: text($(".variant-card__title", c)), line: text($(".variant-card__desc", c)) }; }).filter(function (f) { return f.label; });
-    if (feels.length) { out.push("## Firmness"); out.push(feels.map(function (f) { return "- **" + f.label + "**" + (f.line ? ": " + f.line : ""); }).join("\n")); }
-    var sizes = $$(".facts__size").map(text).filter(Boolean);
+    if (feels.length) { out.push(KIND === "pillow" ? "## Collection" : "## Firmness"); out.push(feels.map(function (f) { return "- **" + f.label + "**" + (f.line ? ": " + f.line : ""); }).join("\n")); }
+    var sizes = sizeLabels();
     if (sizes.length) out.push("**Sizes:** " + sizes.join(", "));
     var facts = $$(".facts__cell").filter(shown).map(function (c) { return [text($(".facts__label", c)), text($(".facts__value", c))]; }).filter(function (r) { return r[1]; });
     if (facts.length) { out.push("## At a glance"); out.push(facts.map(function (r) { return "- " + r[0] + ": " + r[1]; }).join("\n")); }
     if (specs) {
       var multi = specs.rows.some(function (r) { return r.feel; });
       out.push("## Sizes and specs");
-      out.push(mdTable((multi ? ["Feel"] : []).concat(["Size", "MSRP", "SKU", "UPC", "Mattress", "Box", "Box weight"]), specs.rows.map(function (r) {
-        return (multi ? [r.feel || ""] : []).concat([r.size || "One size", r.msrp != null ? "$" + Number(r.msrp).toLocaleString("en-US") : "", r.sku, r.upc || "", trio(r.dims), trio(r.box), r.weight != null ? r.weight + " lb" : ""]);
+      out.push(mdTable((multi ? ["Feel"] : []).concat(["Size", "MSRP", "SKU", "UPC", KIND === "pillow" ? "Pillow" : "Mattress", "Box", "Box weight"]), specs.rows.map(function (r) {
+        return (multi ? [r.feel || ""] : []).concat([r.size || "One size", r.msrp != null ? "$" + Number(r.msrp).toLocaleString("en-US") : r.note || "", r.sku, r.upc || "", dimsOf(r), trio(r.box), r.weight != null ? r.weight + " lb" : ""]);
       })));
     }
     var stacks = layerStacks();
@@ -303,6 +328,8 @@
       out.push("## Compare the feels");
       out.push(mdTable([""].concat(cols.map(function (c) { return text($(".feels__head", c)); })), labels.map(function (l, i) { return [l].concat(cells.map(function (c) { return c[i] || ""; })); })));
     }
+    var inside = insideRows();
+    if (inside.length) { out.push("## What’s inside"); out.push(inside.map(function (r, i) { return (i + 1) + ". **" + r[0] + "**" + (r[1] ? ": " + r[1] : ""); }).join("\n")); }
     var pairs = $$(".pairs__card").map(function (c) { return [text($(".pairs__name", c)), text($(".pairs__text", c))]; }).filter(function (p) { return p[0]; });
     if (pairs.length) { out.push("## Pairs with"); out.push(pairs.map(function (p) { return "- **" + p[0] + "**" + (p[1] ? ": " + p[1] : ""); }).join("\n")); }
     var faqList = $("[data-faq-all]") || $(".faq__lists .w-dyn-list");
@@ -350,9 +377,11 @@
       if (stacks.length > 1) stacks.forEach(function (st) { para(st.label, { strong: true }); list(st.rows.map(function (r) { return r[0]; })); });
       else list(stacks[0].rows.map(function (r) { return r[0]; }));
     }
+    var insideList = insideRows();
+    if (insideList.length) { head("What’s inside"); list(insideList.map(function (r) { return r[1] ? { label: r[0], text: r[1] } : r[0]; })); }
     var sizes = [], seen = {};
-    (specs ? specs.rows : []).forEach(function (r) { if (r.size && !seen[r.size]) { seen[r.size] = 1; sizes.push(r.size + (trio(r.dims) ? ": " + trio(r.dims) : "")); } });
-    if (!sizes.length) sizes = $$(".facts__size").map(text).filter(Boolean);
+    (specs ? specs.rows : []).forEach(function (r) { if (r.size && !seen[r.size]) { seen[r.size] = 1; sizes.push(r.size + (dimsOf(r) ? ": " + dimsOf(r) : "")); } });
+    if (!sizes.length) sizes = sizeLabels();
     if (sizes.length) { head("Sizes and dimensions"); list(sizes); }
     var facts = filledFacts().filter(function (r) { return r[0] !== "Ships"; });   // Ships is how MLILY ships to the store, not to the shopper
     if (facts.length) { head("Details"); list(facts.map(function (r) { return { label: r[0], text: r[1] }; })); }
@@ -563,6 +592,10 @@
   }
 
   /* 9 Pairs with: external links ---------------------------------------------------------------------------------------------------- */
+  $$(".pairs__card").forEach(function (a) {   // a card with no page in the CMS is not a link
+    var href = a.getAttribute("href");
+    if (!href || href === "#") { a.removeAttribute("href"); a.classList.add("is-static"); }
+  });
   $$('.pairs__card[href^="http"]').forEach(function (a) {
     a.target = "_blank";
     a.rel = "noopener";

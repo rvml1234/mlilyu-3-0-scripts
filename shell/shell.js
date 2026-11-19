@@ -91,7 +91,9 @@
   var PRODUCTS = $$(".side-index__product[data-slug]").map(function (a) {
     return { slug: a.getAttribute("data-slug"), name: a.textContent.replace(/\s+/g, " ").trim(), sub: a.getAttribute("data-sub") || "", el: a };
   }).filter(function (p) { return p.slug; });
-  function productHref(slug) { return "/mattresses/" + slug; }
+  var PRODUCT_PAGE = document.querySelector('[data-product-kind="pillow"]') ? "pillow" : "mattress";
+  var WORDS = PRODUCT_PAGE === "pillow" ? { one: "pillow", many: "pillows", One: "Pillow", Many: "Pillows", base: "/pillows/" } : { one: "mattress", many: "mattresses", One: "Mattress", Many: "Mattresses", base: "/mattresses/" };
+  function productHref(slug) { return WORDS.base + slug; }
   PRODUCTS.forEach(function (p) {
     p.el.setAttribute("href", productHref(p.slug));
     if (p.slug === CUR) p.el.setAttribute("aria-current", "page");
@@ -288,7 +290,7 @@
     var groupOf = {};
     NAV.groups.forEach(function (g) { g.items.forEach(function (it) { groupOf[it.id] = g.label; }); });
     PRODUCTS.forEach(function (p) {
-      INDEX.push({ kind: "product", label: p.name, sub: p.sub || "Mattress", href: productHref(p.slug), icon: "products", words: (p.sub + " mattress").toLowerCase() });
+      INDEX.push({ kind: "product", label: p.name, sub: p.sub || WORDS.One, href: productHref(p.slug), icon: "products", words: (p.sub + " " + WORDS.one).toLowerCase() });
     });
     INDEX.push({ kind: "page", label: "Library home", sub: "MLILY U", href: NAV.home.href, icon: "home", words: "home library start" });
     ALL.slice(1).forEach(function (it) { INDEX.push({ kind: "page", label: it.label, sub: groupOf[it.id] + " · " + it.meta, href: it.href, icon: it.icon, words: it.job || "" }); });
@@ -323,10 +325,10 @@
       });
       html += "</div>";
     }
-    group("Mattresses", prods);
+    group(WORDS.Many, prods);
     group("Pages", pages);
-    if (!shownHits.length) html += '<p class="sh-results__note">No pages or mattresses match “' + esc(input.value.trim()) + "”.</p>";
-    html += '<p class="sh-results__note">Files and PDFs join this search later. For now it finds pages and mattresses.</p>';
+    if (!shownHits.length) html += '<p class="sh-results__note">No pages or ' + WORDS.many + ' match “' + esc(input.value.trim()) + "”.</p>";
+    html += '<p class="sh-results__note">Files and PDFs join this search later. For now it finds pages and ' + WORDS.many + ".</p>";
     results.innerHTML = html;
     results.hidden = false;
     input.setAttribute("aria-expanded", "true");
@@ -449,7 +451,7 @@
     var sInput = document.createElement("input");
     sInput.type = "search"; sInput.className = "side-index__input";
     sInput.placeholder = sPh ? sPh.textContent.trim() : "Search";
-    sInput.setAttribute("aria-label", "Search mattresses and sections");
+    sInput.setAttribute("aria-label", "Search " + WORDS.many + " and sections");
     sInput.autocomplete = "off"; sInput.spellcheck = false;
     if (sPh) sPh.parentNode.replaceChild(sInput, sPh);
     if (sKbd && !isMac) sKbd.textContent = "Ctrl K";
@@ -542,15 +544,15 @@
   var reveal = function () {};   // the layers call this; only mattress pages have the bar it shows
   if ($(".pdp-page")) (function () {
   var bar = document.createElement("div");
-  bar.className = "sh-pdpbar"; bar.setAttribute("role", "navigation"); bar.setAttribute("aria-label", "Mattress index");
+  bar.className = "sh-pdpbar"; bar.setAttribute("role", "navigation"); bar.setAttribute("aria-label", WORDS.One + " index");
   bar.innerHTML = '<button type="button" class="sh-js-btn sh-pdpbar__switch" aria-haspopup="dialog" aria-expanded="false" aria-controls="sh-sheet" data-sh-sheet-open="mattresses">' +
-      '<span class="sh-pdpbar__name">' + esc(current ? current.name : "Mattresses") + "</span>" + icon("selector", "sh-switch-icon") + "</button>" +
+      '<span class="sh-pdpbar__name">' + esc(current ? current.name : WORDS.Many) + "</span>" + icon("selector", "sh-switch-icon") + "</button>" +
     '<button type="button" class="sh-js-btn sh-pdpbar__sections" aria-haspopup="dialog" aria-expanded="false" aria-controls="sh-sheet" data-sh-sheet-open="sections" aria-label="On this page">' +
       '<span class="sh-pdpbar__section" data-sh-section-name>On this page</span>' + icon("caret", "sh-caret") + "</button>";
   var sheet = document.createElement("div");
   sheet.className = "sh-sheet"; sheet.id = "sh-sheet"; sheet.hidden = true;
   sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true"); sheet.setAttribute("aria-labelledby", "sh-sheet-title");
-  sheet.innerHTML = '<div class="sh-sheet__scrim" data-sh-close></div><div class="sh-sheet__panel"><h2 class="sh-vh" id="sh-sheet-title">Mattresses</h2><div class="sh-sheet__body"></div></div>';
+  sheet.innerHTML = '<div class="sh-sheet__scrim" data-sh-close></div><div class="sh-sheet__panel"><h2 class="sh-vh" id="sh-sheet-title">' + WORDS.Many + '</h2><div class="sh-sheet__body"></div></div>';
   document.body.appendChild(bar);
   document.body.appendChild(sheet);
   // Before the bar appears, the breadcrumb's current mattress opens the same list (shell.css shows this button at 1100 px and under)
@@ -559,7 +561,7 @@
     var crumbSwitch = document.createElement("button");
     crumbSwitch.type = "button"; crumbSwitch.className = "sh-crumb-switch";
     crumbSwitch.setAttribute("aria-haspopup", "dialog"); crumbSwitch.setAttribute("aria-expanded", "false"); crumbSwitch.setAttribute("aria-controls", "sh-sheet");
-    crumbSwitch.setAttribute("aria-label", "Switch mattress. Current: " + current.name);
+    crumbSwitch.setAttribute("aria-label", "Switch " + WORDS.one + ". Current: " + current.name);
     crumbSwitch.setAttribute("data-sh-sheet-open", "mattresses");
     crumbSwitch.innerHTML = "<span>" + esc(current.name) + "</span>" + icon("selector", "sh-switch-icon");
     crumbNow.parentNode.insertBefore(crumbSwitch, crumbNow.nextSibling);
@@ -581,7 +583,7 @@
       }).join("") + "</ul>";
       return $("[data-sh-jump][aria-current]", sheetBody) || $("[data-sh-jump]", sheetBody);
     }
-    $("#sh-sheet-title").textContent = "Mattresses";
+    $("#sh-sheet-title").textContent = WORDS.Many;
     sheetBody.innerHTML = '<ul class="sh-sheet__list">' + PRODUCTS.map(function (p) {
       var cur = p.slug === CUR;
       return '<li><a class="sh-sheet__link" href="' + esc(productHref(p.slug)) + '"' + (cur ? ' aria-current="page"' : "") + ' data-sh-product><span class="sh-sheet__name">' + esc(p.name) +

@@ -48,6 +48,10 @@ Hooks it relies on (Webflow class names): `pdp-page`, `page-action` + `data-acti
 `layers__feel`, `layers__lists`, `layers__alt`, `faq__lists`, `faq__extra`, `data-faq-more`, `pairs__card` / `__name` / `__ext`.
 Test locally: save the published page as `pdp/_test.html` with these four files added, and serve the folder (not committed).
 
+## Product page (Pillows template, 2026-11-18)
+
+The Pillows template loads the same `pdp/` and `shell/` files as Mattresses. `main.pdp-page[data-product-kind="pillow"]` switches the page links, labels, Compare rows and specs to pillows. The two collection cards use `[data-pillow-card]` (`data-slug`, `data-order`), What's inside markers use `[data-inside-mark]` (`data-x`, `data-y`), and the Sizes list doubles as `[data-pdp-skus]`. In Webflow, four lists need the current item set in Designer: Highlights (source Badges of Current Pillow), Sizes (Pillow = Current Pillow), Photos (Pillow = Current Pillow) and Common questions (source FAQs of Current Pillow).
+
 ## Shell (top bar + Mattress index, 2026-11-17)
 
 `shell/shell.js` and `shell/shell.css`: the behaviour of the Webflow shell (`header.sh-top`, `aside.side-index`), the same as the

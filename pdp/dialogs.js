@@ -7,8 +7,10 @@
   function pageName() { var t = document.querySelector(".product-hero__title"); return t ? t.textContent.replace(/\s+/g, " ").trim() : ""; }
   document.body.insertAdjacentHTML("beforeend", "<dialog class=\"mdl page-dialog page-dialog--compare\" aria-labelledby=\"compare-title\" data-compare-dialog><header class=\"page-dialog__head\"><h2 class=\"page-dialog__title\" id=\"compare-title\">Compare</h2><button type=\"button\" class=\"page-dialog__close\" data-dialog-close aria-label=\"Close\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M3.5 3.5l9 9M12.5 3.5l-9 9\"/></svg></button></header><div class=\"page-dialog__body\"><div class=\"compare__pick\"><label class=\"compare__label\" for=\"compare-with\">Compare <span data-compare-current></span> with</label><span class=\"compare__select-wrap\"><select class=\"compare__select\" id=\"compare-with\" data-compare-select></select><svg class=\"compare__chev\" viewBox=\"0 0 16 16\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 6l4 4 4-4\"/></svg></span></div><table class=\"compare__table\" data-compare-table></table></div></dialog><dialog class=\"mdl page-dialog page-dialog--specs\" aria-labelledby=\"specs-title\" data-specs-dialog><header class=\"page-dialog__head\"><h2 class=\"page-dialog__title\" id=\"specs-title\" data-specs-title>Find Specs</h2><button type=\"button\" class=\"page-dialog__close\" data-dialog-close aria-label=\"Close\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M3.5 3.5l9 9M12.5 3.5l-9 9\"/></svg></button></header><div class=\"page-dialog__body specs-body\"><div class=\"specs-feels\" role=\"group\" aria-label=\"Feel\" data-specs-feels hidden></div><div data-specs-list></div><p class=\"specs-source\" data-specs-source></p></div><footer class=\"specs-foot\"><button type=\"button\" class=\"page-action page-action--primary\" data-specs-copy-table><span class=\"page-action__label\">Copy table</span></button><a class=\"page-action\" href=\"/find-specs\"><span class=\"page-action__label\">Open full Find Specs</span></a></footer><p class=\"visually-hidden\" role=\"status\" aria-live=\"polite\" data-specs-status></p></dialog>");
 
-  /* ------------------------------------------------------------------ Find Specs, for this mattress
-     A quick lookup: this mattress's sizes, one feel at a time. Everything else is on the Find Specs page. */
+  var PRODUCT = window.MLILY_PRODUCT || { kind: "mattress", base: "/mattresses/" }, PILLOW = PRODUCT.kind === "pillow";
+
+  /* ------------------------------------------------------------------ Find Specs, for this product
+     A quick lookup: this product's sizes, one feel at a time. Everything else is on the Find Specs page. */
   (function () {
     var box = document.querySelector("[data-specs-dialog]");
     function $(sel) { return box.querySelector(sel); }
@@ -35,9 +37,9 @@
       var body = rows().map(function (r, i) {
         var id = "specs-more-" + i, notes = r.notes || [];
         return '<tr class="specs-row"><th scope="row" data-specs-size>' + esc(r.size || "One size") + (notes.length ? '<span class="specs-check">Check</span>' : "") + "</th>" +
-          '<td data-label="SKU">' + code(r.sku, "SKU") + '</td><td data-label="UPC">' + code(r.upc, "UPC") + '</td><td class="specs-msrp" data-label="MSRP">' + esc(money(r.msrp)) + "</td>" +
+          '<td data-label="SKU">' + code(r.sku, "SKU") + '</td><td data-label="UPC">' + code(r.upc, "UPC") + '</td><td class="specs-msrp" data-label="MSRP">' + esc(money(r.msrp) || r.note || "") + "</td>" +
           '<td class="specs-toggle"><button type="button" class="specs-more" aria-expanded="false" aria-controls="' + id + '" aria-label="More about ' + esc(r.size || "this size") + '" data-specs-more>' + CHEV + "</button></td></tr>" +
-          '<tr class="specs-detail" id="' + id + '" hidden><td colspan="5"><dl>' + fact("Mattress (W × L × H in)", trio(r.dims)) + fact("Box (L × W × H in)", trio(r.box)) + fact("Box weight", r.weight != null ? r.weight + " lb" : "") + fact("Part number", r.part) + "</dl>" +
+          '<tr class="specs-detail" id="' + id + '" hidden><td colspan="5"><dl>' + (PILLOW ? fact("Pillow", r.printed) : fact("Mattress (W × L × H in)", trio(r.dims))) + fact("Box (L × W × H in)", trio(r.box)) + fact("Box weight", r.weight != null ? r.weight + " lb" : "") + fact("Part number", r.part) + "</dl>" +
           (notes.length ? '<ul class="specs-notes">' + notes.map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>" : "") + "</td></tr>";
       }).join("");
       listEl.innerHTML = '<table class="specs-table"><caption class="visually-hidden">' + esc(data.name + (feel ? " " + feel : "")) + ' specs by size</caption><thead><tr><th scope="col">Size</th><th scope="col">SKU</th><th scope="col">UPC</th><th scope="col" class="specs-msrp">MSRP</th><th scope="col"><span class="visually-hidden">More</span></th></tr></thead><tbody>' + body + "</tbody></table>";
@@ -53,9 +55,9 @@
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, fallback); else fallback();
     }
     function tableText() {
-      var head = ["Mattress", "Feel", "Size", "SKU", "UPC", "MSRP (USD)", "Mattress W x L x H (in)", "Box L x W x H (in)", "Box weight (lb)"];
+      var noun = PILLOW ? "Pillow" : "Mattress", head = [noun, "Feel", "Size", "SKU", "UPC", "MSRP (USD)", PILLOW ? "Pillow dimensions" : "Mattress W x L x H (in)", "Box L x W x H (in)", "Box weight (lb)"];
       return [head].concat(rows().map(function (r) {
-        return [data.name, r.feel || "", r.size || "One size", r.sku, r.upc || "", r.msrp == null ? "" : r.msrp, trio(r.dims), trio(r.box), r.weight == null ? "" : r.weight];
+        return [data.name, r.feel || "", r.size || "One size", r.sku, r.upc || "", r.msrp == null ? r.note || "" : r.msrp, PILLOW ? r.printed || "" : trio(r.dims), trio(r.box), r.weight == null ? "" : r.weight];
       })).map(function (line) { return line.join("\t"); }).join("\n");
     }
     function load() {
@@ -94,6 +96,7 @@
       opener = trigger || document.activeElement;
       return load().then(function () {
         titleEl.textContent = data.name + " specs";
+        if (PILLOW) box.querySelector('a[href^="/find-specs"]').setAttribute("href", "/find-specs?type=pillow");
         sourceEl.textContent = "Specs: " + data.source + " · MSRP: " + data.msrpSource;
         var list = feels();
         if (list.indexOf(feel) < 0) feel = list[0] || "";
@@ -104,7 +107,7 @@
   })();
 
   /* ------------------------------------------------------------------ Compare
-     Every fact comes from the mattress pages themselves (the CMS), so there is no second copy of them to keep up to date. */
+     Every fact comes from the product pages themselves (the CMS), so there is no second copy of them to keep up to date. */
   (function () {
     var box = document.querySelector("[data-compare-dialog]");
     var select = box.querySelector("[data-compare-select]"), table = box.querySelector("[data-compare-table]");
@@ -119,21 +122,27 @@
         return hit ? text(hit.querySelector(".facts__value")) : "";
       }
       var height = cell("Thickness").replace(/\s*in$/, "”"), feels = all(doc, ".variant-card__title").map(text).filter(Boolean);
+      var sizes = all(doc, ".facts__size").map(function (el) { var parts = all(el, "p").map(text).filter(Boolean); return parts.length ? parts.join(" ") : text(el); }).filter(Boolean).join(", ");
+      var highlights = all(doc, ".icon-set__caption").map(text).filter(Boolean).join(", ");
+      if (PILLOW) return {
+        name: text(doc.querySelector(".product-hero__title")),
+        rows: [["Cover", cell("Cover")], ["Fill", cell("Fill")], ["Warranty", cell("Warranty")], ["Case pack", cell("Case pack")], ["Highlights", highlights], ["Sizes", sizes]]
+      };
       return {
         name: text(doc.querySelector(".product-hero__title")),
         rows: [
           ["Build", (height ? height + " " : "") + cell("Build")],
           ["Feels", feels.length ? feels.join(" · ") : "One feel"],
           ["Warranty", cell("Warranty")],
-          ["Highlights", all(doc, ".icon-set__caption").map(text).filter(Boolean).join(", ")],
+          ["Highlights", highlights],
           ["Best for", text(doc.querySelector(".rail__best-for-text")) || "—"],
-          ["Sizes", all(doc, ".facts__size").map(text).filter(Boolean).join(", ")],
+          ["Sizes", sizes],
           ["Ships", cell("Ships")]
         ]
       };
     }
     function load(slug) {
-      if (!pages[slug]) pages[slug] = fetch("/mattresses/" + slug).then(function (r) {
+      if (!pages[slug]) pages[slug] = fetch(PRODUCT.base + slug).then(function (r) {
         if (!r.ok) throw new Error("page");
         return r.text();
       }).then(function (html) { return facts(new DOMParser().parseFromString(html, "text/html")); });
@@ -152,14 +161,15 @@
         table.innerHTML = html + "</tbody>";
       }).catch(function () {
         delete pages[select.value];
-        if (ticket === asked) table.innerHTML = '<tbody><tr><td>That mattress could not be loaded. Please try again.</td></tr></tbody>';
+        if (ticket === asked) table.innerHTML = '<tbody><tr><td>' + (PILLOW ? "That pillow" : "That mattress") + ' could not be loaded. Please try again.</td></tr></tbody>';
       }).then(function () { if (ticket === asked) table.removeAttribute("aria-busy"); });
     }
     select.addEventListener("change", render);
     box.addEventListener("click", function (e) { if (e.target === box || (e.target.closest && e.target.closest("[data-dialog-close]"))) box.close(); });
     box.addEventListener("close", function () { if (opener && opener.focus) opener.focus(); opener = null; });
     compareOpen = function (trigger) {
-      var slug = pageSlug();
+      var slug = pageSlug(), sibling = document.querySelector('[data-pillow-card="sibling"]');
+      if (sibling) PAIR[slug] = sibling.getAttribute("data-slug");
       box.querySelector("[data-compare-current]").textContent = pageName();
       select.innerHTML = all(document, ".side-index__product[data-slug]").filter(function (a) { return a.getAttribute("data-slug") !== slug; }).map(function (a) {
         var s = a.getAttribute("data-slug");

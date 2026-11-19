@@ -128,3 +128,17 @@
   .photo-strip__img, .photo-strip__nav, .page-more__chevron, .page-copy__more svg { transition: none; }
   .photo-strip__img:hover, .photo-strip.is-pressed .photo-strip__img { transform: none; }
 }
+
+/* Pillows: the collection cards mark the page showing; badges without an icon and callouts without text collapse; a pairing with no page isn't a link */
+.variant-card__body[aria-current="page"] { cursor: default; }
+.variant-card__body[aria-current="page"] .variant-card__title::after { content: "\00a0\00b7\00a0This page"; font-weight: 400; color: #a1a1a2; }
+.icon-set__art:has(img[src*="icon-shredded-memory-foam"]) { --art-w: 24.95px; --art-h: 16.84px; --icon-x: -1.2px; --icon-y: -5.38px; --icon-s: 27.36px; }
+.icon-set__art:has(img[src*="icon-5-year-warranty"]) { --art-w: 14.73px; --art-h: 16.7px; --icon-x: -1.95px; --icon-y: -.98px; --icon-s: 18.66px; }
+.icon-set__art:has(img[src*="icon-breathable-design"]) { --art-w: 22.54px; --art-h: 16.68px; --icon-x: -1.33px; --icon-y: -4.29px; --icon-s: 25.2px; }
+.icon-set__art:has(img[src*="icon-adapts-to-head-and-neck"]) { --art-w: 21.41px; --art-h: 16.98px; --icon-x: -.98px; --icon-y: -3.33px; --icon-s: 23.4px; }
+.icon-set__art:has(img[src*="icon-luxury-softness"]) { --art-w: 19.84px; --art-h: 17.33px; --icon-x: -.91px; --icon-y: -2.16px; --icon-s: 21.95px; }
+.icon-set__art:has(img[src*="icon-bamboo-charcoal-memory-foam"]) { --art-w: 15.51px; --art-h: 16.9px; --icon-x: -1.59px; --icon-y: -1.02px; --icon-s: 18.72px; }
+.icon-set__art:has(.w-dyn-bind-empty) { display: none; }
+.inside__desc.w-dyn-bind-empty { display: none; }
+.pairs__card.is-static { cursor: default; }
+.pairs__card.is-static .pairs__ext { display: none; }
